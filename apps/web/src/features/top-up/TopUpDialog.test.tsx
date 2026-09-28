@@ -229,8 +229,12 @@ test("keeps the form filled after a decline", async () => {
   renderDialog();
   await open(ue);
   await pay(ue, "1234123412340002");
-  const title = await screen.findByText("Top-up declined");
-  expect(screen.getByText("Your balance did not change.")).toBeInTheDocument();
+  const title = await screen.findByText("Declined: insufficient funds");
+  expect(
+    screen.getByText(
+      "Your balance did not change. The card doesn't have enough funds. Try a smaller amount or another card.",
+    ),
+  ).toBeInTheDocument();
   const alert = title.closest("[role=alert]");
   expect(alert).toHaveFocus();
   expect(screen.getByLabelText("CVV")).toHaveValue("543");
@@ -342,4 +346,182 @@ test("checks the server again each time the dialog opens", async () => {
   await ue.click(screen.getByRole("button", { name: "Cancel" }));
   await open(ue);
   await waitFor(() => expect(healthCalls(fetchMock)).toHaveLength(first + 2));
+});
+
+function declineWith(status_detail: string, card_number = "1234123412340002") {
+  return stubFetch((_input, init) =>
+    Promise.resolve(
+      Response.json(
+        {
+          ...approvedExample,
+          status: "rejected",
+          status_detail,
+          authorization_code: null,
+          card: { ...approvedExample.card, card_number, security_code: null },
+          reference: keyOf(init),
+        },
+        { status: 402 },
+      ),
+    ),
+  );
+}
+
+test("names a card-number decline and marks the field", async () => {
+  declineWith("cc_rejected_bad_filled_card_number", "111122******4444");
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  await pay(ue, "1111222233334444");
+  expect(
+    await screen.findByText("Declined: card not recognized"),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      "Your balance did not change. Check the card number and try again.",
+    ),
+  ).toBeInTheDocument();
+  const cardNumber = screen.getByLabelText("Card number");
+  await waitFor(() =>
+    expect(cardNumber).toHaveAttribute("aria-invalid", "true"),
+  );
+  expect(screen.getByText("Doesn't match this card.")).toBeInTheDocument();
+  const declined = await screen.findByText("$150.00 · Card not recognized");
+  expect(declined.closest("[data-sonner-toast]")).toHaveTextContent(
+    "Top-up declined",
+  );
+  await ue.type(cardNumber, "{backspace}5");
+  await waitFor(() =>
+    expect(
+      screen.queryByText("Doesn't match this card."),
+    ).not.toBeInTheDocument(),
+  );
+});
+
+test("marks the expiry and the CVV for their declines", async () => {
+  for (const [detail, title, label] of [
+    ["cc_rejected_bad_filled_date", "Declined: wrong expiry date", "Expiry"],
+    [
+      "cc_rejected_bad_filled_security_code",
+      "Declined: wrong security code",
+      "CVV",
+    ],
+  ] as const) {
+    declineWith(detail, "1234123412341234");
+    const ue = userEvent.setup();
+    const { unmount } = render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TopUpDialog user={user} />
+      </QueryClientProvider>,
+    );
+    await open(ue);
+    await pay(ue);
+    expect(await screen.findByText(title)).toBeInTheDocument();
+    const field = screen.getByLabelText(label);
+    await waitFor(() => expect(field).toHaveAttribute("aria-invalid", "true"));
+    expect(screen.getByText("Doesn't match this card.")).toBeInTheDocument();
+    unmount();
+  }
+});
+
+test("shows insufficient funds without marking a field", async () => {
+  declineWith("cc_rejected_insufficient_amount");
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  await pay(ue, "1234123412340002");
+  expect(
+    await screen.findByText("Declined: insufficient funds"),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      "Your balance did not change. The card doesn't have enough funds. Try a smaller amount or another card.",
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText("Doesn't match this card."),
+  ).not.toBeInTheDocument();
+});
+
+test("names SnailPay's outage on a Failed Top-up", async () => {
+  stubFetch((_input, init) =>
+    Promise.resolve(
+      Response.json(
+        {
+          id: null,
+          status: "error",
+          status_detail: "service_unavailable",
+          transaction_amount: 15000,
+          date_created: null,
+          authorization_code: null,
+          reference: keyOf(init),
+          payer_id: user.id,
+          payer_email: user.email,
+          card: {
+            card_number: "1234123412341234",
+            expiration_date: "12/26",
+            security_code: null,
+            cardholder_name: "Ana López",
+          },
+        },
+        { status: 503 },
+      ),
+    ),
+  );
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  await pay(ue);
+  expect(
+    await screen.findByText("SnailPay is unavailable"),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      "Nothing was charged and your balance did not change. Try again in a few moments.",
+    ),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+  const failed = await screen.findByText("$150.00 · SnailPay was unavailable");
+  expect(failed.closest("[data-sonner-toast]")).toHaveTextContent(
+    "Top-up failed",
+  );
+  const ledger = readLedger(user.id);
+  expect(ledger.balanceCents).toBe(0);
+  expect(ledger.topUps).toHaveLength(1);
+  expect(ledger.topUps[0]?.outcome).toBe("failed");
+  expect(ledger.topUps[0]?.charge?.status_detail).toBe("service_unavailable");
+});
+
+test("Try again sends a new Top-up with a new key", async () => {
+  const fetchMock = declineWith("cc_rejected_insufficient_amount");
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  await pay(ue, "1234123412340002");
+  const again = await screen.findByRole("button", { name: "Try again" });
+  await waitFor(() => expect(again).toBeEnabled());
+  await ue.click(again);
+  await waitFor(() => expect(chargeCalls(fetchMock)).toHaveLength(2));
+  const [first, second] = chargeCalls(fetchMock).map(([, init]) => keyOf(init));
+  expect(first).not.toBe(second);
+  await waitFor(() =>
+    expect(readLedger(user.id).topUps.map((t) => t.outcome)).toEqual([
+      "declined",
+      "declined",
+    ]),
+  );
+});
+
+test("lists the four test cards", async () => {
+  stubFetch(healthy);
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  for (const text of [
+    "All use expiry 12/26 and CVV 543.",
+    "1234 1234 1234 1234 · Approved",
+    "1234 1234 1234 0002 · Declined: insufficient funds",
+    "1234 1234 1234 0003 · Declined: security",
+    "1234 1234 1234 0004 · No answer in time (timeout)",
+  ])
+    expect(screen.getByText(text)).toBeInTheDocument();
 });

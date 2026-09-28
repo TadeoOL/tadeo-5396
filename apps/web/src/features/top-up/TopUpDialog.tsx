@@ -2,44 +2,50 @@ import type { ChargeRequest } from "@snailrace/contracts";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CircleHelp, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { healthQuery } from "@/api/health";
 import { createCharge } from "@/api/snailpay";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { formatMxn } from "@/lib/format";
 import {
   settleTopUp,
   startTopUp,
   useLedger,
-  type TopUpOutcome,
+  type TopUp,
 } from "@/storage/ledger";
 import type { User } from "@/storage/users";
+import { announceOutcome } from "./announce";
 import { outcomeOfCharge } from "./outcome";
+import { copyOf, MISMATCHED_FIELD } from "./outcome-copy";
 import type { TopUpFormValues } from "./schema";
 import { TopUpForm, type TopUpAlert } from "./TopUpForm";
 import { TopUpReceipt } from "./TopUpReceipt";
 
-const ALERTS: Partial<Record<TopUpOutcome, TopUpAlert>> = {
-  declined: {
-    tone: "destructive",
-    icon: X,
-    title: "Top-up declined",
-    body: "Your balance did not change.",
-  },
-  failed: {
-    tone: "destructive",
-    icon: TriangleAlert,
-    title: "Top-up failed",
-    body: "Your balance did not change.",
-  },
-  unknown: {
-    tone: "warning",
-    icon: CircleHelp,
-    title: "Payment not confirmed yet",
-    body: "Your balance won't change until it's confirmed.",
-  },
-};
+function alertOf(topUp: TopUp | undefined): TopUpAlert | null {
+  if (!topUp) return null;
+  const copy = copyOf(topUp.charge);
+  if (topUp.outcome === "declined")
+    return {
+      tone: "destructive",
+      icon: X,
+      title: copy.title,
+      body: "Your balance did not change. " + copy.body,
+    };
+  if (topUp.outcome === "failed")
+    return {
+      tone: "destructive",
+      icon: TriangleAlert,
+      title: copy.title,
+      body: copy.body,
+    };
+  if (topUp.outcome === "unknown")
+    return {
+      tone: "warning",
+      icon: CircleHelp,
+      title: "Payment not confirmed yet",
+      body: "Your balance won't change until it's confirmed.",
+    };
+  return null;
+}
 
 export function TopUpDialog(props: {
   user: Pick<User, "id" | "fullName" | "email">;
@@ -96,12 +102,8 @@ export function TopUpDialog(props: {
         },
       },
       {
-        onSuccess: ({ outcome }) => {
-          if (outcome !== "credited") return;
-          toast.success("Top-up approved", {
-            description: `+${formatMxn(values.amountCents)} added to your balance.`,
-          });
-        },
+        onSuccess: (settled) =>
+          announceOutcome({ amountCents: values.amountCents, ...settled }),
       },
     );
   }
@@ -127,7 +129,12 @@ export function TopUpDialog(props: {
             defaultName={user.fullName}
             processing={topUp?.outcome === "pending"}
             submitDisabled={server !== "ready" || mutation.isPending}
-            alert={(topUp && ALERTS[topUp.outcome]) ?? null}
+            alert={alertOf(topUp)}
+            mismatchedField={
+              topUp?.outcome === "declined" && topUp.charge
+                ? (MISMATCHED_FIELD[topUp.charge.status_detail] ?? null)
+                : null
+            }
             server={server}
             onRetryServer={() => void health.refetch()}
             onSubmit={submit}
