@@ -20,8 +20,8 @@ const webDist = path.join(import.meta.dirname, "../../web/dist");
 
 export function createApp(deps: AppDeps): express.Express {
   const app = express();
-  // Assumed until measured on the first Render deploy (docs/deployment.md#proxy-hop-count).
-  app.set("trust proxy", 1);
+  // Measured on Render on 2026-09-28: 3 hops (docs/deployment.md#proxy-hop-count).
+  app.set("trust proxy", 3);
   app.use(requestId, requestLog, helmet());
   // Before the global JSON parser: SnailPay parses its own bodies, so its errors answer in the Charge shape.
   app.use("/api/snailpay", createSnailPayRouter(deps));
