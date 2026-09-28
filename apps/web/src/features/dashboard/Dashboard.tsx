@@ -1,6 +1,8 @@
 import { ScreenTitle } from "@/app/ScreenTitle";
 import { formatMxn } from "@/lib/format";
+import { SimulationControls } from "@/features/top-up/SimulationControls";
 import { TopUpDialog } from "@/features/top-up/TopUpDialog";
+import { TopUpHistory } from "@/features/top-up/TopUpHistory";
 import { useLedger } from "@/storage/ledger";
 import { useSession } from "@/storage/session";
 import type { User } from "@/storage/users";
@@ -24,6 +26,8 @@ export function Dashboard() {
         </p>
       </div>
       <BalanceRegion user={user} />
+      <TopUpHistory userId={user.id} />
+      <SimulationControls />
     </div>
   );
 }
@@ -33,7 +37,7 @@ function BalanceRegion({ user }: { user: User }) {
   return (
     <section
       aria-labelledby="balance-heading"
-      className="flex flex-wrap items-end justify-between gap-4 px-4 pt-4 pb-6 md:px-6"
+      className="flex flex-wrap items-end justify-between gap-4 border-b-[1.5px] border-dashed px-4 pt-4 pb-6 md:px-6"
     >
       <h3 id="balance-heading">Balance</h3>
       <p>
