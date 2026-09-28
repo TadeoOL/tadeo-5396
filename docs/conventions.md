@@ -37,6 +37,7 @@ Every implementation issue follows these rules. They were decided in the ticket 
   - `typescript-eslint` `recommendedTypeChecked`. It catches `no-floating-promises` and `no-misused-promises` in async payment code.
   - For the frontend: `eslint-plugin-react-hooks` and `eslint-plugin-react-refresh`, the same plugins as the Vite `react-ts` template.
   - Also for the frontend: `eslint-plugin-jsx-a11y` `recommended`, added by [the frontend stack](specs/frontend-stack.md#accessibility).
+  - Also for the frontend: a `no-restricted-syntax` rule that bans `dangerouslySetInnerHTML`, added by [the security baseline](specs/security.md#xss).
 - **Prettier** with its defaults and no config file. There is no `eslint-config-prettier`: neither ESLint 9 nor `typescript-eslint` enables formatting rules, so there is nothing to switch off.
 - **TypeScript**: every package extends one shared base `tsconfig`, which turns on:
   - `strict`
@@ -76,7 +77,7 @@ A single workflow, `.github/workflows/ci.yml`:
 - **One job, `ci`**, with these steps:
   1. Checkout.
   2. `actions/setup-node`, reading `node-version-file: .nvmrc`, with the npm cache on.
-  3. `npm ci`.
+  3. `npm ci`, then `npm audit --omit=dev --audit-level=high` ([security baseline](specs/security.md#transport-and-dependencies)).
   4. `typecheck`, `lint`, `format:check`, `test`.
   5. `build`.
 - **No version matrix.**

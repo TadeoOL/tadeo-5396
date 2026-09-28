@@ -101,11 +101,11 @@ Every response from the Charge routes has **one shape**, whatever the result, so
 | `reference` | The `X-Idempotency-Key`, echoed. |
 | `payer_id` | Echoed. |
 | `payer_email` | Echoed. |
-| `card` | `{ card_number, expiration_date, security_code, cardholder_name }`, echoed verbatim. |
+| `card` | `{ card_number, expiration_date, security_code, cardholder_name }`, echoed. A number outside the Scenario catalog is masked (see below). |
 | `errors` | Only on `400`: `[{ field, message }]`. |
 
 - **Echoed** means the value the request sent, or `null` if it could not be read (possible only on `400`).
-- **The Card is returned unmasked.** The brief requires the card number and CVV to be in the response and in localStorage. That is acceptable only because they are always fictitious. How the UI masks them is decided by the security baseline.
+- **Scenario cards are returned unmasked.** The brief requires the card number and CVV to be in the response and in localStorage, and to be always fictitious. SnailPay echoes a number verbatim only if it is in the Scenario catalog. Any other number is masked in every response (first 6 and last 4 digits kept, `security_code: null`), so a real card is never stored in full. The rule and the UI masking are in the [security baseline](security.md#card-data).
 
 ### Status catalog
 
@@ -120,7 +120,7 @@ Every response from the Charge routes has **one shape**, whatever the result, so
 | `400` | `rejected` | `invalid_request` | No |
 | `422` | `rejected` | `idempotency_key_reused` | No |
 | `503` | `error` | `service_unavailable` | No |
-| `429` | `error` | `rate_limited` | No. Only if the security baseline adds a rate limiter |
+| `429` | `error` | `rate_limited` | No. See the [rate limits](security.md#rate-limiting) |
 | `500` | `error` | `internal_error` | No |
 | `404` | `error` | `charge_not_found` | Lookup only |
 
@@ -176,9 +176,9 @@ System error during the Outage:
 
 The in-memory Charge store is keyed by `X-Idempotency-Key`, which is also the `reference` (see [State and persistence](state-and-persistence.md)).
 
-- **Stored:** only responses with a business result: `201 approved` and `402 rejected`. Responses with status `400`, `422`, `500` and `503` are not stored, so retrying with the same key after fixing the input, or after the Outage ends, does process the Charge.
+- **Stored:** only responses with a business result: `201 approved` and `402 rejected`. Responses with status `400`, `422`, `429`, `500` and `503` are not stored, so retrying with the same key after fixing the input, or after the Outage ends, does process the Charge.
 - **Replay with the same key and the same payload:** returns the stored response, with the same HTTP status, body and `id`, plus the header `Idempotent-Replayed: true`. No second Charge is ever created.
-- **Same key, different payload:** `422 rejected / idempotency_key_reused`. The original Charge is untouched. Payloads are compared field by field after the format rules are applied.
+- **Same key, different payload:** `422 rejected / idempotency_key_reused`. The original Charge is untouched. Payloads are compared by a SHA-256 hash of the normalized request, which the store keeps next to the response, so the raw card is never needed.
 - **In flight:** there is no `409`. The only slow path is the timeout Scenario, and it stores the Charge *before* the delay, so a replay during the delay gets the approved response at once. The top-up reliability spec can use that to settle timeouts.
 
 ## Look a Charge up
