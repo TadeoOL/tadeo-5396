@@ -1,4 +1,7 @@
+import { useSyncExternalStore } from "react";
 import { Navigate, Outlet } from "react-router";
+import { subscribe } from "@/storage/subscribe";
+import { readUsers } from "@/storage/users";
 import { useSession } from "@/storage/session";
 
 export type SignInState = { sessionExpired: true };
@@ -16,6 +19,8 @@ export function RequireSession() {
 }
 
 export function PublicOnly() {
+  // Validates the registry during render so the ErrorBoundary catches damage.
+  useSyncExternalStore(subscribe, readUsers);
   const session = useSession();
   if (session.status === "signed-in") {
     return <Navigate to="/dashboard" replace />;
