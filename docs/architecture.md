@@ -64,7 +64,7 @@ packages/
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `dev`       | Runs the API (`node --watch`, port 3000) and Vite (port 5173) together with `concurrently`. Vite proxies `/api` to port 3000. |
 | `build`     | Runs `vite build` for `web`. The other packages have nothing to build.                                                        |
-| `start`     | Starts the API, which also serves `apps/web/dist`.                                                                            |
+| `start`     | Starts the API. With `NODE_ENV=production` it also serves `apps/web/dist` ([Deployment](deployment.md#serving-the-web-app)).  |
 
 The other root scripts (`typecheck`, `lint`, `format`, `test`, `check`) are defined in [`conventions.md`](conventions.md).
 
