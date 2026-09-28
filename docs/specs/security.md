@@ -36,7 +36,7 @@ The brief requires the card number and CVV to be in SnailPay's responses and in 
 **In the UI:**
 
 - The card number is shown only as `•••• 1234` (the last 4 digits), in the Top-up history and anywhere else.
-- The CVV is never shown, although the ledger holds it.
+- The CVV is never shown from the ledger or a response, although the ledger holds it. The only CVV on screen is the one the User types in the Top-up form: it is masked as `•••` while the Top-up is Processing, and the form keeps it after a Declined or Failed result so "Try again" can resend it.
 - The card fields use `autocomplete="off"`. That stops the browser from offering a real saved card or offering to save the one typed.
 
 **Never logged.** Request bodies and query strings are never logged ([Architecture](../architecture.md#errors-and-logging)), so no card data reaches a log.
