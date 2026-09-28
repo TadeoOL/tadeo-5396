@@ -16,6 +16,8 @@ npm run dev
 
 `npm run dev` starts the web app on http://localhost:5173 and the API on http://localhost:3000. Vite proxies `/api` to the API. Set `WEB_PORT` and `PORT` to change the two ports.
 
+Open the app on `localhost`. Sign-up and sign-in use Web Crypto, which browsers only allow on `localhost` or HTTPS, so a LAN IP address does not work.
+
 ## Run like production
 
 ```sh
@@ -40,3 +42,7 @@ Then run:
 ```sh
 npm run build && npm run test:e2e
 ```
+
+## Status
+
+- **Sign-up and the protected dashboard**: done. A User registers with full name, email, password and confirmation, is signed in for 24 h, and lands on `/dashboard`, which shows their name and a $0.00 Balance and needs an active Session.
