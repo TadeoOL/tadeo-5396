@@ -98,5 +98,5 @@ The API returns raw domain data; the client counts. Two pure functions, tested o
 
 ## Edge cases
 
-- **A User with no Bets.** The generator always produces at least 4 Bets, so a new User already sees the donut. The UI still shows an empty-state message instead of the donut when the count is 0; this guards against errors or unexpected data.
+- **A User with no Bets.** The generator always produces at least 4 Bets, so a new User already sees the donut. There is no empty state: a response with fewer than 4 Bets fails `BetsResponse`, so the donut shows its error state instead ([Screens](../design/screens.md#race-data-states)).
 - **The day changes at midnight.** The date is computed when the dashboard mounts and on reload. A dashboard left open past midnight keeps showing the previous Race Day until it reloads. This is accepted.
