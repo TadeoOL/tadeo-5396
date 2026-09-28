@@ -1,6 +1,6 @@
 import type { ChargeRequest } from "@snailrace/contracts";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CircleHelp, TriangleAlert, X } from "lucide-react";
+import { TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
 import { healthQuery } from "@/api/health";
 import { createCharge } from "@/api/snailpay";
@@ -14,8 +14,10 @@ import {
 } from "@/storage/ledger";
 import type { User } from "@/storage/users";
 import { announceOutcome } from "./announce";
+import { ConfirmingPanel } from "./ConfirmingPanel";
 import { outcomeOfCharge } from "./outcome";
 import { copyOf, MISMATCHED_FIELD } from "./outcome-copy";
+import { reconcile, useReconciliationRuns } from "./reconciliation";
 import type { TopUpFormValues } from "./schema";
 import { TopUpForm, type TopUpAlert } from "./TopUpForm";
 import { TopUpReceipt } from "./TopUpReceipt";
@@ -37,13 +39,6 @@ function alertOf(topUp: TopUp | undefined): TopUpAlert | null {
       title: copy.title,
       body: copy.body,
     };
-  if (topUp.outcome === "unknown")
-    return {
-      tone: "warning",
-      icon: CircleHelp,
-      title: "Payment not confirmed yet",
-      body: "Your balance won't change until it's confirmed.",
-    };
   return null;
 }
 
@@ -51,6 +46,7 @@ export function TopUpDialog(props: {
   user: Pick<User, "id" | "fullName" | "email">;
 }) {
   const { user } = props;
+  const runs = useReconciliationRuns();
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const ledger = useLedger(user.id);
@@ -75,6 +71,7 @@ export function TopUpDialog(props: {
     }) => {
       const settlement = outcomeOfCharge(await createCharge(charge, id), id);
       settleTopUp(user.id, id, settlement.outcome, settlement.charge);
+      if (settlement.outcome === "unknown") reconcile(user.id, id);
       return settlement;
     },
   });
@@ -123,6 +120,12 @@ export function TopUpDialog(props: {
             amountCents={topUp.amountCents}
             balanceCents={ledger.balanceCents}
             charge={topUp.charge}
+          />
+        ) : topUp?.outcome === "unknown" ? (
+          <ConfirmingPanel
+            amountCents={topUp.amountCents}
+            run={runs.get(topUp.id)}
+            onCheckAgain={() => reconcile(user.id, topUp.id)}
           />
         ) : (
           <TopUpForm
