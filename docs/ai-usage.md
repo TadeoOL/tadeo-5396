@@ -327,3 +327,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the query client and toaster in `App`, `TopUpForm`, `TopUpReceipt` and `TopUpDialog`, the Balance region reading the ledger, the tier 3 suite, end-to-end spec 2, and the README Scenario table and Status line.
 - **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, the `grep` for `localStorage` and `fetch(` in features, and the `ci` check on the PR.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — Server warm-up
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #32, "Hold the Top-up until the server is awake".
+- **Produced**: `healthQuery`, the health check in `AppShell`, the waking and unreachable alerts in `TopUpForm`, the submit gate and refetch-on-open in `TopUpDialog`, three tier 3 tests, and the README Status line.
+- **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, a Playwright check of `GET /api/health` on `/sign-in`, and the `ci` check on the PR.
+- **Time**: about 10 minutes.
