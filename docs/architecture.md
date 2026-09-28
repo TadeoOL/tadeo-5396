@@ -2,7 +2,7 @@
 
 How the codebase is organized so responsibilities stay separated and the frontend and backend share one contract. Terms follow [`CONTEXT.md`](../CONTEXT.md). This was decided in the ticket [Define the system architecture: monorepo layout, layering and shared contracts](https://github.com/TadeoOL/tadeo-5396/issues/12).
 
-Library choices for the frontend (routing, server state, forms, UI kit, charts) belong to the frontend stack ticket. The request and response bodies of SnailPay belong to the SnailPay contract. This document fixes only the structure they fit into.
+Library choices for the frontend (routing, server state, forms, UI kit, charts) are in [the frontend stack](specs/frontend-stack.md). The request and response bodies of SnailPay belong to the SnailPay contract. This document fixes only the structure they fit into.
 
 ## Components
 

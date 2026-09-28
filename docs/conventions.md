@@ -36,6 +36,7 @@ Every implementation issue follows these rules. They were decided in the ticket 
   - `@eslint/js` recommended.
   - `typescript-eslint` `recommendedTypeChecked`. It catches `no-floating-promises` and `no-misused-promises` in async payment code.
   - For the frontend: `eslint-plugin-react-hooks` and `eslint-plugin-react-refresh`, the same plugins as the Vite `react-ts` template.
+  - Also for the frontend: `eslint-plugin-jsx-a11y` `recommended`, added by [the frontend stack](specs/frontend-stack.md#accessibility).
 - **Prettier** with its defaults and no config file. There is no `eslint-config-prettier`: neither ESLint 9 nor `typescript-eslint` enables formatting rules, so there is nothing to switch off.
 - **TypeScript**: every package extends one shared base `tsconfig`, which turns on:
   - `strict`
