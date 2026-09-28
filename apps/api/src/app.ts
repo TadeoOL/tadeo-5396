@@ -31,6 +31,14 @@ export function createApp(deps: AppDeps): express.Express {
     const body: HealthResponse = { status: "ok" };
     res.json(body);
   });
+  // Temporary: measures the proxy hop count on Render (docs/deployment.md#proxy-hop-count).
+  app.get("/api/debug/ip", (req, res) => {
+    const xForwardedFor = req.get("X-Forwarded-For") ?? null;
+    const forwarded =
+      xForwardedFor?.split(",").map((entry) => entry.trim()) ?? [];
+    const byHops = [req.socket.remoteAddress ?? null, ...forwarded.reverse()];
+    res.json({ ip: req.ip ?? null, xForwardedFor, byHops });
+  });
   app.use("/api/race-days", raceDaysRouter);
 
   if (deps.serveWeb) {
