@@ -1,8 +1,9 @@
 import type { ChargeRequest } from "@snailrace/contracts";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CircleHelp, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { healthQuery } from "@/api/health";
 import { createCharge } from "@/api/snailpay";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -49,6 +50,14 @@ export function TopUpDialog(props: {
   const ledger = useLedger(user.id);
   const topUp = ledger.topUps.find((t) => t.id === activeId);
 
+  const health = useQuery(healthQuery);
+  const server =
+    health.isSuccess && !health.isFetching
+      ? "ready"
+      : health.isError && !health.isFetching
+        ? "unreachable"
+        : "waking";
+
   const mutation = useMutation({
     retry: 0,
     mutationFn: async ({
@@ -66,7 +75,10 @@ export function TopUpDialog(props: {
 
   function onOpenChange(next: boolean) {
     setOpen(next);
-    if (next) setActiveId(null);
+    if (next) {
+      setActiveId(null);
+      void health.refetch();
+    }
   }
 
   function submit(values: TopUpFormValues) {
@@ -114,8 +126,10 @@ export function TopUpDialog(props: {
           <TopUpForm
             defaultName={user.fullName}
             processing={topUp?.outcome === "pending"}
-            submitDisabled={mutation.isPending}
+            submitDisabled={server !== "ready" || mutation.isPending}
             alert={(topUp && ALERTS[topUp.outcome]) ?? null}
+            server={server}
+            onRetryServer={() => void health.refetch()}
             onSubmit={submit}
           />
         )}
