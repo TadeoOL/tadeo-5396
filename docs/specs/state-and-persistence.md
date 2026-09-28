@@ -8,6 +8,7 @@ Who owns each piece of state, where it lives, and how it stays consistent. The t
 |---|---|---|---|
 | Users (profile + credential) | Browser | `snailrace.v1.users` | Until local data is cleared |
 | Session | Browser | `snailrace.v1.session` | Until sign-out or expiry |
+| Sign-in throttle | Browser | `snailrace.v1.throttle` | Until a successful sign-in or local data is cleared |
 | Balance | Browser | `snailrace.v1.ledger.<userId>` | Until local data is cleared |
 | Top-ups (including the Charge response, with the card data) | Browser | `snailrace.v1.ledger.<userId>` | Until local data is cleared |
 | Charges | Server | In-memory store in the Express process | Until the process restarts |
@@ -17,7 +18,7 @@ Nothing else is persisted. No card data is stored anywhere except inside the Cha
 
 ## localStorage keys
 
-There are three kinds of key, all prefixed with `snailrace.v1.`. The `v1` is the schema version.
+There are four kinds of key, all prefixed with `snailrace.v1.`. The `v1` is the schema version.
 
 ```ts
 // snailrace.v1.users
@@ -25,11 +26,14 @@ type UsersRecord = Record<UserId, {
   id: UserId;            // UUID v4, generated at sign-up
   fullName: string;
   email: string;
-  credential: Credential; // shape defined by the auth spec; never the plain password
+  credential: Credential; // shape defined in the auth spec; never the plain password
 }>;
 
 // snailrace.v1.session
-type SessionRecord = { userId: UserId /* remaining fields defined by the auth spec */ };
+type SessionRecord = { id: string; userId: UserId; issuedAt: string; expiresAt: string }; // see the auth spec
+
+// snailrace.v1.throttle
+type ThrottleRecord = Record<NormalizedEmail, { failures: number; lockCount: number; lockedUntil?: string }>; // see the auth spec
 
 // snailrace.v1.ledger.<userId>
 type LedgerRecord = {
@@ -67,6 +71,8 @@ type TopUp = {
 - The schema version lives in the key prefix. No migration code exists until a `v2` does. When one does, it reads the `v1` keys, writes the `v2` keys, and deletes the `v1` keys.
 - Every read validates the value against its schema:
   - **Session invalid or missing**: remove the key and treat the User as signed out.
+  - **Throttle invalid**: discard it silently. It holds no Balance.
+  - **Ledger missing**: read it as `{ balanceCents: 0, topUps: [] }`. Sign-up does not create it; the first Top-up writes it.
   - **Users or ledger invalid, including a broken invariant**: never repair or delete it silently, since that could lose Balance. Show an explicit error with a "Reset local data" action that removes every `snailrace.v1.*` key.
 
 ## Multi-tab consistency
@@ -90,7 +96,7 @@ type TopUp = {
 
 ## Constraints handed to other tickets
 
-- **Auth spec:** defines `Credential` and the rest of `SessionRecord`. The Users registry is keyed by `id`, and sign-in finds a User by email with a linear scan.
+- **Auth spec:** defines `Credential`, `SessionRecord` and the sign-in throttle ([auth.md](auth.md)). The Users registry is keyed by `id`, and sign-in finds a User by email with a linear scan.
 - **SnailPay contract:** after a reload, a Top-up has no card data, so Reconciliation must be able to look a Charge up by `reference` alone, without resending the request.
 - **Top-up reliability:** decides the Reconciliation flow, including the case where the Charge was forgotten after a server restart, and the retry and timeout rules that move a Top-up between outcomes.
 - **Race-day data:** decides the seed and how the data is generated. It must stay stable across reloads without being persisted.

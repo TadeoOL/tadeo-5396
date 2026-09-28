@@ -9,7 +9,7 @@ A person registered in the app with a full name, an email and a password. Severa
 _Avoid_: Account, Player, Bettor, Customer
 
 **Session**:
-The period during which a User is signed in on a browser.
+The period during which a User is signed in on a browser. It ends when the User signs out or when it expires, whichever comes first. A browser has at most one Session at a time.
 _Avoid_: Login (as a noun)
 
 **Payer**:
