@@ -2,8 +2,9 @@ import { ErrorEnvelope, Uuid } from "@snailrace/contracts";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "./app.ts";
+import { createTestDeps } from "./test-deps.ts";
 
-const app = createApp({ serveWeb: false });
+const app = createApp(createTestDeps());
 
 describe("createApp", () => {
   it("answers the health check", async () => {
@@ -53,7 +54,9 @@ describe("createApp", () => {
   });
 
   it("answers an unknown /api path with 404 in the error envelope when serving the web app", async () => {
-    const res = await request(createApp({ serveWeb: true })).get("/api/nope");
+    const res = await request(
+      createApp(createTestDeps({ serveWeb: true })),
+    ).get("/api/nope");
     expect(res.status).toBe(404);
     expect(ErrorEnvelope.parse(res.body)).toEqual({
       error: {
