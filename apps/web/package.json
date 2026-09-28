@@ -25,6 +25,7 @@
     "@fontsource-variable/archivo": "^5.3.0",
     "@hookform/resolvers": "^5.9.1",
     "@snailrace/contracts": "*",
+    "@tanstack/react-query": "^5.104.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "lucide-react": "^1.48.0",
