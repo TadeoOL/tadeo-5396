@@ -383,3 +383,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: `localIsoDate`, the `race-stats` aggregations and Wins summary, the race-day queries, `SilkPatterns`/`SilkSwatch`/`SilksRow`, `WinsChart`, `BetsChart` and `RaceBoards`, the header shirt and the auth silks row, their tier 2 tests, the end-to-end chart checks, two `visual-direction.md` fixes and the README Status line.
 - **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, a Playwright script against the production build for the silks, the two race-day requests, the reload and the error and retry states, and the `ci` check on the PR.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — Review: Race-day charts and recovery
+
+- **Tool**: Claude Code (Claude Opus 5.5), reviewer agent, with one subagent that walked the production build.
+- **Purpose**: run review issue #39 over the milestone's three issues (#36–#38) and the issue opened while it ran (#60).
+- **Produced**: the review report on #39; `expectNoA11yViolations` now waits for finite animations to end, which fixes the flaky axe check of #60; the chart skeletons stay still under `prefers-reduced-motion`; `docs/specs/simulated-data.md`, `docs/specs/frontend-stack.md`, `docs/design/screens.md`, the prototype and `docs/design/visual-direction.md` now match the built charts (no empty state, `accessibilityLayer` off, the `Intl.ListFormat` comma, where `SilkSwatch` is used); `AGENTS.md` no longer says the app is not built; `docs/roadmap.md` lists #60; refreshed bodies of #40 and #41.
+- **Validation**: read every issue, PR and changed file in the range against the specs and the contracts; `npm run check`; `npm run build && npm run test:e2e`, repeated (the top-up spec failed 10 of 10 serial runs before the fix and passed 50 of 50 after it, in batches of 10 per server because SnailPay allows 10 Charges a minute); every README Scenario row through the `charge`, `lookup` and `outage` helpers and through the UI, and every Status line, walked with Playwright against the production build, with axe on each screen; and the `ci` check on the PR.
+- **Time**: about 1 hour.
