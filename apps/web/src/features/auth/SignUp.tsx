@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { AuthLayout } from "@/app/AuthLayout";
 import { ScreenTitle } from "@/app/ScreenTitle";
+import { SilksRow } from "@/components/silks";
 import { signUp } from "./auth";
 import { SignUpForm } from "./SignUpForm";
 
@@ -8,6 +9,7 @@ export function SignUp() {
   const navigate = useNavigate();
   return (
     <AuthLayout>
+      <SilksRow />
       <ScreenTitle title="Create account">Create your account</ScreenTitle>
       <p className="mt-1 mb-6 text-sm text-muted-foreground">
         Your balance starts at $0.00.

@@ -75,7 +75,7 @@ In the API's Snail order, which is also the bar chart's order:
 | Nacho | `chart-5` `#f6c500` + `chart-5-trim` `#16161a` | Gold, black sash |
 | Sprinkles | `chart-6` `#c4006a` + `chart-6-trim` `#ffffff` | Magenta, white stripes |
 
-- Each pattern is an SVG `<pattern>` with the ids `silk-comet` … `silk-sprinkles`, defined once in a small `SilkPatterns` component that renders inside the chart's `<svg>`. Bars use `fill="url(#silk-<id>)"` through Recharts `Cell`. The exact pattern geometry is in the prototype's `<defs>`.
+- Each pattern is an SVG `<pattern>` with the ids `silk-comet` … `silk-sprinkles`, defined once in a small `SilkPatterns` component that the app shell renders once, in a hidden `<svg>`, so the chart and every `SilkSwatch` can reference the patterns on any screen. Bars use `fill="url(#silk-<id>)"` through Recharts `Cell`. The exact pattern geometry is in the prototype's `<defs>`.
 - **Every silk shape has a 1.5 px `silk-seam` (ink) outline.** The outline carries the 3:1 non-text contrast, which matters for Nacho: its gold is only 1.63:1 against white.
 - Bars carry their value as a label, and each chart has a text summary ([frontend stack](../specs/frontend-stack.md#charts)), so no information depends on telling silks apart.
 
