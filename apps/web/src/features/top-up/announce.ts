@@ -19,4 +19,8 @@ export function announceOutcome(
     toast.error("Top-up failed", {
       description: `${amount} · ${copyOf(topUp.charge).shortReason}`,
     });
+  else if (topUp.outcome === "unknown")
+    toast.warning("Payment not confirmed yet", {
+      description: `${amount} · We're checking with SnailPay.`,
+    });
 }

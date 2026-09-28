@@ -6,6 +6,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -18,6 +19,7 @@ import {
 import { formatMxn } from "@/lib/format";
 import { useLedger, type TopUpOutcome } from "@/storage/ledger";
 import { shortReason } from "./outcome-copy";
+import { reconcile, useReconciliationRuns } from "./reconciliation";
 
 const LABELS: Record<
   TopUpOutcome,
@@ -56,6 +58,7 @@ function formatWhen(createdAt: string): string {
 
 export function TopUpHistory({ userId }: { userId: string }) {
   const { topUps } = useLedger(userId);
+  const runs = useReconciliationRuns();
   return (
     <section
       aria-labelledby="top-ups-heading"
@@ -84,6 +87,7 @@ export function TopUpHistory({ userId }: { userId: string }) {
             {topUps.toReversed().map((topUp) => {
               const { variant, icon: Icon, label } = LABELS[topUp.outcome];
               const reason = shortReason(topUp);
+              const run = runs.get(topUp.id);
               const cardNumber = topUp.charge?.card.card_number;
               return (
                 <TableRow key={topUp.id}>
@@ -98,6 +102,16 @@ export function TopUpHistory({ userId }: { userId: string }) {
                     </Badge>
                     {reason !== null && (
                       <p className="text-sm text-muted-foreground">{reason}</p>
+                    )}
+                    {topUp.outcome === "unknown" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={run?.checking}
+                        onClick={() => reconcile(userId, topUp.id)}
+                      >
+                        {run?.checking ? "Checking…" : "Check again"}
+                      </Button>
                     )}
                   </TableCell>
                   <TableCell className="text-right font-bold">

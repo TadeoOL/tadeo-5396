@@ -1,5 +1,7 @@
+import { CircleHelp } from "lucide-react";
 import { ScreenTitle } from "@/app/ScreenTitle";
 import { formatMxn } from "@/lib/format";
+import { useResumeReconciliation } from "@/features/top-up/reconciliation";
 import { SimulationControls } from "@/features/top-up/SimulationControls";
 import { TopUpDialog } from "@/features/top-up/TopUpDialog";
 import { TopUpHistory } from "@/features/top-up/TopUpHistory";
@@ -33,7 +35,11 @@ export function Dashboard() {
 }
 
 function BalanceRegion({ user }: { user: User }) {
-  const { balanceCents } = useLedger(user.id);
+  const { balanceCents, topUps } = useLedger(user.id);
+  useResumeReconciliation(user.id);
+  const confirmingCents = topUps
+    .filter((t) => t.outcome === "pending" || t.outcome === "unknown")
+    .reduce((sum, t) => sum + t.amountCents, 0);
   return (
     <section
       aria-labelledby="balance-heading"
@@ -46,6 +52,12 @@ function BalanceRegion({ user }: { user: User }) {
         </span>{" "}
         <span className="text-sm font-bold text-muted-foreground">MXN</span>
       </p>
+      {confirmingCents > 0 && (
+        <p className="flex basis-full items-center gap-2 text-sm text-warning">
+          <CircleHelp aria-hidden className="size-4" />
+          {formatMxn(confirmingCents)} being confirmed, not included yet
+        </p>
+      )}
       <TopUpDialog user={user} />
     </section>
   );

@@ -249,26 +249,40 @@ test("keeps the form filled after a decline", async () => {
   expect(ledger.topUps[0]?.charge).toBeDefined();
 });
 
-test("leaves a timed-out Top-up Unknown", async () => {
-  stubFetch(() =>
-    Promise.reject(
-      new DOMException("The operation timed out.", "TimeoutError"),
-    ),
+test("shows the Confirming panel when SnailPay doesn't answer in time", async () => {
+  stubFetch((input) =>
+    input === "/api/snailpay/charges"
+      ? Promise.reject(
+          new DOMException("The operation timed out.", "TimeoutError"),
+        )
+      : new Promise<Response>(() => {}),
   );
   const ue = userEvent.setup();
   renderDialog();
   await open(ue);
   await pay(ue);
   expect(
+    await screen.findByRole("heading", { name: "Confirming your payment" }),
+  ).toBeInTheDocument();
+  expect(screen.getByText("$150.00")).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      "SnailPay didn't answer in time, so we're checking whether the payment went through. Your balance won't change until it's confirmed.",
+    ),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Checking… (attempt 1 of 5)")).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Close, keep checking" }),
+  ).toBeInTheDocument();
+  expect(
     await screen.findByText("Payment not confirmed yet"),
   ).toBeInTheDocument();
   expect(
-    screen.getByText("Your balance won't change until it's confirmed."),
+    screen.getByText("$150.00 · We're checking with SnailPay."),
   ).toBeInTheDocument();
   const [topUp, ...rest] = readLedger(user.id).topUps;
   expect(rest).toEqual([]);
   expect(topUp?.outcome).toBe("unknown");
-  expect(topUp?.charge).toBeUndefined();
 });
 
 test("reports a storage write failure and sends no Charge", async () => {
