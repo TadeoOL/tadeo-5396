@@ -399,3 +399,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: neutral Spanish copy in every screen, field error, alert, toast, badge, chart summary, `document.title` and the Dialog's hidden "Cerrar"; `lang="es"`; `es-MX` dates, times and lists; a Spanish singular/plural for Snails without a Win; the updated Vitest and Playwright names; `screens.md` with the Copy rules and Glossary, the Spanish errors in `auth.md`, and the README Status lines.
 - **Validation**: `npm run check`, `npm run build && npm run test:e2e`, a Playwright script against the production build that signs up, tops up with the declined, security and timeout cards and toggles the Outage, and the `ci` check on the PR.
 - **Time**: about 25 minutes.
+
+## 2026-09-28 — Deploy to Render
+
+- **Tool**: Claude Code (Claude Opus 5.5), in the main session, at the user's request (the issue is `hitl`, so the loop skips it).
+- **Purpose**: do the agent part of roadmap issue #40, "Deploy to Render".
+- **Produced**: `render.yaml`, the `keep-alive` workflow, a temporary `GET /api/debug/ip` used to measure the proxy hop count and then removed, `trust proxy` set to the measured 3 hops, and the README Live app section and Status line.
+- **Validation**: `npm run check`; `curl` against `npm start` for the debug route; on the Render branch deploy, three identical measurements (`byHops` index 3) plus a forged `X-Forwarded-For`, which landed past index 3, then `req.ip` checked against the caller's IP after the fix deployed; and the `ci` check on the PR.
+- **Time**: about 20 minutes, plus the wait for the human's Render setup.
