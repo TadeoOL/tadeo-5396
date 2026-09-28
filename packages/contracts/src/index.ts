@@ -8,6 +8,9 @@ export const ErrorEnvelope = z.object({
 });
 export type ErrorEnvelope = z.infer<typeof ErrorEnvelope>;
 
+export const OutageState = z.strictObject({ active: z.boolean() });
+export type OutageState = z.infer<typeof OutageState>;
+
 export const HealthResponse = z.object({ status: z.literal("ok") });
 export type HealthResponse = z.infer<typeof HealthResponse>;
 
