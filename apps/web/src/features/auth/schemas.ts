@@ -35,3 +35,16 @@ export const signUpSchema = z
 
 export type SignUpInput = z.input<typeof signUpSchema>;
 export type SignUpValues = z.output<typeof signUpSchema>;
+
+export const signInSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, "Enter your email.")
+    .regex(EMAIL_FORMAT, EMAIL_ERROR),
+  password: z.string().normalize("NFKC").min(1, "Enter your password."),
+});
+
+export type SignInInput = z.input<typeof signInSchema>;
+export type SignInValues = z.output<typeof signInSchema>;
