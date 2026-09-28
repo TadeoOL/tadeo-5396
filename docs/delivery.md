@@ -20,7 +20,7 @@ One `README.md` at the root, written for a reviewer. Sections, in this order:
 2. **Live app**: the public URL, and a note that the first request after 15 idle minutes takes about a minute ([cold starts](deployment.md#cold-starts)).
 3. **Requirements**: Node 24 (`.nvmrc`) and npm.
 4. **Run locally**: `npm ci`, then `npm run dev`; the web app on port 5173 and the API on port 3000 ([scripts](architecture.md#scripts)).
-5. **Run like production**: `npm run build`, then `npm start`.
+5. **Run like production**: `npm run build`, then `NODE_ENV=production npm start` (without `NODE_ENV=production`, `npm start` serves only the API).
 6. **Tests**: `npm test`; `npm run test:e2e` after `npm run build` and a one-time `npx playwright install chromium` ([commands](testing.md#layout-and-commands)).
 7. **Reproduce SnailPay responses**: the Scenario table, below.
 8. **Status**: what is finished and what is pending. It must match the code exactly, since any gap between the code and what is declared finished is penalized.
