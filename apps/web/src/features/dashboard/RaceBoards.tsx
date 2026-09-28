@@ -23,7 +23,7 @@ export function RaceBoards({ userId }: { userId: string }) {
         <h3 id="wins-heading">Wins today</h3>
         <p className="text-sm text-muted-foreground">6 races, 6 snails</p>
         {raceDay.isPending ? (
-          <Skeleton className="mt-3 h-45 w-full" />
+          <Skeleton className="mt-3 h-45 w-full motion-reduce:animate-none" />
         ) : raceDay.isError ? (
           <ChartError
             title="Couldn't load today's races."
@@ -43,7 +43,7 @@ export function RaceBoards({ userId }: { userId: string }) {
           Simulated, no money involved
         </p>
         {bets.isPending ? (
-          <Skeleton className="mx-auto mt-3 size-35 rounded-full" />
+          <Skeleton className="mx-auto mt-3 size-35 rounded-full motion-reduce:animate-none" />
         ) : bets.isError ? (
           <ChartError
             title="Couldn't load your bets."
