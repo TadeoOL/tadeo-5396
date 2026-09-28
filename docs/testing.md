@@ -102,7 +102,7 @@ Tests exercise only these interfaces, never internals.
 - The backoff at 2, 4, 8, 16 and 32 s. After a `503` or `429`, the wait is the larger of `Retry-After` and the backoff step.
 - A `404` settles as Failed only after 2 min; a younger Top-up stays Unknown.
 
-**End to end.** Playwright against the production build, with Express serving `apps/web/dist`. `webServer` waits on `/api/health`.
+**End to end.** Playwright against the production build, with Express serving `apps/web/dist`. `webServer` starts the API with `env: { NODE_ENV: 'production' }`, which mounts the static files ([Deployment](deployment.md#serving-the-web-app)), and waits on `/api/health`.
 
 1. **Minimum validity:**
    - Register, sign out, sign in with the same data.

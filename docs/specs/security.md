@@ -60,7 +60,7 @@ XSS is the main risk to localStorage: one injected script reads everything.
 | Input validation | Zod on every request ([Architecture](../architecture.md)) | Already decided |
 | Errors | One central handler, no stack trace in responses | Already decided |
 | Request id | The client's `X-Request-Id` is used only if it is a UUID; otherwise one is generated | A free-form header would let a caller inject content into the logs |
-| Proxy | `app.set('trust proxy', 1)` | Render sits behind one proxy. Without it, every request would share the proxy's IP and the rate limiter would limit everyone at once. |
+| Proxy | `app.set('trust proxy', n)`, with `n` measured on Render ([Deployment](../deployment.md#proxy-hop-count)) | Render sits behind Cloudflare and its load balancer and does not document the hop count. Without the setting, every request would share the proxy's IP and the rate limiter would limit everyone at once. A wrong count keys the limiter on the wrong IP. |
 
 ### Rate limiting
 

@@ -160,3 +160,16 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - The research subagent ran its tool claims in a scratch project (Vitest 5.0.2, jsdom, happy-dom, Supertest 7 with Express 5) instead of trusting docs. It found three facts that shaped the rules: jsdom's cross-realm bytes, fake timers not faking `AbortSignal.timeout`, and Testing Library hanging under fake timers.
   - The agent measured PBKDF2 at 600k iterations in Node 24 (about 75 ms per hash) before recommending real iterations in tests.
   - The strategy was cross-checked against the security baseline, which landed during the session: it adds masking and `429` tests, and it requires the rate limiter to be created inside `createApp`, or the suite would trip it.
+
+## 2026-09-28 — Deployment topology
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI; a research subagent with web access that checked Render's docs.
+- **Purpose**: resolve the ticket "Decide the deployment topology and environment configuration".
+- **Produced**:
+  - `docs/deployment.md`: the Render Blueprint, build and start commands, environment, static serving, the proxy hop measurement, auto-deploy and the review-window freeze, keep-alive and UI warm-up, in-memory state caveats, the first-deploy checklist and the response-document outline.
+  - Related edits in `docs/specs/security.md` (measured `trust proxy`), `docs/architecture.md`, `docs/conventions.md`, `docs/testing.md`, `docs/specs/top-up-reliability.md` and `docs/specs/frontend-stack.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Eight decisions were put to the maintainer in one round, each with a recommendation, and the maintainer accepted all of them.
+  - The subagent's findings changed two recommendations before the answer: Render already sets `NODE_ENV=production` at runtime, so it is not set in the Blueprint; and Render does not document its proxy hop count (Cloudflare plus its load balancer), so the security baseline's `trust proxy: 1` became a value measured on the first deploy.
+  - Facts the docs leave open (whether the build sees service variables, what a `fetch` gets during spin-up, whether a Blueprint asks for a card) are marked as such, and each has a fallback that works either way.
