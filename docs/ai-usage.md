@@ -303,3 +303,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the Charge contracts, the SnailPay charge store, core and router (Scenario rules, masking, idempotent replay, `422`, 10/min limit, Charge-shaped `400` and `500`), their Supertest suite, the README Scenario table and Status line, and the two doc links.
 - **Validation**: `npm run check`, `npx vitest run --project api`, the README helper against `npm start` for every row, and the `ci` check on the PR.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — SnailPay lookup and Outage
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #29, "SnailPay: look Charges up and switch the Outage".
+- **Produced**: `OutageState`, `lookUpCharge`, the Outage check in `createCharge`, the `GET /charges` and `/outage` routes (60/min lookup limit, `503` with `Retry-After: 30`), their Supertest cases, and the README helpers, Timeout and System error rows and Status line.
+- **Validation**: `npm run check`, `npx vitest run --project api`, the README helpers against `npm start` for the Timeout and System error rows, and the `ci` check on the PR.
+- **Time**: about 10 minutes.
