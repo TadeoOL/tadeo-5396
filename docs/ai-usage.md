@@ -279,3 +279,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the sign-up screen and form, the sign-in placeholder, the route guards, the dashboard greeting and Balance, the shared `ScreenTitle`, `AuthLayout`, `TextField` and `FormAlert`, `formatMxn`, their Vitest suites, and the README Status section.
 - **Validation**: `npm run check`, `npm run build && npm run test:e2e`, a Playwright script against `npm run dev` for the manual criteria, and the `ci` check on the PR.
 - **Time**: about 20 minutes.
+
+## 2026-09-28 — Sign-out and sign-in
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #26, "Sign out and sign back in".
+- **Produced**: the per-email throttle, `signInSchema` and `signIn`, the sign-in form with the invalid, locked and expired states, the header's "Sign out", end-to-end spec 1 with its helpers (replacing the smoke spec), their Vitest suites, and the README Status line.
+- **Validation**: `npm run check`, `npm run build && npm run test:e2e`, a Playwright script for the manual criteria (narrow header, live countdown, `lockCount: 1`), and the `ci` check on the PR.
+- **Time**: about 15 minutes.
