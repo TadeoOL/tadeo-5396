@@ -335,3 +335,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: `healthQuery`, the health check in `AppShell`, the waking and unreachable alerts in `TopUpForm`, the submit gate and refetch-on-open in `TopUpDialog`, three tier 3 tests, and the README Status line.
 - **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, a Playwright check of `GET /api/health` on `/sign-in`, and the `ci` check on the PR.
 - **Time**: about 10 minutes.
+
+## 2026-09-28 — Top-up outcomes and history
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #33, "Show declines, failures and the Top-up history".
+- **Produced**: the outcome copy, `announceOutcome`, the mismatched-field marking and test cards in `TopUpForm`, `TopUpHistory`, `outageQuery`/`setOutage`, `SimulationControls`, their tier 3 tests, and the README System error row and Status line.
+- **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, a Playwright check of the Outage path against `npm start`, and the `ci` check on the PR.
+- **Time**: about 15 minutes.
