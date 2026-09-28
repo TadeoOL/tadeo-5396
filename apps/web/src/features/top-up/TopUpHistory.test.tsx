@@ -1,5 +1,6 @@
 import { act, render, screen, within } from "@testing-library/react";
-import { beforeEach, expect, test } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { getBackend, setBackend } from "@/storage/backend";
 import { settleTopUp, startTopUp } from "@/storage/ledger";
 import { createMemoryStorage } from "@/storage/memory-storage";
@@ -27,6 +28,10 @@ const approved = {
 
 beforeEach(() => {
   setBackend(createMemoryStorage());
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 test("shows the empty state", () => {
@@ -115,4 +120,21 @@ test("updates when the ledger changes", () => {
     startTopUp(userId, { id: crypto.randomUUID(), amountCents: 1000 });
   });
   expect(screen.getByText("Processing")).toBeInTheDocument();
+});
+
+test("offers Check again on a Confirming Top-up", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => new Promise<Response>(() => {})),
+  );
+  const id = crypto.randomUUID();
+  startTopUp(userId, { id, amountCents: 1000 });
+  settleTopUp(userId, id, "unknown");
+  const ue = userEvent.setup();
+  render(<TopUpHistory userId={userId} />);
+  expect(screen.getByText("Not confirmed yet.")).toBeInTheDocument();
+  const button = screen.getByRole("button", { name: "Check again" });
+  expect(button).toBeEnabled();
+  await ue.click(button);
+  expect(screen.getByRole("button", { name: "Checking…" })).toBeDisabled();
 });
