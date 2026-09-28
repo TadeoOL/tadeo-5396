@@ -107,3 +107,16 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Nine decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one. Three minor gaps were filled with stated defaults that the maintainer approved.
   - The maintainer confirmed the summary before any file was written.
   - The contract was cross-checked against the requirements brief, the payment-gateway research (the mandated card fails Luhn and `12/26` expires), the state-and-persistence spec and the architecture document.
+
+## 2026-09-28 — Top-up reliability
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI.
+- **Purpose**: resolve the ticket "Design top-up reliability: idempotency, timeouts, retries and async processing".
+- **Produced**:
+  - `docs/specs/top-up-reliability.md`, with sequence diagrams.
+  - The conditional `429 rate_limited` entry and the client timeout in `docs/specs/snailpay-api.md`; the restart rule in `docs/specs/state-and-persistence.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Eight decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one.
+  - The agent widened one accepted rule before writing (any unparseable body, not only 2xx/4xx, maps to Unknown, to cover proxy `502`/`504` pages), and the maintainer confirmed the summary that included it.
+  - The design was cross-checked against the SnailPay contract (the Charge is stored before the 30 s delay), the ledger write rules and the hosting research (about one minute of cold start).
