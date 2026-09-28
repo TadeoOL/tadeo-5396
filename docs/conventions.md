@@ -13,7 +13,7 @@ Every implementation issue follows these rules. They were decided in the ticket 
 
 - [Conventional Commits 1.0](https://www.conventionalcommits.org/en/v1.0.0/).
   - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`, `chore`.
-  - The scope is optional. When present, it names a package or area; the architecture ticket fixes the list.
+  - The scope is optional. When present, it names a package: `web`, `api` or `contracts` (see [`architecture.md`](architecture.md)). Omit it for changes that span packages or live at the root.
 - **Subject line**: English, imperative mood, lowercase, at most 72 characters, no trailing period. The body explains why.
 - **Each commit is a work unit.** It builds, it passes `npm run check`, and it contains the tests for the code it adds. Rebase-merge puts every commit on `main`, so this is a rule you follow, not something tooling enforces: CI only checks the tip of the PR.
 - **No issue numbers in commits.** GitHub links each commit to its PR, and the PR closes the issue.
