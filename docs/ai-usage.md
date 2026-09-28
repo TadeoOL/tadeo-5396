@@ -80,3 +80,17 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Before asking, the agent built a throwaway npm workspace and confirmed that Node 24.15 runs a `.ts` file imported from a symlinked workspace package.
   - Over two question rounds, nine decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
   - The maintainer confirmed the summary before any file was written.
+
+## 2026-09-28 — Auth simulation
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI.
+- **Purpose**: resolve the ticket "Specify the auth simulation: password storage, session lifecycle and route guarding".
+- **Produced**:
+  - `docs/specs/auth.md`.
+  - Updates to `docs/specs/state-and-persistence.md` (the Session and throttle keys) and to `docs/architecture.md` (the throttle key in the storage module).
+  - A sharper definition of Session in `CONTEXT.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Eight decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one.
+  - The maintainer questioned the agent's first recommendation against sign-in rate limiting. The agent revised it after weighing the cost (under an hour, one extra key) against the value, and the maintainer accepted the revised version.
+  - The decisions were cross-checked against the requirements brief, the password-hashing research write-up, and the state-and-persistence spec.

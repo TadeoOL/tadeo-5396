@@ -10,7 +10,7 @@ Library choices for the frontend (routing, server state, forms, UI kit, charts) 
 flowchart LR
   subgraph Browser
     UI["web: features<br/>(auth, top-up, dashboard)"]
-    ST["web: storage<br/>(users, session, ledger)"]
+    ST["web: storage<br/>(users, session, ledger, throttle)"]
     LS[("localStorage<br/>snailrace.v1.*")]
     UI --> ST --> LS
   end
@@ -128,7 +128,7 @@ apps/web/src/
     auth/
     top-up/
     dashboard/
-  storage/           users, session, ledger: schemas, read/write rules, change subscription
+  storage/           users, session, ledger, throttle: schemas, read/write rules, change subscription
   api/               fetch wrappers that parse responses with contracts
 ```
 
