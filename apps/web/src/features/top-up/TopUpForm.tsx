@@ -28,10 +28,10 @@ export type TopUpAlert = {
 };
 
 const CARD_LABELS: Record<ScenarioCard, string> = {
-  "1234123412341234": "Approved",
-  "1234123412340002": "Declined: insufficient funds",
-  "1234123412340003": "Declined: security",
-  "1234123412340004": "No answer in time (timeout)",
+  "1234123412341234": "Aprobada",
+  "1234123412340002": "Rechazada: fondos insuficientes",
+  "1234123412340003": "Rechazada: seguridad",
+  "1234123412340004": "Sin respuesta a tiempo (tiempo agotado)",
 };
 
 export function TopUpForm(props: {
@@ -69,7 +69,7 @@ export function TopUpForm(props: {
     if (mismatchedField)
       setError(mismatchedField, {
         type: "mismatch",
-        message: "Doesn't match this card.",
+        message: "No coincide con esta tarjeta.",
       });
   }, [mismatchedField, setError]);
   const cents = parseAmountCents(useWatch({ control, name: "amount" }));
@@ -86,16 +86,16 @@ export function TopUpForm(props: {
     } catch {
       setError("root", {
         message:
-          "Couldn't save this top-up. Free up browser storage and try again.",
+          "No se pudo guardar esta recarga. Libera espacio de almacenamiento del navegador e intenta de nuevo.",
       });
     }
   });
 
   const { processing, alert } = props;
-  let label = "Top up";
-  if (processing) label = "Processing…";
-  else if (alert?.tone === "destructive") label = "Try again";
-  else if (cents !== null) label = `Top up ${formatMxn(cents)}`;
+  let label = "Recargar";
+  if (processing) label = "Procesando…";
+  else if (alert?.tone === "destructive") label = "Intentar de nuevo";
+  else if (cents !== null) label = `Recargar ${formatMxn(cents)}`;
 
   return (
     <form
@@ -103,10 +103,10 @@ export function TopUpForm(props: {
       onSubmit={(event) => void submit(event)}
       className="grid gap-4"
     >
-      <DialogTitle>Top up your balance</DialogTitle>
+      <DialogTitle>Recarga tu saldo</DialogTitle>
       <DialogDescription>
-        Paid through SnailPay, a simulated gateway. Use a test card; never a
-        real one.
+        Se paga con SnailPay, una pasarela simulada. Usa una tarjeta de prueba,
+        nunca una real.
       </DialogDescription>
       {props.server === "waking" ? (
         <Alert role="status">
@@ -114,17 +114,19 @@ export function TopUpForm(props: {
             aria-hidden
             className="animate-spin motion-reduce:animate-none"
           />
-          <AlertTitle>Waking up the server.</AlertTitle>
-          <AlertDescription>This can take up to a minute.</AlertDescription>
+          <AlertTitle>Despertando el servidor.</AlertTitle>
+          <AlertDescription>
+            Esto puede tardar hasta un minuto.
+          </AlertDescription>
         </Alert>
       ) : props.server === "unreachable" ? (
         <>
           <Alert variant="destructive">
-            <AlertTitle>Can&apos;t reach the server.</AlertTitle>
-            <AlertDescription>Check your connection.</AlertDescription>
+            <AlertTitle>No se puede conectar con el servidor.</AlertTitle>
+            <AlertDescription>Revisa tu conexión.</AlertDescription>
           </Alert>
           <Button type="button" variant="outline" onClick={props.onRetryServer}>
-            Try again
+            Intentar de nuevo
           </Button>
         </>
       ) : processing ? (
@@ -133,9 +135,9 @@ export function TopUpForm(props: {
             aria-hidden
             className="animate-spin motion-reduce:animate-none"
           />
-          <AlertTitle>Processing your payment…</AlertTitle>
+          <AlertTitle>Procesando tu pago…</AlertTitle>
           <AlertDescription>
-            You can close this window. The result will appear in your top-ups.
+            Puedes cerrar esta ventana. El resultado aparecerá en tus recargas.
           </AlertDescription>
         </Alert>
       ) : (
@@ -154,7 +156,7 @@ export function TopUpForm(props: {
       )}
       <TextField
         id="top-up-amount"
-        label="Amount (MXN)"
+        label="Monto (MXN)"
         inputMode="decimal"
         placeholder="0.00"
         {...amount}
@@ -163,7 +165,7 @@ export function TopUpForm(props: {
       />
       <TextField
         id="top-up-card-number"
-        label="Card number"
+        label="Número de tarjeta"
         inputMode="numeric"
         autoComplete="off"
         {...cardNumber}
@@ -180,8 +182,8 @@ export function TopUpForm(props: {
       <div className="grid grid-cols-2 gap-4">
         <TextField
           id="top-up-expiry"
-          label="Expiry"
-          placeholder="MM/YY"
+          label="Vencimiento"
+          placeholder="MM/AA"
           inputMode="numeric"
           autoComplete="off"
           {...expiry}
@@ -208,7 +210,7 @@ export function TopUpForm(props: {
             key="cvv"
             id="top-up-cvv"
             label="CVV"
-            placeholder="3 digits"
+            placeholder="3 dígitos"
             inputMode="numeric"
             autoComplete="off"
             {...cvv}
@@ -218,7 +220,7 @@ export function TopUpForm(props: {
       </div>
       <TextField
         id="top-up-cardholder-name"
-        label="Name on card"
+        label="Nombre en la tarjeta"
         autoComplete="off"
         {...cardholderName}
         error={errors.cardholderName?.message}
@@ -227,7 +229,7 @@ export function TopUpForm(props: {
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <DialogClose asChild>
           <Button type="button" variant="outline">
-            {processing ? "Close" : "Cancel"}
+            {processing ? "Cerrar" : "Cancelar"}
           </Button>
         </DialogClose>
         <Button type="submit" disabled={props.submitDisabled}>
@@ -241,8 +243,8 @@ export function TopUpForm(props: {
         </Button>
       </div>
       <details>
-        <summary>Test cards</summary>
-        <p>All use expiry 12/26 and CVV 543.</p>
+        <summary>Tarjetas de prueba</summary>
+        <p>Todas usan vencimiento 12/26 y CVV 543.</p>
         <ul>
           {ScenarioCard.options.map((number) => (
             <li key={number}>

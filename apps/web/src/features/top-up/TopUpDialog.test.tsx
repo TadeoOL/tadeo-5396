@@ -75,9 +75,9 @@ function renderDialog(client = new QueryClient()) {
 }
 
 async function open(ue: ReturnType<typeof userEvent.setup>) {
-  await ue.click(screen.getByRole("button", { name: "Top up" }));
+  await ue.click(screen.getByRole("button", { name: "Recargar" }));
   await waitFor(() =>
-    expect(screen.getByLabelText("Amount (MXN)")).toHaveFocus(),
+    expect(screen.getByLabelText("Monto (MXN)")).toHaveFocus(),
   );
 }
 
@@ -85,9 +85,9 @@ async function fill(
   ue: ReturnType<typeof userEvent.setup>,
   cardNumber = "1234123412341234",
 ) {
-  await ue.type(screen.getByLabelText("Amount (MXN)"), "150.00");
-  await ue.type(screen.getByLabelText("Card number"), cardNumber);
-  await ue.type(screen.getByLabelText("Expiry"), "1226");
+  await ue.type(screen.getByLabelText("Monto (MXN)"), "150.00");
+  await ue.type(screen.getByLabelText("Número de tarjeta"), cardNumber);
+  await ue.type(screen.getByLabelText("Vencimiento"), "1226");
   await ue.type(screen.getByLabelText("CVV"), "543");
 }
 
@@ -96,7 +96,7 @@ async function pay(
   cardNumber = "1234123412341234",
 ) {
   await fill(ue, cardNumber);
-  const button = screen.getByRole("button", { name: "Top up $150.00" });
+  const button = screen.getByRole("button", { name: "Recargar $150.00" });
   await waitFor(() => expect(button).toBeEnabled());
   await ue.click(button);
 }
@@ -106,33 +106,35 @@ test("shows every field error and sends no Charge", async () => {
   const ue = userEvent.setup();
   renderDialog();
   await open(ue);
-  const cardNumber = screen.getByLabelText("Card number");
+  const cardNumber = screen.getByLabelText("Número de tarjeta");
   await ue.type(cardNumber, "12341234123412");
   expect(cardNumber).toHaveValue("1234 1234 1234 12");
-  const expiry = screen.getByLabelText("Expiry");
+  const expiry = screen.getByLabelText("Vencimiento");
   await ue.type(expiry, "1326");
   expect(expiry).toHaveValue("13/26");
-  const amount = screen.getByLabelText("Amount (MXN)");
+  const amount = screen.getByLabelText("Monto (MXN)");
   await ue.type(amount, "0");
   await ue.type(screen.getByLabelText("CVV"), "54");
-  await ue.clear(screen.getByLabelText("Name on card"));
-  await ue.click(screen.getByRole("button", { name: "Top up" }));
+  await ue.clear(screen.getByLabelText("Nombre en la tarjeta"));
+  await ue.click(screen.getByRole("button", { name: "Recargar" }));
   expect(
-    await screen.findByText("Enter an amount from $0.01 to $10,000.00."),
+    await screen.findByText("Ingresa un monto de $0.01 a $10,000.00."),
   ).toBeInTheDocument();
   expect(
-    screen.getByText("Enter the 16 digits of the card."),
+    screen.getByText("Ingresa los 16 dígitos de la tarjeta."),
   ).toBeInTheDocument();
-  expect(screen.getByText("Use MM/YY.")).toBeInTheDocument();
-  expect(screen.getByText("Enter 3 digits.")).toBeInTheDocument();
+  expect(screen.getByText("Usa MM/AA.")).toBeInTheDocument();
+  expect(screen.getByText("Ingresa 3 dígitos.")).toBeInTheDocument();
   expect(
-    screen.getByText("Enter the name on the card (up to 100 characters)."),
+    screen.getByText(
+      "Ingresa el nombre que aparece en la tarjeta (hasta 100 caracteres).",
+    ),
   ).toBeInTheDocument();
   expect(amount).toHaveFocus();
   await ue.clear(amount);
   await ue.type(amount, "10.123");
   expect(
-    screen.getByText("Enter an amount from $0.01 to $10,000.00."),
+    screen.getByText("Ingresa un monto de $0.01 a $10,000.00."),
   ).toBeInTheDocument();
   expect(chargeCalls(fetchMock)).toHaveLength(0);
   expect(readLedger(user.id).topUps).toEqual([]);
@@ -144,26 +146,28 @@ test("disables submit while a Top-up is pending", async () => {
   renderDialog();
   await open(ue);
   await pay(ue);
-  expect(
-    await screen.findByText("Processing your payment…"),
-  ).toBeInTheDocument();
-  const processing = screen.getByRole("button", { name: "Processing…" });
+  expect(await screen.findByText("Procesando tu pago…")).toBeInTheDocument();
+  const processing = screen.getByRole("button", { name: "Procesando…" });
   expect(processing).toBeDisabled();
   await ue.click(processing);
   expect(chargeCalls(fetchMock)).toHaveLength(1);
   expect(screen.getByLabelText("CVV")).toHaveValue("•••");
-  expect(screen.getByLabelText("Amount (MXN)")).toHaveAttribute("readonly");
+  expect(screen.getByLabelText("Monto (MXN)")).toHaveAttribute("readonly");
   expect(readLedger(user.id).topUps.map((t) => t.outcome)).toEqual(["pending"]);
 
-  await ue.click(screen.getByRole("button", { name: "Close" }));
+  await ue.click(screen.getByRole("button", { name: "Cerrar" }));
   await open(ue);
-  expect(screen.getByLabelText("Amount (MXN)")).toHaveValue("");
-  expect(screen.getByLabelText("Name on card")).toHaveValue("Ana López");
-  await ue.type(screen.getByLabelText("Amount (MXN)"), "150.00");
-  await ue.type(screen.getByLabelText("Card number"), "1234123412341234");
-  await ue.type(screen.getByLabelText("Expiry"), "1226");
+  expect(screen.getByLabelText("Monto (MXN)")).toHaveValue("");
+  expect(screen.getByLabelText("Nombre en la tarjeta")).toHaveValue(
+    "Ana López",
+  );
+  await ue.type(screen.getByLabelText("Monto (MXN)"), "150.00");
+  await ue.type(screen.getByLabelText("Número de tarjeta"), "1234123412341234");
+  await ue.type(screen.getByLabelText("Vencimiento"), "1226");
   await ue.type(screen.getByLabelText("CVV"), "543");
-  expect(screen.getByRole("button", { name: "Top up $150.00" })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: "Recargar $150.00" }),
+  ).toBeDisabled();
 });
 
 test("credits the Balance and announces an approved Top-up", async () => {
@@ -180,23 +184,23 @@ test("credits the Balance and announces an approved Top-up", async () => {
   await open(ue);
   await pay(ue);
   expect(
-    await screen.findByRole("heading", { name: "Payment approved" }),
+    await screen.findByRole("heading", { name: "Pago aprobado" }),
   ).toBeInTheDocument();
   const [call] = chargeCalls(fetchMock);
   const init = call?.[1] as RequestInit;
   const key = keyOf(init);
   expect(screen.getByText("+$150.00")).toBeInTheDocument();
   expect(
-    screen.getByText("Added to your balance. New balance: $150.00"),
+    screen.getByText("Se agregó a tu saldo. Nuevo saldo: $150.00"),
   ).toBeInTheDocument();
   expect(screen.getByText("•••• 1234")).toBeInTheDocument();
   expect(screen.getByText("482915")).toBeInTheDocument();
   expect(
     screen.getByText(`${key.slice(0, 8)}…${key.slice(-4)}`),
   ).toBeInTheDocument();
-  expect(await screen.findByText("Top-up approved")).toBeInTheDocument();
+  expect(await screen.findByText("Recarga aprobada")).toBeInTheDocument();
   expect(
-    screen.getByText("+$150.00 added to your balance."),
+    screen.getByText("+$150.00 agregados a tu saldo."),
   ).toBeInTheDocument();
   const ledger = readLedger(user.id);
   expect(ledger.balanceCents).toBe(15000);
@@ -233,19 +237,21 @@ test("keeps the form filled after a decline", async () => {
   renderDialog();
   await open(ue);
   await pay(ue, "1234123412340002");
-  const title = await screen.findByText("Declined: insufficient funds");
+  const title = await screen.findByText("Rechazada: fondos insuficientes");
   expect(
     screen.getByText(
-      "Your balance did not change. The card doesn't have enough funds. Try a smaller amount or another card.",
+      "Tu saldo no cambió. La tarjeta no tiene fondos suficientes. Prueba con un monto menor o con otra tarjeta.",
     ),
   ).toBeInTheDocument();
   const alert = title.closest("[role=alert]");
   expect(alert).toHaveFocus();
   expect(screen.getByLabelText("CVV")).toHaveValue("543");
-  expect(screen.getByLabelText("Card number")).toHaveValue(
+  expect(screen.getByLabelText("Número de tarjeta")).toHaveValue(
     "1234 1234 1234 0002",
   );
-  expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled();
+  expect(
+    screen.getByRole("button", { name: "Intentar de nuevo" }),
+  ).toBeEnabled();
   const ledger = readLedger(user.id);
   expect(ledger.balanceCents).toBe(0);
   expect(ledger.topUps).toHaveLength(1);
@@ -266,23 +272,21 @@ test("shows the Confirming panel when SnailPay doesn't answer in time", async ()
   await open(ue);
   await pay(ue);
   expect(
-    await screen.findByRole("heading", { name: "Confirming your payment" }),
+    await screen.findByRole("heading", { name: "Confirmando tu pago" }),
   ).toBeInTheDocument();
   expect(screen.getByText("$150.00")).toBeInTheDocument();
   expect(
     screen.getByText(
-      "SnailPay didn't answer in time, so we're checking whether the payment went through. Your balance won't change until it's confirmed.",
+      "SnailPay no respondió a tiempo, así que estamos verificando si el pago se realizó. Tu saldo no cambiará hasta que se confirme.",
     ),
   ).toBeInTheDocument();
-  expect(screen.getByText("Checking… (attempt 1 of 5)")).toBeInTheDocument();
+  expect(screen.getByText("Verificando… (intento 1 de 5)")).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Close, keep checking" }),
+    screen.getByRole("button", { name: "Cerrar y seguir verificando" }),
   ).toBeInTheDocument();
+  expect(await screen.findByText("Pago aún sin confirmar")).toBeInTheDocument();
   expect(
-    await screen.findByText("Payment not confirmed yet"),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByText("$150.00 · We're checking with SnailPay."),
+    screen.getByText("$150.00 · Estamos verificando con SnailPay."),
   ).toBeInTheDocument();
   const [topUp, ...rest] = readLedger(user.id).topUps;
   expect(rest).toEqual([]);
@@ -299,13 +303,13 @@ test("sends the Charge while the browser is offline and leaves the Top-up Unknow
   renderDialog();
   await open(ue);
   await fill(ue);
-  const button = screen.getByRole("button", { name: "Top up $150.00" });
+  const button = screen.getByRole("button", { name: "Recargar $150.00" });
   await waitFor(() => expect(button).toBeEnabled());
   onlineManager.setOnline(false);
   try {
     await ue.click(button);
     expect(
-      await screen.findByRole("heading", { name: "Confirming your payment" }),
+      await screen.findByRole("heading", { name: "Confirmando tu pago" }),
     ).toBeInTheDocument();
     expect(chargeCalls(fetchMock)).toHaveLength(1);
     expect(readLedger(user.id).topUps.map((t) => t.outcome)).toEqual([
@@ -335,11 +339,11 @@ test("announces only an outcome this tab settled", async () => {
   renderDialog();
   await open(ue);
   // Sonner keeps earlier tests' toasts, so count instead of asserting absence.
-  const warnings = () => screen.queryAllByText("Payment not confirmed yet");
+  const warnings = () => screen.queryAllByText("Pago aún sin confirmar");
   const before = warnings().length;
   await pay(ue);
   expect(
-    await screen.findByRole("heading", { name: "Payment approved" }),
+    await screen.findByRole("heading", { name: "Pago aprobado" }),
   ).toBeInTheDocument();
   await new Promise((resolve) => setTimeout(resolve, 200));
   expect(warnings()).toHaveLength(before);
@@ -361,11 +365,11 @@ test("reports a storage write failure and sends no Charge", async () => {
   await pay(ue);
   expect(
     await screen.findByText(
-      "Couldn't save this top-up. Free up browser storage and try again.",
+      "No se pudo guardar esta recarga. Libera espacio de almacenamiento del navegador e intenta de nuevo.",
     ),
   ).toBeInTheDocument();
   expect(chargeCalls(fetchMock)).toHaveLength(0);
-  expect(screen.getByLabelText("Card number")).toHaveValue(
+  expect(screen.getByLabelText("Número de tarjeta")).toHaveValue(
     "1234 1234 1234 1234",
   );
 });
@@ -375,10 +379,14 @@ test("keeps submit disabled while the server is waking", async () => {
   const ue = userEvent.setup();
   renderDialog();
   await open(ue);
-  expect(screen.getByText("Waking up the server.")).toBeInTheDocument();
-  expect(screen.getByText("This can take up to a minute.")).toBeInTheDocument();
+  expect(screen.getByText("Despertando el servidor.")).toBeInTheDocument();
+  expect(
+    screen.getByText("Esto puede tardar hasta un minuto."),
+  ).toBeInTheDocument();
   await fill(ue);
-  expect(screen.getByRole("button", { name: "Top up $150.00" })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: "Recargar $150.00" }),
+  ).toBeDisabled();
 });
 
 test("offers Try again when the server can't be reached", async () => {
@@ -394,18 +402,22 @@ test("offers Try again when the server can't be reached", async () => {
   );
   await open(ue);
   expect(
-    await screen.findByText("Can't reach the server."),
+    await screen.findByText("No se puede conectar con el servidor."),
   ).toBeInTheDocument();
-  expect(screen.getByText("Check your connection.")).toBeInTheDocument();
+  expect(screen.getByText("Revisa tu conexión.")).toBeInTheDocument();
   await fill(ue);
-  const submit = screen.getByRole("button", { name: "Top up $150.00" });
+  const submit = screen.getByRole("button", { name: "Recargar $150.00" });
   expect(submit).toBeDisabled();
 
   reachable = true;
-  await ue.click(screen.getByRole("button", { name: "Try again" }));
+  await ue.click(screen.getByRole("button", { name: "Intentar de nuevo" }));
   await waitFor(() => expect(submit).toBeEnabled());
-  expect(screen.queryByText("Can't reach the server.")).not.toBeInTheDocument();
-  expect(screen.queryByText("Waking up the server.")).not.toBeInTheDocument();
+  expect(
+    screen.queryByText("No se puede conectar con el servidor."),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByText("Despertando el servidor."),
+  ).not.toBeInTheDocument();
 });
 
 test("checks the server again each time the dialog opens", async () => {
@@ -414,13 +426,15 @@ test("checks the server again each time the dialog opens", async () => {
   renderDialog();
   await open(ue);
   await waitFor(() =>
-    expect(screen.queryByText("Waking up the server.")).not.toBeInTheDocument(),
+    expect(
+      screen.queryByText("Despertando el servidor."),
+    ).not.toBeInTheDocument(),
   );
   const first = healthCalls(fetchMock).length;
-  await ue.click(screen.getByRole("button", { name: "Cancel" }));
+  await ue.click(screen.getByRole("button", { name: "Cancelar" }));
   await open(ue);
   await waitFor(() => expect(healthCalls(fetchMock)).toHaveLength(first + 1));
-  await ue.click(screen.getByRole("button", { name: "Cancel" }));
+  await ue.click(screen.getByRole("button", { name: "Cancelar" }));
   await open(ue);
   await waitFor(() => expect(healthCalls(fetchMock)).toHaveLength(first + 2));
 });
@@ -450,36 +464,40 @@ test("names a card-number decline and marks the field", async () => {
   await open(ue);
   await pay(ue, "1111222233334444");
   expect(
-    await screen.findByText("Declined: card not recognized"),
+    await screen.findByText("Rechazada: tarjeta no reconocida"),
   ).toBeInTheDocument();
   expect(
     screen.getByText(
-      "Your balance did not change. Check the card number and try again.",
+      "Tu saldo no cambió. Revisa el número de tarjeta e intenta de nuevo.",
     ),
   ).toBeInTheDocument();
-  const cardNumber = screen.getByLabelText("Card number");
+  const cardNumber = screen.getByLabelText("Número de tarjeta");
   await waitFor(() =>
     expect(cardNumber).toHaveAttribute("aria-invalid", "true"),
   );
-  expect(screen.getByText("Doesn't match this card.")).toBeInTheDocument();
-  const declined = await screen.findByText("$150.00 · Card not recognized");
+  expect(screen.getByText("No coincide con esta tarjeta.")).toBeInTheDocument();
+  const declined = await screen.findByText("$150.00 · Tarjeta no reconocida");
   expect(declined.closest("[data-sonner-toast]")).toHaveTextContent(
-    "Top-up declined",
+    "Recarga rechazada",
   );
   await ue.type(cardNumber, "{backspace}5");
   await waitFor(() =>
     expect(
-      screen.queryByText("Doesn't match this card."),
+      screen.queryByText("No coincide con esta tarjeta."),
     ).not.toBeInTheDocument(),
   );
 });
 
 test("marks the expiry and the CVV for their declines", async () => {
   for (const [detail, title, label] of [
-    ["cc_rejected_bad_filled_date", "Declined: wrong expiry date", "Expiry"],
+    [
+      "cc_rejected_bad_filled_date",
+      "Rechazada: fecha de vencimiento incorrecta",
+      "Vencimiento",
+    ],
     [
       "cc_rejected_bad_filled_security_code",
-      "Declined: wrong security code",
+      "Rechazada: código de seguridad incorrecto",
       "CVV",
     ],
   ] as const) {
@@ -495,7 +513,9 @@ test("marks the expiry and the CVV for their declines", async () => {
     expect(await screen.findByText(title)).toBeInTheDocument();
     const field = screen.getByLabelText(label);
     await waitFor(() => expect(field).toHaveAttribute("aria-invalid", "true"));
-    expect(screen.getByText("Doesn't match this card.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No coincide con esta tarjeta."),
+    ).toBeInTheDocument();
     unmount();
   }
 });
@@ -507,15 +527,15 @@ test("shows insufficient funds without marking a field", async () => {
   await open(ue);
   await pay(ue, "1234123412340002");
   expect(
-    await screen.findByText("Declined: insufficient funds"),
+    await screen.findByText("Rechazada: fondos insuficientes"),
   ).toBeInTheDocument();
   expect(
     screen.getByText(
-      "Your balance did not change. The card doesn't have enough funds. Try a smaller amount or another card.",
+      "Tu saldo no cambió. La tarjeta no tiene fondos suficientes. Prueba con un monto menor o con otra tarjeta.",
     ),
   ).toBeInTheDocument();
   expect(
-    screen.queryByText("Doesn't match this card."),
+    screen.queryByText("No coincide con esta tarjeta."),
   ).not.toBeInTheDocument();
 });
 
@@ -549,17 +569,21 @@ test("names SnailPay's outage on a Failed Top-up", async () => {
   await open(ue);
   await pay(ue);
   expect(
-    await screen.findByText("SnailPay is unavailable"),
+    await screen.findByText("SnailPay no está disponible"),
   ).toBeInTheDocument();
   expect(
     screen.getByText(
-      "Nothing was charged and your balance did not change. Try again in a few moments.",
+      "No se cobró nada y tu saldo no cambió. Intenta de nuevo en unos momentos.",
     ),
   ).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
-  const failed = await screen.findByText("$150.00 · SnailPay was unavailable");
+  expect(
+    screen.getByRole("button", { name: "Intentar de nuevo" }),
+  ).toBeInTheDocument();
+  const failed = await screen.findByText(
+    "$150.00 · SnailPay no estaba disponible",
+  );
   expect(failed.closest("[data-sonner-toast]")).toHaveTextContent(
-    "Top-up failed",
+    "Recarga fallida",
   );
   const ledger = readLedger(user.id);
   expect(ledger.balanceCents).toBe(0);
@@ -574,7 +598,9 @@ test("Try again sends a new Top-up with a new key", async () => {
   renderDialog();
   await open(ue);
   await pay(ue, "1234123412340002");
-  const again = await screen.findByRole("button", { name: "Try again" });
+  const again = await screen.findByRole("button", {
+    name: "Intentar de nuevo",
+  });
   await waitFor(() => expect(again).toBeEnabled());
   await ue.click(again);
   await waitFor(() => expect(chargeCalls(fetchMock)).toHaveLength(2));
@@ -594,11 +620,11 @@ test("lists the four test cards", async () => {
   renderDialog();
   await open(ue);
   for (const text of [
-    "All use expiry 12/26 and CVV 543.",
-    "1234 1234 1234 1234 · Approved",
-    "1234 1234 1234 0002 · Declined: insufficient funds",
-    "1234 1234 1234 0003 · Declined: security",
-    "1234 1234 1234 0004 · No answer in time (timeout)",
+    "Todas usan vencimiento 12/26 y CVV 543.",
+    "1234 1234 1234 1234 · Aprobada",
+    "1234 1234 1234 0002 · Rechazada: fondos insuficientes",
+    "1234 1234 1234 0003 · Rechazada: seguridad",
+    "1234 1234 1234 0004 · Sin respuesta a tiempo (tiempo agotado)",
   ])
     expect(screen.getByText(text)).toBeInTheDocument();
 });

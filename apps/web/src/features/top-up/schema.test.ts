@@ -56,11 +56,14 @@ test("topUpFormSchema reports the dialog copy for every field", () => {
   expect(
     result.error?.issues.map((issue) => [issue.path[0], issue.message]),
   ).toEqual([
-    ["amount", "Enter an amount from $0.01 to $10,000.00."],
-    ["cardNumber", "Enter the 16 digits of the card."],
-    ["expiry", "Use MM/YY."],
-    ["cvv", "Enter 3 digits."],
-    ["cardholderName", "Enter the name on the card (up to 100 characters)."],
+    ["amount", "Ingresa un monto de $0.01 a $10,000.00."],
+    ["cardNumber", "Ingresa los 16 dígitos de la tarjeta."],
+    ["expiry", "Usa MM/AA."],
+    ["cvv", "Ingresa 3 dígitos."],
+    [
+      "cardholderName",
+      "Ingresa el nombre que aparece en la tarjeta (hasta 100 caracteres).",
+    ],
   ]);
   const long = topUpFormSchema.safeParse({
     amount: "150",
@@ -70,6 +73,6 @@ test("topUpFormSchema reports the dialog copy for every field", () => {
     cardholderName: "a".repeat(101),
   });
   expect(long.error?.issues.map((issue) => issue.message)).toEqual([
-    "Enter the name on the card (up to 100 characters).",
+    "Ingresa el nombre que aparece en la tarjeta (hasta 100 caracteres).",
   ]);
 });

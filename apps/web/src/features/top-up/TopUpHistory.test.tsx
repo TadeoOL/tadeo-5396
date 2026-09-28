@@ -36,10 +36,10 @@ afterEach(() => {
 
 test("shows the empty state", () => {
   render(<TopUpHistory userId={userId} />);
-  expect(screen.getByText("No top-ups yet.")).toBeInTheDocument();
+  expect(screen.getByText("Aún no hay recargas.")).toBeInTheDocument();
   expect(
     screen.getByText(
-      "Top up with SnailPay to add funds. Every attempt shows up here, whatever its result.",
+      "Recarga con SnailPay para agregar fondos. Cada intento aparece aquí, sea cual sea su resultado.",
     ),
   ).toBeInTheDocument();
   expect(screen.queryByRole("table")).not.toBeInTheDocument();
@@ -72,14 +72,14 @@ test("lists every Top-up newest first with its outcome", () => {
   seed(3000, "unknown");
   seed(1000);
   render(<TopUpHistory userId={userId} />);
-  expect(screen.getByRole("region", { name: "Top-ups" })).toBeInTheDocument();
+  expect(screen.getByRole("region", { name: "Recargas" })).toBeInTheDocument();
   const rows = screen.getAllByRole("row").slice(1);
   const expected = [
-    ["Processing", "—", "$10.00"],
-    ["Confirming", "Not confirmed yet.", "—", "$30.00"],
-    ["Failed", "SnailPay was unavailable", "•••• 1234", "$20.00"],
-    ["Declined", "Insufficient funds", "•••• 0002", "$50.00"],
-    ["Approved", "Auth. code 482915", "•••• 1234", "$150.00"],
+    ["Procesando", "—", "$10.00"],
+    ["Confirmando", "Aún sin confirmar.", "—", "$30.00"],
+    ["Fallida", "SnailPay no estaba disponible", "•••• 1234", "$20.00"],
+    ["Rechazada", "Fondos insuficientes", "•••• 0002", "$50.00"],
+    ["Aprobada", "Cód. de autorización 482915", "•••• 1234", "$150.00"],
   ];
   expect(rows).toHaveLength(expected.length);
   rows.forEach((row, i) => {
@@ -107,7 +107,7 @@ test("shows the time for today and the date for older Top-ups", () => {
   );
   render(<TopUpHistory userId={userId} />);
   const [, today, old] = screen.getAllByRole("row");
-  expect(within(old!).getByText("Sep 27, 12:41")).toBeInTheDocument();
+  expect(within(old!).getByText("27 sep, 12:41")).toBeInTheDocument();
   expect(within(today!).getAllByRole("cell")[0]).toHaveTextContent(
     /^\d{2}:\d{2}$/,
   );
@@ -115,11 +115,11 @@ test("shows the time for today and the date for older Top-ups", () => {
 
 test("updates when the ledger changes", () => {
   render(<TopUpHistory userId={userId} />);
-  expect(screen.getByText("No top-ups yet.")).toBeInTheDocument();
+  expect(screen.getByText("Aún no hay recargas.")).toBeInTheDocument();
   act(() => {
     startTopUp(userId, { id: crypto.randomUUID(), amountCents: 1000 });
   });
-  expect(screen.getByText("Processing")).toBeInTheDocument();
+  expect(screen.getByText("Procesando")).toBeInTheDocument();
 });
 
 test("offers Check again on a Confirming Top-up", async () => {
@@ -132,9 +132,9 @@ test("offers Check again on a Confirming Top-up", async () => {
   settleTopUp(userId, id, "unknown");
   const ue = userEvent.setup();
   render(<TopUpHistory userId={userId} />);
-  expect(screen.getByText("Not confirmed yet.")).toBeInTheDocument();
-  const button = screen.getByRole("button", { name: "Check again" });
+  expect(screen.getByText("Aún sin confirmar.")).toBeInTheDocument();
+  const button = screen.getByRole("button", { name: "Verificar de nuevo" });
   expect(button).toBeEnabled();
   await ue.click(button);
-  expect(screen.getByRole("button", { name: "Checking…" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Verificando…" })).toBeDisabled();
 });

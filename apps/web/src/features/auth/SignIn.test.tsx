@@ -26,20 +26,24 @@ const registerAna = () =>
 
 async function signInWith(email: string, password: string) {
   const user = userEvent.setup();
-  const emailInput = screen.getByLabelText("Email");
-  const passwordInput = screen.getByLabelText("Password");
+  const emailInput = screen.getByLabelText("Correo electrónico");
+  const passwordInput = screen.getByLabelText("Contraseña");
   await user.clear(emailInput);
   if (email) await user.type(emailInput, email);
   await user.clear(passwordInput);
   if (password) await user.type(passwordInput, password);
-  await user.click(screen.getByRole("button", { name: /Sign(ing)? in/ }));
+  await user.click(
+    screen.getByRole("button", { name: /Inici(ar|ando) sesión/ }),
+  );
 }
 
 test("asks for both fields", async () => {
   render(<App />);
   await signInWith("", "");
-  expect(await screen.findByText("Enter your email.")).toBeInTheDocument();
-  expect(screen.getByText("Enter your password.")).toBeInTheDocument();
+  expect(
+    await screen.findByText("Ingresa tu correo electrónico."),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Ingresa tu contraseña.")).toBeInTheDocument();
 });
 
 test("shows the generic error and clears the password", async () => {
@@ -48,14 +52,14 @@ test("shows the generic error and clears the password", async () => {
   render(<App />);
   await signInWith("ana@example.com", "wrong horse battery staple");
   expect(
-    await screen.findByText("Invalid email or password."),
+    await screen.findByText("Correo electrónico o contraseña incorrectos."),
   ).toBeInTheDocument();
-  expect(screen.getByLabelText("Password")).toHaveValue("");
+  expect(screen.getByLabelText("Contraseña")).toHaveValue("");
   await signInWith("nobody@example.com", "wrong horse battery staple");
   expect(
-    await screen.findByText("Invalid email or password."),
+    await screen.findByText("Correo electrónico o contraseña incorrectos."),
   ).toBeInTheDocument();
-  expect(screen.getByLabelText("Password")).toHaveValue("");
+  expect(screen.getByLabelText("Contraseña")).toHaveValue("");
 });
 
 test("shows the lock message after 5 failed attempts", async () => {
@@ -63,9 +67,9 @@ test("shows the lock message after 5 failed attempts", async () => {
   for (let i = 0; i < 5; i++) {
     await signInWith("nobody@example.com", "wrong horse battery staple");
   }
-  expect(await screen.findByText("Too many attempts.")).toBeInTheDocument();
-  expect(screen.getByText(/Try again in \d+ s\./)).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Sign in" })).toBeDisabled();
+  expect(await screen.findByText("Demasiados intentos.")).toBeInTheDocument();
+  expect(screen.getByText(/Intenta de nuevo en \d+ s\./)).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Iniciar sesión" })).toBeDisabled();
 });
 
 test("signs in and lands on the dashboard", async () => {
@@ -74,7 +78,7 @@ test("signs in and lands on the dashboard", async () => {
   render(<App />);
   await signInWith("ana@example.com", "correct horse battery staple");
   expect(
-    await screen.findByRole("heading", { level: 1, name: "Hi, Ana López" }),
+    await screen.findByRole("heading", { level: 1, name: "Hola, Ana López" }),
   ).toBeInTheDocument();
   expect(window.location.pathname).toBe("/dashboard");
 });
@@ -94,8 +98,10 @@ test("tells the User their Session expired", async () => {
   );
   window.history.replaceState(null, "", "/dashboard");
   render(<App />);
-  expect(await screen.findByText("Your session expired.")).toBeInTheDocument();
-  expect(screen.getByText("Sign in again to continue.")).toBeInTheDocument();
+  expect(await screen.findByText("Tu sesión expiró.")).toBeInTheDocument();
+  expect(
+    screen.getByText("Inicia sesión de nuevo para continuar."),
+  ).toBeInTheDocument();
   expect(window.location.pathname).toBe("/sign-in");
 });
 
@@ -106,9 +112,9 @@ test("Sign out returns to sign-in and keeps the User", async () => {
   expect(screen.getByRole("banner")).toHaveTextContent("Ana López");
   await userEvent
     .setup()
-    .click(screen.getByRole("button", { name: "Sign out" }));
+    .click(screen.getByRole("button", { name: "Cerrar sesión" }));
   expect(
-    await screen.findByRole("heading", { level: 1, name: "Sign in" }),
+    await screen.findByRole("heading", { level: 1, name: "Iniciar sesión" }),
   ).toBeInTheDocument();
   expect(window.location.pathname).toBe("/sign-in");
   expect(getBackend().getItem(SESSION_KEY)).toBeNull();

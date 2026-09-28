@@ -28,7 +28,7 @@ export function AppShell() {
                 void navigate("/sign-in", { replace: true });
               }}
             >
-              Sign out
+              Cerrar sesión
             </Button>
           </div>
         )}

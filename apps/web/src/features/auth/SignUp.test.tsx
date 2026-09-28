@@ -21,25 +21,31 @@ async function fill(
   confirm: string,
 ) {
   const user = userEvent.setup();
-  await user.type(screen.getByLabelText("Full name"), fullName);
-  await user.type(screen.getByLabelText("Email"), email);
-  await user.type(screen.getByLabelText("Password"), password);
-  await user.type(screen.getByLabelText("Confirm password"), confirm);
-  await user.click(screen.getByRole("button", { name: "Create account" }));
+  await user.type(screen.getByLabelText("Nombre completo"), fullName);
+  await user.type(screen.getByLabelText("Correo electrónico"), email);
+  await user.type(screen.getByLabelText("Contraseña"), password);
+  await user.type(screen.getByLabelText("Confirma la contraseña"), confirm);
+  await user.click(screen.getByRole("button", { name: "Crear cuenta" }));
 }
 
 test("shows an error under every invalid field and focuses the first", async () => {
   render(<App />);
   await fill("A", "ana@", "short", "different");
   expect(
-    await screen.findByText("Enter your full name (2–80 characters)."),
+    await screen.findByText(
+      "Ingresa tu nombre completo (de 2 a 80 caracteres).",
+    ),
   ).toBeInTheDocument();
-  expect(screen.getByText("Enter a valid email address.")).toBeInTheDocument();
   expect(
-    screen.getByText("Use at least 15 characters. A short phrase works well."),
+    screen.getByText("Ingresa un correo electrónico válido."),
   ).toBeInTheDocument();
-  expect(screen.getByText("Passwords don't match.")).toBeInTheDocument();
-  const name = screen.getByLabelText("Full name");
+  expect(
+    screen.getByText(
+      "Usa al menos 15 caracteres. Una frase corta funciona bien.",
+    ),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Las contraseñas no coinciden.")).toBeInTheDocument();
+  const name = screen.getByLabelText("Nombre completo");
   expect(name).toHaveFocus();
   expect(name).toHaveAttribute("aria-invalid", "true");
   expect(getBackend().getItem(USERS_KEY)).toBeNull();
@@ -63,12 +69,13 @@ test("shows the duplicate-email message with a link to sign in", async () => {
     "another long pass phrase",
   );
   expect(
-    await screen.findByText("An account with this email already exists."),
+    await screen.findByText(
+      "Ya existe una cuenta con este correo electrónico.",
+    ),
   ).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "Sign in instead" })).toHaveAttribute(
-    "href",
-    "/sign-in",
-  );
+  expect(
+    screen.getByRole("link", { name: "Inicia sesión con esa cuenta" }),
+  ).toHaveAttribute("href", "/sign-in");
   expect(window.location.pathname).toBe("/sign-up");
 });
 
@@ -81,11 +88,11 @@ test("lands on the dashboard after signing up", async () => {
     "correct horse battery staple",
   );
   expect(
-    await screen.findByRole("heading", { level: 1, name: "Hi, Ana López" }),
+    await screen.findByRole("heading", { level: 1, name: "Hola, Ana López" }),
   ).toBeInTheDocument();
   expect(window.location.pathname).toBe("/dashboard");
-  expect(document.title).toBe("Dashboard · Snailrace");
+  expect(document.title).toBe("Panel · Snailrace");
   expect(
-    within(screen.getByRole("region", { name: "Balance" })).getByText("$0.00"),
+    within(screen.getByRole("region", { name: "Saldo" })).getByText("$0.00"),
   ).toBeInTheDocument();
 });

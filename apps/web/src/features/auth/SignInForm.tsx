@@ -62,25 +62,27 @@ export function SignInForm(props: {
       {seconds > 0 ? (
         <FormAlert variant="destructive">
           <Clock aria-hidden />
-          <AlertTitle>Too many attempts.</AlertTitle>
-          <AlertDescription>Try again in {seconds} s.</AlertDescription>
+          <AlertTitle>Demasiados intentos.</AlertTitle>
+          <AlertDescription>Intenta de nuevo en {seconds} s.</AlertDescription>
         </FormAlert>
       ) : errors.root?.type === "invalid" ? (
         <FormAlert variant="destructive">
           <X aria-hidden />
-          <AlertTitle>Invalid email or password.</AlertTitle>
+          <AlertTitle>Correo electrónico o contraseña incorrectos.</AlertTitle>
         </FormAlert>
       ) : (
         props.sessionExpired && (
           <Alert role="status">
-            <AlertTitle>Your session expired.</AlertTitle>
-            <AlertDescription>Sign in again to continue.</AlertDescription>
+            <AlertTitle>Tu sesión expiró.</AlertTitle>
+            <AlertDescription>
+              Inicia sesión de nuevo para continuar.
+            </AlertDescription>
           </Alert>
         )
       )}
       <TextField
         id="sign-in-email"
-        label="Email"
+        label="Correo electrónico"
         type="email"
         autoComplete="email"
         {...register("email")}
@@ -89,7 +91,7 @@ export function SignInForm(props: {
       />
       <TextField
         id="sign-in-password"
-        label="Password"
+        label="Contraseña"
         type="password"
         autoComplete="current-password"
         {...register("password")}
@@ -107,10 +109,10 @@ export function SignInForm(props: {
               aria-hidden
               className="animate-spin motion-reduce:animate-none"
             />
-            Signing in…
+            Iniciando sesión…
           </>
         ) : (
-          "Sign in"
+          "Iniciar sesión"
         )}
       </Button>
     </form>

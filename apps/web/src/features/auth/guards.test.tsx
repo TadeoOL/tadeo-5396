@@ -26,7 +26,7 @@ test("RequireSession sends a visitor with no Session to sign-in", async () => {
   at("/dashboard");
   render(<App />);
   expect(
-    await screen.findByRole("heading", { level: 1, name: "Sign in" }),
+    await screen.findByRole("heading", { level: 1, name: "Iniciar sesión" }),
   ).toBeInTheDocument();
   expect(window.location.pathname).toBe("/sign-in");
 });
@@ -37,7 +37,7 @@ test("PublicOnly sends a signed-in User to the dashboard", async () => {
     at(path);
     render(<App />);
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Hi, Ana López" }),
+      await screen.findByRole("heading", { level: 1, name: "Hola, Ana López" }),
     ).toBeInTheDocument();
     expect(window.location.pathname).toBe("/dashboard");
     cleanup();
@@ -47,14 +47,14 @@ test("PublicOnly sends a signed-in User to the dashboard", async () => {
 test("redirects / and unknown paths by Session", async () => {
   at("/");
   render(<App />);
-  await screen.findByRole("heading", { level: 1, name: "Sign in" });
+  await screen.findByRole("heading", { level: 1, name: "Iniciar sesión" });
   expect(window.location.pathname).toBe("/sign-in");
   cleanup();
 
   startSession(addAna().id);
   at("/nope");
   render(<App />);
-  await screen.findByRole("heading", { level: 1, name: "Hi, Ana López" });
+  await screen.findByRole("heading", { level: 1, name: "Hola, Ana López" });
   expect(window.location.pathname).toBe("/dashboard");
 });
 
@@ -63,7 +63,7 @@ test("restores a stored Session on the first render", () => {
   at("/dashboard");
   render(<App />);
   expect(
-    screen.getByRole("heading", { level: 1, name: "Hi, Ana López" }),
+    screen.getByRole("heading", { level: 1, name: "Hola, Ana López" }),
   ).toBeInTheDocument();
 });
 
@@ -82,10 +82,10 @@ test("signs the User out when the Session expires with the dashboard open", asyn
   at("/dashboard");
   render(<App />);
   expect(
-    screen.getByRole("heading", { level: 1, name: "Hi, Ana López" }),
+    screen.getByRole("heading", { level: 1, name: "Hola, Ana López" }),
   ).toBeInTheDocument();
   expect(
-    await screen.findByRole("heading", { level: 1, name: "Sign in" }),
+    await screen.findByRole("heading", { level: 1, name: "Iniciar sesión" }),
   ).toBeInTheDocument();
   expect(window.location.pathname).toBe("/sign-in");
   expect(getBackend().getItem(SESSION_KEY)).toBeNull();

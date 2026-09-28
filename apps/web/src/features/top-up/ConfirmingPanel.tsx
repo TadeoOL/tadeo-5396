@@ -19,40 +19,39 @@ export function ConfirmingPanel(props: {
       <CircleHelp aria-hidden className="text-warning" />
       {run?.checking ? (
         <>
-          <DialogTitle>Confirming your payment</DialogTitle>
+          <DialogTitle>Confirmando tu pago</DialogTitle>
           <p className="text-muted-foreground">
             {formatMxn(props.amountCents)}
           </p>
           <DialogDescription>
-            SnailPay didn't answer in time, so we're checking whether the
-            payment went through. Your balance won't change until it's
-            confirmed.
+            SnailPay no respondió a tiempo, así que estamos verificando si el
+            pago se realizó. Tu saldo no cambiará hasta que se confirme.
           </DialogDescription>
           <p role="status" className="flex items-center gap-2">
             <LoaderCircle
               aria-hidden
               className="animate-spin motion-reduce:animate-none"
             />
-            Checking… (attempt {run.attempt} of 5)
+            Verificando… (intento {run.attempt} de 5)
           </p>
           <DialogClose asChild>
-            <Button variant="outline">Close, keep checking</Button>
+            <Button variant="outline">Cerrar y seguir verificando</Button>
           </DialogClose>
         </>
       ) : (
         <>
-          <DialogTitle>Not confirmed yet</DialogTitle>
+          <DialogTitle>Aún sin confirmar</DialogTitle>
           <p className="text-muted-foreground">
             {formatMxn(props.amountCents)}
           </p>
           <DialogDescription>
-            SnailPay hasn't confirmed this payment yet. Your balance hasn't
-            changed. We'll check again when you come back, or you can check now.
+            SnailPay aún no confirma este pago. Tu saldo no ha cambiado.
+            Volveremos a verificar cuando regreses, o puedes verificar ahora.
           </DialogDescription>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">Cerrar</Button>
           </DialogClose>
-          <Button onClick={props.onCheckAgain}>Check again</Button>
+          <Button onClick={props.onCheckAgain}>Verificar de nuevo</Button>
         </>
       )}
     </div>

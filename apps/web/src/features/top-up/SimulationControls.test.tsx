@@ -32,10 +32,14 @@ test("reads the Outage and turns it on", async () => {
   );
   const ue = userEvent.setup();
   renderControls();
-  const off = screen.getByRole("switch", { name: "SnailPay outage: off" });
+  const off = screen.getByRole("switch", {
+    name: "Falla de SnailPay: desactivada",
+  });
   await waitFor(() => expect(off).toBeEnabled());
   await ue.click(off);
-  const on = await screen.findByRole("switch", { name: "SnailPay outage: on" });
+  const on = await screen.findByRole("switch", {
+    name: "Falla de SnailPay: activada",
+  });
   expect(on).toBeChecked();
   const put = fetchMock.mock.calls.find(([, init]) => init.method === "PUT");
   expect(put?.[0]).toBe("/api/snailpay/outage");
@@ -46,12 +50,18 @@ test("keeps the last value when SnailPay can't be reached", async () => {
   stubFetch(() => Promise.reject(new TypeError("Failed to fetch")));
   const ue = userEvent.setup();
   renderControls();
-  const off = screen.getByRole("switch", { name: "SnailPay outage: off" });
+  const off = screen.getByRole("switch", {
+    name: "Falla de SnailPay: desactivada",
+  });
   await waitFor(() => expect(off).toBeEnabled());
   await ue.click(off);
   expect(
-    await screen.findByText("Couldn't reach SnailPay. Try again."),
+    await screen.findByText(
+      "No se pudo conectar con SnailPay. Intenta de nuevo.",
+    ),
   ).toBeInTheDocument();
-  const still = screen.getByRole("switch", { name: "SnailPay outage: off" });
+  const still = screen.getByRole("switch", {
+    name: "Falla de SnailPay: desactivada",
+  });
   expect(still).not.toBeChecked();
 });

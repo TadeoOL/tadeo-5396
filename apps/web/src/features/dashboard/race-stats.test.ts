@@ -53,7 +53,7 @@ describe("race stats", () => {
     expect(
       summary(["pepper", "comet", "pepper", "mossback", "pepper", "comet"]),
     ).toBe(
-      "Pepper won 3 races, Comet 2, and Mossback 1. Drizzle, Nacho, and Sprinkles did not win.",
+      "Pepper ganó 3 carreras, Comet 2 y Mossback 1. Drizzle, Nacho y Sprinkles no ganaron.",
     );
   });
 
@@ -61,7 +61,7 @@ describe("race stats", () => {
     expect(
       summary(["nacho", "pepper", "pepper", "comet", "comet", "nacho"]),
     ).toBe(
-      "Comet won 2 races, Pepper 2, and Nacho 2. Mossback, Drizzle, and Sprinkles did not win.",
+      "Comet ganó 2 carreras, Pepper 2 y Nacho 2. Mossback, Drizzle y Sprinkles no ganaron.",
     );
   });
 
@@ -69,23 +69,23 @@ describe("race stats", () => {
     expect(
       summary(["sprinkles", "comet", "nacho", "drizzle", "pepper", "mossback"]),
     ).toBe(
-      "Comet won 1 race, Mossback 1, Pepper 1, Drizzle 1, Nacho 1, and Sprinkles 1.",
+      "Comet ganó 1 carrera, Mossback 1, Pepper 1, Drizzle 1, Nacho 1 y Sprinkles 1.",
     );
   });
 
   it("handles one winner, two winners and a single Snail without a Win", () => {
     expect(summary(Array.from({ length: 6 }, () => "nacho" as const))).toBe(
-      "Nacho won 6 races. Comet, Mossback, Pepper, Drizzle, and Sprinkles did not win.",
+      "Nacho ganó 6 carreras. Comet, Mossback, Pepper, Drizzle y Sprinkles no ganaron.",
     );
     expect(
       summary(["comet", "comet", "drizzle", "comet", "comet", "comet"]),
     ).toBe(
-      "Comet won 5 races and Drizzle 1. Mossback, Pepper, Nacho, and Sprinkles did not win.",
+      "Comet ganó 5 carreras y Drizzle 1. Mossback, Pepper, Nacho y Sprinkles no ganaron.",
     );
     expect(
       summary(["comet", "mossback", "pepper", "drizzle", "nacho", "comet"]),
     ).toBe(
-      "Comet won 2 races, Mossback 1, Pepper 1, Drizzle 1, and Nacho 1. Sprinkles did not win.",
+      "Comet ganó 2 carreras, Mossback 1, Pepper 1, Drizzle 1 y Nacho 1. Sprinkles no ganó.",
     );
   });
 });

@@ -10,7 +10,7 @@ import { useLedger } from "@/storage/ledger";
 import { useSession } from "@/storage/session";
 import type { User } from "@/storage/users";
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat("es-MX", {
   weekday: "long",
   month: "long",
   day: "numeric",
@@ -23,9 +23,9 @@ export function Dashboard() {
   return (
     <div className="mx-auto w-full max-w-5xl">
       <div className="border-b-[1.5px] border-dashed px-4 pt-6 md:px-6">
-        <ScreenTitle title="Dashboard">Hi, {user.fullName}</ScreenTitle>
+        <ScreenTitle title="Panel">Hola, {user.fullName}</ScreenTitle>
         <p className="text-sm text-muted-foreground">
-          Race day · {dateFormat.format(new Date())} · simulated
+          Jornada · {dateFormat.format(new Date())} · simulada
         </p>
       </div>
       <BalanceRegion user={user} />
@@ -47,7 +47,7 @@ function BalanceRegion({ user }: { user: User }) {
       aria-labelledby="balance-heading"
       className="flex flex-wrap items-end justify-between gap-4 border-b-[1.5px] border-dashed px-4 pt-4 pb-6 md:px-6"
     >
-      <h3 id="balance-heading">Balance</h3>
+      <h3 id="balance-heading">Saldo</h3>
       <p>
         <span className="text-5xl font-black [font-stretch:75%]">
           {formatMxn(balanceCents)}
@@ -57,7 +57,7 @@ function BalanceRegion({ user }: { user: User }) {
       {confirmingCents > 0 && (
         <p className="flex basis-full items-center gap-2 text-sm text-warning">
           <CircleHelp aria-hidden className="size-4" />
-          {formatMxn(confirmingCents)} being confirmed, not included yet
+          {formatMxn(confirmingCents)} en confirmación, aún no incluido
         </p>
       )}
       <TopUpDialog user={user} />

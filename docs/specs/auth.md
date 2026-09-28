@@ -12,10 +12,10 @@ Validation runs on submit and on blur. Errors are shown next to their field unle
 
 | Field | Normalization | Rules | Error |
 |---|---|---|---|
-| Full name | Trim, and collapse inner whitespace to one space | 2–80 characters after normalization; any Unicode except control characters | "Enter your full name (2–80 characters)." |
-| Email | Trim, and lowercase the whole address | Simple format `local@domain.tld`, no whitespace, at most 254 characters | "Enter a valid email address." |
-| Password | Unicode NFKC. **Not trimmed**: spaces count | 15–128 characters; no composition rules | "Use at least 15 characters. A short phrase works well." |
-| Confirm password | Same as password | Must equal the password exactly | "Passwords don't match." (on the confirmation field) |
+| Full name | Trim, and collapse inner whitespace to one space | 2–80 characters after normalization; any Unicode except control characters | "Ingresa tu nombre completo (de 2 a 80 caracteres)." |
+| Email | Trim, and lowercase the whole address | Simple format `local@domain.tld`, no whitespace, at most 254 characters | "Ingresa un correo electrónico válido." |
+| Password | Unicode NFKC. **Not trimmed**: spaces count | 15–128 characters; no composition rules | "Usa al menos 15 caracteres. Una frase corta funciona bien." |
+| Confirm password | Same as password | Must equal the password exactly | "Las contraseñas no coinciden." (on the confirmation field) |
 
 - **Password policy** follows NIST SP 800-63B-4 for single-factor authentication: a 15-character minimum and no composition rules (no required uppercase letters, digits or symbols). The 128-character maximum bounds the key-derivation input without blocking long passphrases. The help text suggests a passphrase to offset the length. There is no common-password blocklist, since it would add a dataset for little gain in a local simulation.
 - **Email normalization** applies no provider-specific rules (for example, removing Gmail dots). The normalized email is what gets stored and compared.
@@ -24,7 +24,7 @@ Validation runs on submit and on blur. Errors are shown next to their field unle
 
 ## Duplicate email
 
-If the normalized email already belongs to a User, sign-up fails with a form-level message, "An account with this email already exists.", and a link to sign in.
+If the normalized email already belongs to a User, sign-up fails with a form-level message, "Ya existe una cuenta con este correo electrónico.", and a link to sign in.
 
 This reveals that the email exists, which a server-backed app would usually hide to prevent account enumeration. Here the Users registry sits in localStorage, readable by anyone at the keyboard, so hiding it would protect nothing and only make the UX worse. Sign-in keeps its generic message because its failure has two possible causes.
 
@@ -53,15 +53,15 @@ type Credential = {
 3. **In one synchronous task**: re-read `snailrace.v1.users`, check the email for duplicates again, add the User `{ id: crypto.randomUUID(), fullName, email, credential }`, and write the key. The async step comes *before* this read-modify-write, so two tabs registering the same email at the same time cannot both succeed.
 4. Create the Session (see below) and go to `/dashboard`. Signing up signs the User in: the brief says a registered user must be able to access the app, and a second step would add friction for no gain.
 
-- **Initial Balance of $0**: sign-up does **not** create `snailrace.v1.ledger.<userId>`. A *missing* ledger key reads as `{ balanceCents: 0, topUps: [] }` and is first written by the first Top-up. Sign-up therefore makes one data write and can never leave a User without a ledger. A missing ledger is not an *invalid* one, which still triggers the "Reset local data" error from the state spec.
-- **Write failure** (for example, `QuotaExceededError`): show a form-level error ("Couldn't save your account. Free up browser storage and try again.") and create no Session.
+- **Initial Balance of $0**: sign-up does **not** create `snailrace.v1.ledger.<userId>`. A *missing* ledger key reads as `{ balanceCents: 0, topUps: [] }` and is first written by the first Top-up. Sign-up therefore makes one data write and can never leave a User without a ledger. A missing ledger is not an *invalid* one, which still triggers the "Restablecer datos locales" error from the state spec.
+- **Write failure** (for example, `QuotaExceededError`): show a form-level error ("No se pudo guardar tu cuenta. Libera espacio de almacenamiento del navegador e intenta de nuevo.") and create no Session.
 
 ## Sign-in
 
 1. Check that both fields are filled in and that the email is well formed. The password policy is **not** checked here: that would only reveal the rules to someone guessing, and a stored password always satisfies them.
 2. Check the throttle for the normalized email (see below). If sign-in is locked, stop.
 3. Find the User by normalized email with a linear scan of `snailrace.v1.users`.
-4. If there is no User, or the derived hash does not match, record a failure and show the form-level message **"Invalid email or password."** The message is the same for both causes and is not attached to either field.
+4. If there is no User, or the derived hash does not match, record a failure and show the form-level message **"Correo electrónico o contraseña incorrectos."** The message is the same for both causes and is not attached to either field.
 5. On a match, clear the throttle entry for that email, create the Session and go to `/dashboard`.
 
 The submit button is disabled with a loading state while the hash is derived.
@@ -84,7 +84,7 @@ type ThrottleRecord = Record<NormalizedEmail, {
 - **Five** consecutive failures lock sign-in for that email. The first lock lasts **30 s**, and each later lock doubles, up to **15 min**: `min(30 s × 2^(lockCount − 1), 15 min)`. When a lock is applied, `failures` resets to 0.
 - While locked, sign-in is refused before any hash is derived, with the form-level message "Too many attempts. Try again in N s." and a live countdown. The message is the same whether or not the email belongs to a User, because entries are keyed by the email typed.
 - A successful sign-in removes that email's entry.
-- Writes follow the state spec's read-modify-write rule. The key holds no Balance, so an invalid value is **discarded silently** rather than raising the "Reset local data" error.
+- Writes follow the state spec's read-modify-write rule. The key holds no Balance, so an invalid value is **discarded silently** rather than raising the "Restablecer datos locales" error.
 - **Honest limit**: removing the key in devtools lifts the lock. It shows the pattern, not a defense. The real defense is the PBKDF2 cost against offline guessing, and the database proposal moves throttling to the server (per IP and per account).
 
 ## Session

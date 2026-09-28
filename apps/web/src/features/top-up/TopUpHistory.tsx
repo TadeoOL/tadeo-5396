@@ -29,19 +29,19 @@ const LABELS: Record<
     label: string;
   }
 > = {
-  pending: { variant: "muted", icon: Clock, label: "Processing" },
-  unknown: { variant: "warning", icon: CircleHelp, label: "Confirming" },
-  credited: { variant: "success", icon: Check, label: "Approved" },
-  declined: { variant: "destructive", icon: X, label: "Declined" },
-  failed: { variant: "destructive", icon: TriangleAlert, label: "Failed" },
+  pending: { variant: "muted", icon: Clock, label: "Procesando" },
+  unknown: { variant: "warning", icon: CircleHelp, label: "Confirmando" },
+  credited: { variant: "success", icon: Check, label: "Aprobada" },
+  declined: { variant: "destructive", icon: X, label: "Rechazada" },
+  failed: { variant: "destructive", icon: TriangleAlert, label: "Fallida" },
 };
 
-const timeFormat = new Intl.DateTimeFormat("en-US", {
+const timeFormat = new Intl.DateTimeFormat("es-MX", {
   hour: "2-digit",
   minute: "2-digit",
   hourCycle: "h23",
 });
-const dateTimeFormat = new Intl.DateTimeFormat("en-US", {
+const dateTimeFormat = new Intl.DateTimeFormat("es-MX", {
   month: "short",
   day: "numeric",
   hour: "2-digit",
@@ -64,23 +64,23 @@ export function TopUpHistory({ userId }: { userId: string }) {
       aria-labelledby="top-ups-heading"
       className="border-b-[1.5px] border-dashed px-4 py-6 md:px-6"
     >
-      <h3 id="top-ups-heading">Top-ups</h3>
+      <h3 id="top-ups-heading">Recargas</h3>
       {topUps.length === 0 ? (
         <>
-          <p>No top-ups yet.</p>
+          <p>Aún no hay recargas.</p>
           <p className="text-sm text-muted-foreground">
-            Top up with SnailPay to add funds. Every attempt shows up here,
-            whatever its result.
+            Recarga con SnailPay para agregar fondos. Cada intento aparece aquí,
+            sea cual sea su resultado.
           </p>
         </>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>When</TableHead>
-              <TableHead className="hidden md:table-cell">Card</TableHead>
-              <TableHead>Outcome</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
+              <TableHead>Fecha</TableHead>
+              <TableHead className="hidden md:table-cell">Tarjeta</TableHead>
+              <TableHead>Resultado</TableHead>
+              <TableHead className="text-right">Monto</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -110,7 +110,7 @@ export function TopUpHistory({ userId }: { userId: string }) {
                         disabled={run?.checking}
                         onClick={() => reconcile(userId, topUp.id)}
                       >
-                        {run?.checking ? "Checking…" : "Check again"}
+                        {run?.checking ? "Verificando…" : "Verificar de nuevo"}
                       </Button>
                     )}
                   </TableCell>
