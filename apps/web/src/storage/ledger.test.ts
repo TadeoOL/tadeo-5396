@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { getBackend, setBackend } from "./backend";
 import { UnreadableDataError } from "./errors";
 import {
+  markPendingAsUnknown,
   readLedger,
   settleTopUp,
   startTopUp,
@@ -172,4 +173,25 @@ test("lets a failed write propagate and changes nothing", () => {
   setBackend(backend);
   expect(() => startTopUp(user, { id, amountCents: 15000 })).toThrow("full");
   expect(readLedger(user)).toEqual({ balanceCents: 0, topUps: [] });
+});
+
+test("markPendingAsUnknown turns every pending Top-up Unknown on load", () => {
+  const ids = [crypto.randomUUID(), id, crypto.randomUUID()];
+  for (const topUpId of ids)
+    startTopUp(user, { id: topUpId, amountCents: 1000 });
+  settleTopUp(user, id, "credited", charge);
+  markPendingAsUnknown(user);
+  const ledger = readLedger(user);
+  expect(ledger.topUps.map((t) => t.outcome)).toEqual([
+    "unknown",
+    "credited",
+    "unknown",
+  ]);
+  expect(ledger.balanceCents).toBe(1000);
+  expect(ledger.topUps[0]?.settledAt).toBeUndefined();
+  expect(ledger.topUps[2]?.settledAt).toBeUndefined();
+  const raw = stored();
+  markPendingAsUnknown(user);
+  expect(stored()).toBe(raw);
+  expect(readLedger(user)).toBe(ledger);
 });

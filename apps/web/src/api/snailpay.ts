@@ -14,3 +14,13 @@ export function createCharge(
     timeoutMs: SNAILPAY_TIMEOUT_MS,
   });
 }
+
+export function lookUpCharge(
+  reference: string,
+): Promise<ApiResult<ChargeResponse>> {
+  return request(
+    "/api/snailpay/charges?reference=" + encodeURIComponent(reference),
+    ChargeResponse,
+    { timeoutMs: SNAILPAY_TIMEOUT_MS },
+  );
+}

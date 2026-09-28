@@ -111,6 +111,17 @@ export function settleTopUp(
   return true;
 }
 
+export function markPendingAsUnknown(userId: string): void {
+  const ledger = readLedger(userId);
+  if (!ledger.topUps.some((topUp) => topUp.outcome === "pending")) return;
+  write(userId, {
+    ...ledger,
+    topUps: ledger.topUps.map((topUp) =>
+      topUp.outcome === "pending" ? { ...topUp, outcome: "unknown" } : topUp,
+    ),
+  });
+}
+
 export function useLedger(userId: string): Ledger {
   return useSyncExternalStore(subscribe, () => readLedger(userId));
 }
