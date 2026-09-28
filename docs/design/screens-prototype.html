@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screens prototype</title>
+<!-- Rough artifact to react to, not the build. Every screen and state from screens.md, laid out as a gallery. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9e6de; color: var(--foreground); font-family: var(--font-sans); font-size: 1rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  h1, h2, h3 { font-stretch: 75%; font-weight: 800; text-transform: uppercase; letter-spacing: 0.01em; line-height: 1.1; margin: 0; }
+  h1, h2 { font-size: 1.5rem; }
+  h3 { font-size: 1rem; }
+  p { margin: 0; }
+  a { color: inherit; font-weight: 700; }
+  .meta { font-size: 0.875rem; color: var(--muted-foreground); }
+
+  /* Gallery chrome (not part of the app) */
+  .gallery { max-width: 76rem; margin: 0 auto; padding: 32px 16px 64px; }
+  .gallery > header { margin-bottom: 24px; }
+  .gallery > header h1 { font-size: 3rem; }
+  .shot { margin: 40px 0 0; }
+  .shot > figcaption { font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+  .shot > figcaption span { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted-foreground); }
+  .row { display: flex; gap: 24px; flex-wrap: wrap; align-items: start; }
+  .phone { width: 390px; max-width: 100%; }
+
+  /* App frame */
+  .app { container-type: inline-size; border: 1.5px solid var(--silk-seam); border-radius: var(--radius); background: var(--background); overflow: hidden; flex: 1 1 0; min-width: 0; }
+  .bar-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px; background: var(--primary); color: var(--primary-foreground); }
+  .wordmark { font-stretch: 62%; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+  .who { display: flex; align-items: center; gap: 8px; font-size: .875rem; }
+  .bar-top .btn-ghost { color: var(--primary-foreground); }
+  .bar-top .btn-ghost:hover { background: #2c2c33; }
+
+  .btn { font: inherit; font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.04em; border-radius: var(--radius); padding: 10px 16px; border: 1.5px solid var(--primary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+  .btn-outline { background: var(--card); color: var(--foreground); }
+  .btn-ghost { background: none; border-color: transparent; color: var(--foreground); }
+  .btn-sm { padding: 4px 10px; }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .btn-block { width: 100%; }
+  .spin { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(1turn) } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.875rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+  .badge svg, .alert svg, .toast svg, .done svg { width: 16px; height: 16px; flex: none; }
+  .credited { color: var(--success); background: var(--success-surface); }
+  .declined, .failed { color: var(--destructive); background: var(--destructive-surface); }
+  .unknown { color: var(--warning); background: var(--warning-surface); }
+  .pending { color: var(--muted-foreground); background: var(--muted); }
+
+  .alert { display: flex; gap: 10px; padding: 12px; border-radius: var(--radius); font-size: 0.875rem; margin-bottom: 16px; }
+  .alert svg { margin-top: 2px; }
+  .alert strong { display: block; }
+  .alert.neutral { background: var(--muted); color: var(--foreground); }
+
+  /* Forms */
+  .field { display: grid; gap: 4px; margin-bottom: 14px; min-width: 0; }
+  .field label { font-weight: 700; font-size: 0.875rem; }
+  .field input { font: inherit; width: 100%; min-width: 0; padding: 9px 12px; border: 1.5px solid var(--input); border-radius: var(--radius); background: var(--card); color: var(--foreground); }
+  .field input::placeholder { color: var(--muted-foreground); }
+  .field input[aria-invalid="true"] { border-color: var(--destructive); }
+  .field input[readonly] { background: var(--muted); }
+  .field .err { color: var(--destructive); font-size: 0.875rem; }
+  .field .hint { color: var(--muted-foreground); font-size: 0.875rem; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Auth */
+  .auth { display: grid; place-items: start center; padding: 40px 16px 48px; }
+  .auth-box { width: min(26rem, 100%); }
+  .auth-box h1 { font-size: 1.5rem; margin: 16px 0 4px; }
+  .auth-box > .meta { margin-bottom: 24px; }
+  .auth-alt { margin-top: 16px; font-size: .875rem; text-align: center; }
+  .silks-row { display: flex; gap: 6px; }
+
+  /* Dashboard */
+  .dash-head { padding: 24px 20px 0; }
+  .purse { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; padding: 16px 20px 24px; }
+  .amount { font-size: 3rem; font-weight: 900; font-stretch: 75%; line-height: 1; }
+  .amount small { font-size: 1rem; font-weight: 700; color: var(--muted-foreground); margin-left: 6px; }
+  .confirming { margin-top: 8px; display: flex; gap: 6px; align-items: center; font-size: .875rem; color: var(--warning); }
+  .confirming svg { width: 14px; height: 14px; }
+  .seam { border-top: 1.5px dashed var(--border); }
+  .boards { display: grid; grid-template-columns: 2fr 1fr; }
+  .boards > div { padding: 20px; }
+  .boards > div + div { border-left: 1.5px dashed var(--border); }
+  .boards h3, .history h3, .sim h3 { margin-bottom: 4px; }
+  .history, .sim { padding: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin-top: 8px; }
+  th { text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); padding: 8px; border-bottom: 1.5px solid var(--foreground); }
+  td { padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td .meta { display: block; margin-top: 2px; }
+  .num { text-align: right; font-weight: 700; }
+  .bars rect.bar { stroke: var(--silk-seam); stroke-width: 1.5; }
+  .empty { padding: 24px 0 8px; }
+  .sk { background: var(--muted); border-radius: var(--radius); }
+  .sim-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+  .switch { display: inline-flex; align-items: center; gap: 10px; font-size: .875rem; font-weight: 700; }
+  .switch i { width: 40px; height: 22px; border-radius: 999px; background: var(--input); position: relative; }
+  .switch i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--card); }
+  .switch.on i { background: var(--destructive); }
+  .switch.on i::after { left: 21px; }
+  .hide-sm {}
+  @container (max-width: 720px) {
+    .boards { grid-template-columns: 1fr; }
+    .boards > div + div { border-left: 0; border-top: 1.5px dashed var(--border); }
+    .hide-sm { display: none; }
+    .purse .btn { width: 100%; }
+    .who .name { display: none; }
+    .amount { font-size: 2.5rem; }
+  }
+
+  /* Dialog */
+  .scrim { background: var(--scrim); padding: 32px 16px; display: grid; place-items: center; border-radius: var(--radius); flex: 1 1 22rem; min-width: 0; }
+  .dialog { background: var(--popover); border-radius: calc(var(--radius) + 2px); box-shadow: var(--shadow-dialog); width: min(28rem, 100%); padding: 24px; }
+  .dialog h2 { margin-bottom: 4px; }
+  .dialog .sub { margin-bottom: 16px; }
+  .actions { display: flex; justify-content: end; gap: 8px; margin-top: 4px; }
+  details { margin-top: 16px; font-size: .875rem; border-top: 1px solid var(--border); padding-top: 12px; }
+  summary { cursor: pointer; font-weight: 700; }
+  details table { margin-top: 4px; }
+  details td, details th { padding: 6px 4px; }
+  .done { text-align: center; padding: 8px 0; }
+  .done .mark { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 12px; }
+  .done .mark svg { width: 24px; height: 24px; }
+  .done .big { font-size: 2.25rem; font-weight: 900; font-stretch: 75%; line-height: 1; margin: 8px 0; }
+  dl.receipt { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; text-align: left; font-size: .875rem; margin: 16px 0; padding: 12px; background: var(--muted); border-radius: var(--radius); }
+  dl.receipt dt { color: var(--muted-foreground); }
+  dl.receipt dd { margin: 0; font-weight: 700; text-align: right; }
+
+  /* Toasts */
+  .toast { display: flex; gap: 10px; align-items: start; background: var(--popover); box-shadow: var(--shadow-float); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: .875rem; width: 22rem; max-width: 100%; }
+  .toast strong { display: block; }
+
+  /* Copy table */
+  .copy { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 8px 16px 16px; }
+  .copy td:first-child { font-family: ui-monospace, monospace; font-size: .8rem; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="silk-1" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="var(--chart-1)"/><rect y="5" width="16" height="6" fill="var(--chart-1-trim)"/></pattern>
+    <pattern id="silk-2" width="16" height="12" patternUnits="userSpaceOnUse"><rect width="16" height="12" fill="var(--chart-2)"/><path d="M0 11 L8 4 L16 11" fill="none" stroke="var(--chart-2-trim)" stroke-width="3"/></pattern>
+    <pattern id="silk-3" width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" fill="var(--chart-3)"/><rect width="12" height="12" fill="var(--chart-3-trim)"/><rect x="12" y="12" width="12" height="12" fill="var(--chart-3-trim)"/></pattern>
+    <pattern id="silk-4" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="var(--chart-4)"/><circle cx="6" cy="6" r="2.6" fill="var(--chart-4-trim)"/></pattern>
+    <pattern id="silk-5" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="14" height="14" fill="var(--chart-5)"/><rect width="5" height="14" fill="var(--chart-5-trim)"/></pattern>
+    <pattern id="silk-6" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="var(--chart-6)"/><rect x="4" width="4" height="12" fill="var(--chart-6-trim)"/></pattern>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--background)"/><rect width="3" height="6" fill="var(--bet-lost)"/></pattern>
+    <symbol id="shirt" viewBox="0 0 40 36"><path d="M13 2 L5 6 L1 16 L8 19 L9 14 L9 34 L31 34 L31 14 L32 19 L39 16 L35 6 L27 2 Q20 8 13 2 Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="13" width="18" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 7.5h.01M7 16.5h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<main class="gallery">
+<header>
+  <h1>Screens</h1>
+  <p class="meta">Every screen and state in <code>screens.md</code>. Frames at full width are desktop; the 390 px frames are the phone layout (the dashboard switches below 720 px of its own width). Copy is final; spacing is indicative.</p>
+</header>
+
+<!-- ================= AUTH ================= -->
+<h2 style="margin-top:40px">1 · Sign in and sign up</h2>
+
+<figure class="shot"><figcaption>Sign in · <span>idle, then invalid credentials</span></figcaption>
+<div class="row">
+  <div class="app">
+    <header class="bar-top"><span class="wordmark"><svg width="28" height="25" aria-hidden="true"><use href="#shirt" fill="url(#silk-2)" stroke="var(--primary-foreground)" stroke-width="1.5"/></svg>Snailrace</span></header>
+    <div class="auth"><div class="auth-box">
+      <div class="silks-row" aria-hidden="true">
+        <svg width="24" height="22"><use href="#shirt" fill="url(#silk-1)" stroke="var(--silk-seam)" stroke-width="1.5"/></svg><svg width="24" height="22"><use href="#shirt" fill="url(#silk-2)" stroke="var(--silk-seam)" stroke-width="1.5"/></svg><svg width="24" height="22"><use href="#shirt" fill="url(#silk-3)" stroke="var(--silk-seam)" stroke-width="1.5"/></svg><svg width="24" height="22"><use href="#shirt" fill="url(#silk-4)" stroke="var(--silk-seam)" stroke-width="1.5"/></svg><svg width="24" height="22"><use href="#shirt" fill="url(#silk-5)" stroke="var(--silk-seam)" stroke-width="1.5"/></svg><svg width="24" height="22"><use href="#shirt" fill="url(#silk-6)" stroke="var(--silk-seam)" stroke-width="1.5"/></svg>
+      </div>
+      <h1>Sign in</h1>
+      <p class="meta">See how today's races went and top up your balance.</p>
+      <div class="field"><label>Email</label><input value="ana@example.com" autocomplete="email"></div>
+      <div class="field"><label>Password</label><input type="password" value="xxxxxxxxxxxxxxxx" autocomplete="current-password"></div>
+      <button class="btn btn-primary btn-block">Sign in</button>
+      <p class="auth-alt">New here? <a href="#">Create an account</a></p>
+    </div></div>
+  </div>
+  <div class="app phone">
+    <header class="bar-top"><span class="wordmark"><svg width="28" height="25" aria-hidden="true"><use href="#shirt" fill="url(#silk-2)" stroke="var(--primary-foreground)" stroke-width="1.5"/></svg>Snailrace</span></header>
+    <div class="auth"><div class="auth-box">
+      <h1>Sign in</h1>
+      <p class="meta">See how today's races went and top up your balance.</p>
+      <div class="alert declined" role="alert"><svg><use href="#i-x"/></svg><span><strong>Invalid email or password.</strong></span></div>
+      <div class="field"><label>Email</label><input value="ana@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" value="" ></div>
+      <button class="btn btn-primary btn-block">Sign in</button>
+      <p class="auth-alt">New here? <a href="#">Create an account</a></p>
+    </div></div>
+  </div>
+</div>
+</figure>
+
+<figure class="shot"><figcaption>Sign in · <span>checking (button busy), then locked with a live countdown</span></figcaption>
+<div class="row">
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Sign in</h1>
+    <p class="meta">See how today's races went and top up your balance.</p>
+    <div class="field"><label>Email</label><input value="ana@example.com" readonly></div>
+    <div class="field"><label>Password</label><input type="password" value="xxxxxxxxxxxxxxxx" readonly></div>
+    <button class="btn btn-primary btn-block" disabled><span class="spin"></span>Signing in…</button>
+  </div></div></div>
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Sign in</h1>
+    <p class="meta">See how today's races went and top up your balance.</p>
+    <div class="alert declined" role="alert"><svg><use href="#i-clock"/></svg><span><strong>Too many attempts.</strong>Try again in 27 s.</span></div>
+    <div class="field"><label>Email</label><input value="ana@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" value=""></div>
+    <button class="btn btn-primary btn-block" disabled>Sign in</button>
+  </div></div></div>
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Sign in</h1>
+    <p class="meta">See how today's races went and top up your balance.</p>
+    <div class="alert neutral" role="status"><svg><use href="#i-clock"/></svg><span><strong>Your session expired.</strong>Sign in again to continue.</span></div>
+    <div class="field"><label>Email</label><input value=""></div>
+    <div class="field"><label>Password</label><input type="password" value=""></div>
+    <button class="btn btn-primary btn-block">Sign in</button>
+  </div></div></div>
+</div>
+</figure>
+
+<figure class="shot"><figcaption>Sign up · <span>field errors on submit, and the duplicate email</span></figcaption>
+<div class="row">
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Create your account</h1>
+    <p class="meta">Your balance starts at $0.00.</p>
+    <div class="field"><label>Full name</label><input value="A" aria-invalid="true"><span class="err">Enter your full name (2–80 characters).</span></div>
+    <div class="field"><label>Email</label><input value="ana@example" aria-invalid="true"><span class="err">Enter a valid email address.</span></div>
+    <div class="field"><label>Password</label><input type="password" value="xxxxxxx" aria-invalid="true"><span class="err">Use at least 15 characters. A short phrase works well.</span></div>
+    <div class="field"><label>Confirm password</label><input type="password" value="xxxxxx" aria-invalid="true"><span class="err">Passwords don't match.</span></div>
+    <button class="btn btn-primary btn-block">Create account</button>
+    <p class="auth-alt">Already have an account? <a href="#">Sign in</a></p>
+  </div></div></div>
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Create your account</h1>
+    <p class="meta">Your balance starts at $0.00.</p>
+    <div class="alert declined" role="alert"><svg><use href="#i-x"/></svg><span><strong>An account with this email already exists.</strong><a href="#">Sign in instead</a></span></div>
+    <div class="field"><label>Full name</label><input value="Ana Torres"></div>
+    <div class="field"><label>Email</label><input value="ana@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" value="xxxxxxxxxxxxxxxxxx"><span class="hint">At least 15 characters. A short phrase works well.</span></div>
+    <div class="field"><label>Confirm password</label><input type="password" value="xxxxxxxxxxxxxxxxxx"></div>
+    <button class="btn btn-primary btn-block">Create account</button>
+    <p class="auth-alt">Already have an account? <a href="#">Sign in</a></p>
+  </div></div></div>
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Create your account</h1>
+    <p class="meta">Your balance starts at $0.00.</p>
+    <div class="field"><label>Full name</label><input value="Ana Torres" readonly></div>
+    <div class="field"><label>Email</label><input value="ana@example.com" readonly></div>
+    <div class="field"><label>Password</label><input type="password" value="xxxxxxxxxxxxxxxxxx" readonly></div>
+    <div class="field"><label>Confirm password</label><input type="password" value="xxxxxxxxxxxxxxxxxx" readonly></div>
+    <button class="btn btn-primary btn-block" disabled><span class="spin"></span>Creating account…</button>
+  </div></div></div>
+</div>
+</figure>
+
+<!-- ================= DASHBOARD ================= -->
+<h2 style="margin-top:56px">2 · Dashboard</h2>
+
+<figure class="shot"><figcaption>Dashboard · <span>desktop, with a Top-up being confirmed and every outcome in the history</span></figcaption>
+<div class="app">
+  <header class="bar-top">
+    <span class="wordmark"><svg width="28" height="25" aria-hidden="true"><use href="#shirt" fill="url(#silk-2)" stroke="var(--primary-foreground)" stroke-width="1.5"/></svg>Snailrace</span>
+    <span class="who"><span class="name">Ana Torres</span><button class="btn btn-ghost">Sign out</button></span>
+  </header>
+  <div class="dash-head">
+    <h1>Hi, Ana Torres</h1>
+    <p class="meta">Race day · Monday, September 28 · simulated</p>
+  </div>
+  <div class="purse">
+    <div>
+      <h3 style="margin-bottom:4px">Balance</h3>
+      <div class="amount">$1,250.00<small>MXN</small></div>
+      <p class="confirming"><svg><use href="#i-help"/></svg>$200.00 being confirmed, not included yet</p>
+    </div>
+    <button class="btn btn-primary">Top up</button>
+  </div>
+  <div class="boards seam">
+    <div>
+      <h3>Wins today</h3>
+      <p class="meta">6 races, 6 snails</p>
+      <svg class="bars" viewBox="0 0 420 220" role="img" aria-labelledby="bars-sum" style="width:100%;height:auto;margin-top:8px">
+        <g><rect class="bar" x="18"  y="84"  width="48" height="96" fill="url(#silk-1)"/><text x="42"  y="74"  text-anchor="middle" font-weight="800">2</text><text x="42"  y="204" text-anchor="middle" font-size="13">Comet</text></g>
+        <g><rect class="bar" x="86"  y="132" width="48" height="48" fill="url(#silk-2)"/><text x="110" y="122" text-anchor="middle" font-weight="800">1</text><text x="110" y="204" text-anchor="middle" font-size="13">Mossback</text></g>
+        <g><rect class="bar" x="154" y="36"  width="48" height="144" fill="url(#silk-3)"/><text x="178" y="26"  text-anchor="middle" font-weight="800">3</text><text x="178" y="204" text-anchor="middle" font-size="13">Pepper</text></g>
+        <g><rect class="bar" x="222" y="178" width="48" height="2"  fill="url(#silk-4)"/><text x="246" y="168" text-anchor="middle" font-weight="800">0</text><text x="246" y="204" text-anchor="middle" font-size="13">Drizzle</text></g>
+        <g><rect class="bar" x="290" y="178" width="48" height="2"  fill="url(#silk-5)"/><text x="314" y="168" text-anchor="middle" font-weight="800">0</text><text x="314" y="204" text-anchor="middle" font-size="13">Nacho</text></g>
+        <g><rect class="bar" x="358" y="178" width="48" height="2"  fill="url(#silk-6)"/><text x="382" y="168" text-anchor="middle" font-weight="800">0</text><text x="382" y="204" text-anchor="middle" font-size="13">Sprinkles</text></g>
+      </svg>
+      <p id="bars-sum" class="meta">Pepper won 3 races, Comet 2 and Mossback 1. Drizzle, Nacho and Sprinkles did not win.</p>
+    </div>
+    <div>
+      <h3>Your bets today</h3>
+      <p class="meta">Simulated, no money involved</p>
+      <svg viewBox="0 0 120 120" role="img" aria-labelledby="donut-sum" style="width:160px;display:block;margin:12px auto">
+        <circle cx="60" cy="60" r="44" fill="none" stroke="url(#hatch)" stroke-width="20"/>
+        <circle cx="60" cy="60" r="44" fill="none" stroke="var(--bet-won)" stroke-width="20" stroke-dasharray="161.3 115.2" transform="rotate(-90 60 60)"/>
+        <text x="60" y="58" text-anchor="middle" font-weight="900" font-size="22">7/12</text>
+        <text x="60" y="76" text-anchor="middle" font-size="11">won</text>
+      </svg>
+      <p id="donut-sum" class="meta" style="text-align:center">■ 7 won · ▨ 5 lost, out of 12 bets.</p>
+    </div>
+  </div>
+  <div class="history seam">
+    <h3>Top-ups</h3>
+    <table>
+      <thead><tr><th>When</th><th class="hide-sm">Card</th><th>Outcome</th><th class="num">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>12:41</td><td class="hide-sm">•••• 1234</td><td><span class="badge pending"><svg><use href="#i-clock"/></svg>Processing</span></td><td class="num">$300.00</td></tr>
+        <tr><td>12:30</td><td class="hide-sm">•••• 0004</td><td><span class="badge unknown"><svg><use href="#i-help"/></svg>Confirming</span><span class="meta">Not confirmed yet. <button class="btn btn-outline btn-sm">Check again</button></span></td><td class="num">$200.00</td></tr>
+        <tr><td>12:12</td><td class="hide-sm">•••• 0002</td><td><span class="badge declined"><svg><use href="#i-x"/></svg>Declined</span><span class="meta">Insufficient funds</span></td><td class="num">$500.00</td></tr>
+        <tr><td>11:58</td><td class="hide-sm">•••• 1234</td><td><span class="badge failed"><svg><use href="#i-alert"/></svg>Failed</span><span class="meta">SnailPay was unavailable</span></td><td class="num">$150.00</td></tr>
+        <tr><td>11:40</td><td class="hide-sm">•••• 1234</td><td><span class="badge credited"><svg><use href="#i-check"/></svg>Approved</span><span class="meta">Auth. code 482915</span></td><td class="num">$1,250.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sim seam">
+    <h3>Simulation controls</h3>
+    <div class="sim-row">
+      <p class="meta" style="max-width:48ch">Turn this on to make SnailPay fail every payment, as if it had an internal problem. It affects everyone using this server.</p>
+      <span class="switch" role="switch" aria-checked="false"><i></i>SnailPay outage: off</span>
+    </div>
+  </div>
+</div>
+</figure>
+
+<figure class="shot"><figcaption>Dashboard · <span>phone; a new User (empty history); race data loading; race data failed</span></figcaption>
+<div class="row">
+  <div class="app phone">
+    <header class="bar-top"><span class="wordmark"><svg width="28" height="25" aria-hidden="true"><use href="#shirt" fill="url(#silk-2)" stroke="var(--primary-foreground)" stroke-width="1.5"/></svg>Snailrace</span><span class="who"><span class="name">Ana Torres</span><button class="btn btn-ghost">Sign out</button></span></header>
+    <div class="dash-head"><h1>Hi, Ana Torres</h1><p class="meta">Race day · Monday, September 28 · simulated</p></div>
+    <div class="purse"><div><h3 style="margin-bottom:4px">Balance</h3><div class="amount">$0.00<small>MXN</small></div></div><button class="btn btn-primary">Top up</button></div>
+    <div class="boards seam">
+      <div><h3>Wins today</h3><p class="meta">6 races, 6 snails</p><div class="sk" style="height:180px;margin-top:12px"></div></div>
+      <div><h3>Your bets today</h3><p class="meta">Simulated, no money involved</p><div class="sk" style="width:140px;height:140px;border-radius:50%;margin:12px auto"></div></div>
+    </div>
+    <div class="history seam"><h3>Top-ups</h3><div class="empty"><p><strong>No top-ups yet.</strong></p><p class="meta">Top up with SnailPay to add funds. Every attempt shows up here, whatever its result.</p></div></div>
+  </div>
+  <div class="app phone">
+    <header class="bar-top"><span class="wordmark"><svg width="28" height="25" aria-hidden="true"><use href="#shirt" fill="url(#silk-2)" stroke="var(--primary-foreground)" stroke-width="1.5"/></svg>Snailrace</span><span class="who"><button class="btn btn-ghost">Sign out</button></span></header>
+    <div class="dash-head"><h1>Hi, Ana Torres</h1><p class="meta">Race day · Monday, September 28 · simulated</p></div>
+    <div class="purse"><div><h3 style="margin-bottom:4px">Balance</h3><div class="amount">$1,250.00<small>MXN</small></div></div><button class="btn btn-primary">Top up</button></div>
+    <div class="boards seam">
+      <div><h3>Wins today</h3>
+        <div class="alert failed" style="margin-top:12px" role="alert"><svg><use href="#i-alert"/></svg><span><strong>Couldn't load today's races.</strong>Check your connection and try again.<br><button class="btn btn-outline btn-sm" style="margin-top:8px">Try again</button></span></div>
+      </div>
+      <div><h3>Your bets today</h3>
+        <div class="alert failed" style="margin-top:12px" role="alert"><svg><use href="#i-alert"/></svg><span><strong>Couldn't load your bets.</strong><button class="btn btn-outline btn-sm" style="margin-top:8px">Try again</button></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</figure>
+
+<!-- ================= TOP-UP ================= -->
+<h2 style="margin-top:56px">3 · Top-up dialog</h2>
+
+<figure class="shot"><figcaption>Form · <span>server waking up (submit disabled); then validation errors</span></figcaption>
+<div class="row">
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <h2>Top up your balance</h2>
+    <p class="meta sub">Paid through SnailPay, a simulated gateway. Use a test card; never a real one.</p>
+    <div class="alert neutral" role="status"><span class="spin" style="margin-top:3px"></span><span><strong>Waking up the server.</strong>This can take up to a minute.</span></div>
+    <div class="field"><label>Amount (MXN)</label><input placeholder="0.00" inputmode="decimal"></div>
+    <div class="field"><label>Card number</label><input placeholder="1234 1234 1234 1234" inputmode="numeric" autocomplete="off"></div>
+    <div class="row2">
+      <div class="field"><label>Expiry</label><input placeholder="MM/YY" autocomplete="off"></div>
+      <div class="field"><label>CVV</label><input placeholder="3 digits" autocomplete="off"></div>
+    </div>
+    <div class="field"><label>Name on card</label><input value="Ana Torres" autocomplete="off"></div>
+    <div class="actions"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary" disabled>Top up</button></div>
+    <details><summary>Test cards</summary>
+      <p class="meta" style="margin-top:6px">All use expiry 12/26 and CVV 543.</p>
+      <table><tbody>
+        <tr><td>1234 1234 1234 1234</td><td>Approved</td></tr>
+        <tr><td>1234 1234 1234 0002</td><td>Declined: insufficient funds</td></tr>
+        <tr><td>1234 1234 1234 0003</td><td>Declined: security</td></tr>
+        <tr><td>1234 1234 1234 0004</td><td>No answer in time (timeout)</td></tr>
+      </tbody></table>
+    </details>
+  </div></div>
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <h2>Top up your balance</h2>
+    <p class="meta sub">Paid through SnailPay, a simulated gateway. Use a test card; never a real one.</p>
+    <div class="field"><label>Amount (MXN)</label><input value="0" aria-invalid="true"><span class="err">Enter an amount from $0.01 to $10,000.00.</span></div>
+    <div class="field"><label>Card number</label><input value="1234 1234 1234 12" aria-invalid="true"><span class="err">Enter the 16 digits of the card.</span></div>
+    <div class="row2">
+      <div class="field"><label>Expiry</label><input value="13/26" aria-invalid="true"><span class="err">Use MM/YY.</span></div>
+      <div class="field"><label>CVV</label><input value="54" aria-invalid="true"><span class="err">Enter 3 digits.</span></div>
+    </div>
+    <div class="field"><label>Name on card</label><input value="" aria-invalid="true"><span class="err">Enter the name on the card.</span></div>
+    <div class="actions"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Top up $0.00</button></div>
+  </div></div>
+</div>
+</figure>
+
+<figure class="shot"><figcaption>Processing, then Approved · <span>the dialog can be closed while processing; the result lands in the history either way</span></figcaption>
+<div class="row">
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <h2>Top up your balance</h2>
+    <p class="meta sub">Paid through SnailPay, a simulated gateway. Use a test card; never a real one.</p>
+    <div class="alert neutral" role="status"><span class="spin" style="margin-top:3px"></span><span><strong>Processing your payment…</strong>You can close this window. The result will appear in your top-ups.</span></div>
+    <div class="field"><label>Amount (MXN)</label><input value="500.00" readonly></div>
+    <div class="field"><label>Card number</label><input value="1234 1234 1234 1234" readonly></div>
+    <div class="row2"><div class="field"><label>Expiry</label><input value="12/26" readonly></div><div class="field"><label>CVV</label><input value="•••" readonly></div></div>
+    <div class="field"><label>Name on card</label><input value="Ana Torres" readonly></div>
+    <div class="actions"><button class="btn btn-outline">Close</button><button class="btn btn-primary" disabled><span class="spin"></span>Processing…</button></div>
+  </div></div>
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <div class="done" role="status">
+      <div class="mark credited"><svg><use href="#i-check"/></svg></div>
+      <h2>Payment approved</h2>
+      <p class="big">+$500.00</p>
+      <p class="meta">Added to your balance. New balance: <strong style="color:var(--foreground)">$1,750.00</strong></p>
+      <dl class="receipt">
+        <dt>Card</dt><dd>•••• 1234</dd>
+        <dt>Authorization code</dt><dd>482915</dd>
+        <dt>Reference</dt><dd>5f1c3a8e…5f60</dd>
+      </dl>
+      <button class="btn btn-primary btn-block">Done</button>
+    </div>
+  </div></div>
+</div>
+</figure>
+
+<figure class="shot"><figcaption>Declined and Failed · <span>form stays filled, alert on top, the matching field marked; submitting again is a new Top-up</span></figcaption>
+<div class="row">
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <h2>Top up your balance</h2>
+    <p class="meta sub">Paid through SnailPay, a simulated gateway. Use a test card; never a real one.</p>
+    <div class="alert declined" role="alert"><svg><use href="#i-x"/></svg><span><strong>Declined: wrong security code</strong>Your balance did not change. Check the 3-digit code on the back of the card.</span></div>
+    <div class="field"><label>Amount (MXN)</label><input value="500.00"></div>
+    <div class="field"><label>Card number</label><input value="1234 1234 1234 1234"></div>
+    <div class="row2"><div class="field"><label>Expiry</label><input value="12/26"></div><div class="field"><label>CVV</label><input value="123" aria-invalid="true"><span class="err">Doesn't match this card.</span></div></div>
+    <div class="field"><label>Name on card</label><input value="Ana Torres"></div>
+    <div class="actions"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Try again</button></div>
+  </div></div>
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <h2>Top up your balance</h2>
+    <p class="meta sub">Paid through SnailPay, a simulated gateway. Use a test card; never a real one.</p>
+    <div class="alert failed" role="alert"><svg><use href="#i-alert"/></svg><span><strong>SnailPay is unavailable</strong>Nothing was charged and your balance did not change. Try again in a few moments.</span></div>
+    <div class="field"><label>Amount (MXN)</label><input value="500.00"></div>
+    <div class="field"><label>Card number</label><input value="1234 1234 1234 1234"></div>
+    <div class="row2"><div class="field"><label>Expiry</label><input value="12/26"></div><div class="field"><label>CVV</label><input value="543"></div></div>
+    <div class="field"><label>Name on card</label><input value="Ana Torres"></div>
+    <div class="actions"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Try again</button></div>
+  </div></div>
+</div>
+</figure>
+
+<figure class="shot"><figcaption>Unknown · <span>SnailPay didn't answer in 10 s; Reconciliation runs while the dialog shows this, then swaps to Approved or Declined</span></figcaption>
+<div class="row">
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <div class="done" role="status">
+      <div class="mark unknown"><svg><use href="#i-help"/></svg></div>
+      <h2>Confirming your payment</h2>
+      <p class="big" style="color:var(--muted-foreground)">$500.00</p>
+      <p class="meta">SnailPay didn't answer in time, so we're checking whether the payment went through. Your balance won't change until it's confirmed.</p>
+      <p class="meta" style="margin-top:12px;display:flex;gap:8px;justify-content:center;align-items:center"><span class="spin"></span>Checking… (attempt 2 of 5)</p>
+      <button class="btn btn-outline btn-block" style="margin-top:16px">Close, keep checking</button>
+    </div>
+  </div></div>
+  <div class="scrim"><div class="dialog" role="dialog" aria-label="Top up">
+    <div class="done" role="status">
+      <div class="mark unknown"><svg><use href="#i-help"/></svg></div>
+      <h2>Not confirmed yet</h2>
+      <p class="big" style="color:var(--muted-foreground)">$500.00</p>
+      <p class="meta">SnailPay hasn't confirmed this payment yet. Your balance hasn't changed. We'll check again when you come back, or you can check now.</p>
+      <div class="actions" style="justify-content:center;margin-top:16px"><button class="btn btn-outline">Close</button><button class="btn btn-primary">Check again</button></div>
+    </div>
+  </div></div>
+</div>
+</figure>
+
+<figure class="shot"><figcaption>Toasts · <span>bottom-right on desktop, bottom on phones; always a duplicate of what the screen already shows</span></figcaption>
+<div class="row">
+  <div class="toast"><svg style="color:var(--success)"><use href="#i-check"/></svg><span><strong>Top-up approved</strong>+$500.00 added to your balance.</span></div>
+  <div class="toast"><svg style="color:var(--destructive)"><use href="#i-x"/></svg><span><strong>Top-up declined</strong>$500.00 · Insufficient funds.</span></div>
+  <div class="toast"><svg style="color:var(--destructive)"><use href="#i-alert"/></svg><span><strong>Top-up failed</strong>$150.00 · Nothing was charged.</span></div>
+  <div class="toast"><svg style="color:var(--warning)"><use href="#i-help"/></svg><span><strong>Payment not confirmed yet</strong>$200.00 · We're checking with SnailPay.</span></div>
+</div>
+</figure>
+
+<!-- ================= SYSTEM ================= -->
+<h2 style="margin-top:56px">4 · System screens</h2>
+<figure class="shot"><figcaption>Unreadable local data · <span>and the error boundary</span></figcaption>
+<div class="row">
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Your saved data can't be read</h1>
+    <p class="meta" style="margin:8px 0 16px">The data this browser keeps for Snailrace is damaged, so we won't guess your balance. Resetting removes every account and top-up saved in this browser.</p>
+    <button class="btn btn-primary btn-block">Reset local data</button>
+  </div></div></div>
+  <div class="app phone"><div class="auth"><div class="auth-box">
+    <h1>Something went wrong</h1>
+    <p class="meta" style="margin:8px 0 16px">The page hit an unexpected error. Your balance and top-ups are safe in this browser.</p>
+    <button class="btn btn-primary btn-block">Reload</button>
+  </div></div></div>
+</div>
+</figure>
+
+</main>
+</body>
+</html>

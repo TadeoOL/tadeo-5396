@@ -81,6 +81,7 @@ It contains:
 - The Race Day and Bets response schemas from the [simulated data spec](specs/simulated-data.md).
 - The error envelope (see [Errors and logging](#errors-and-logging)).
 - Shared primitives: `IsoDate`, `Uuid`, and the Top-up amount limits.
+- `ScenarioCard`: a `z.enum` of the Scenario card numbers. SnailPay uses it to decide which cards it echoes unmasked, and the Top-up dialog lists its `.options` as test cards ([Screens](design/screens.md#top-up-dialog)).
 
 Each side uses the schemas like this:
 
