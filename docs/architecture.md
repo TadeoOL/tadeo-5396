@@ -112,8 +112,8 @@ apps/api/src/
     generator.ts     pure and deterministic (see the simulated data spec)
 ```
 
-- **`routes.ts` only translates HTTP.** It never decides an outcome. Business rules live in the core, which is tested without Express.
-- **`createApp(deps)` receives what changes between tests**: the Charge store (a fresh one per test) and a `sleep` function, which the timeout Scenario uses to wait. Tests pass a `sleep` that resolves immediately. `server.ts` passes the real ones.
+- **`routes.ts` only translates HTTP.** It never decides an outcome. Business rules live in the core, which could be tested without Express; the [testing strategy](testing.md) tests it through HTTP instead, which is just as fast and also checks the contract.
+- **`createApp(deps)` receives what changes between tests**: the Charge store (a fresh one per test) and a `sleep` function, which the timeout Scenario uses to wait. Tests pass a `sleep` that resolves immediately. `server.ts` passes the real ones. Per-app state such as the rate limiter is created inside `createApp`, so each test starts fresh.
 - **No port interfaces.** Each dependency has one real implementation, so a port would be a hypothetical seam. The database proposal is written only; it does not add a second adapter.
 - There is no separate "application service" or "infrastructure" layer. For two features, those layers would only pass calls through.
 
