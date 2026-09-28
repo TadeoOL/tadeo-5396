@@ -311,3 +311,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: `OutageState`, `lookUpCharge`, the Outage check in `createCharge`, the `GET /charges` and `/outage` routes (60/min lookup limit, `503` with `Retry-After: 30`), their Supertest cases, and the README helpers, Timeout and System error rows and Status line.
 - **Validation**: `npm run check`, `npx vitest run --project api`, the README helpers against `npm start` for the Timeout and System error rows, and the `ci` check on the PR.
 - **Time**: about 10 minutes.
+
+## 2026-09-28 — Top-up ledger and outcomes
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #30, "Settle Top-ups in the ledger from SnailPay results".
+- **Produced**: the per-User ledger (`readLedger`, `startTopUp`, `settleTopUp`, `useLedger`), the `fetch` wrapper `request`, `createCharge`, `outcomeOfCharge`, the Top-up form schema, and their Vitest suites.
+- **Validation**: `npm run check`, `npx vitest run --project web`, and the `ci` check on the PR.
+- **Time**: about 10 minutes.
