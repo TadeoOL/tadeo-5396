@@ -213,3 +213,18 @@ Every working session appends one entry: tool, purpose, what it produced, how th
   - Eight decisions were put to the maintainer in one round, each with a recommendation, and the maintainer accepted all of them.
   - Before asking, the agent checked the history of every branch, the commit messages and the issues for references to the organization, and confirmed the brief was never tracked. All came back clean.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — Screens
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder` skill; Playwright for screenshots; GitHub CLI.
+- **Purpose**: resolve the ticket "Design the screens: auth, dashboard and top-up flow with every state".
+- **Produced**:
+  - `docs/design/screens.md`: layout, states and final copy for sign-in, sign-up, the dashboard, the Top-up dialog and the system screens, plus the outcome copy for every `status_detail`.
+  - `docs/design/screens-prototype.html`: a gallery of every state in desktop and phone frames.
+  - Related edits: the outcome-label note in `docs/design/visual-direction.md` and the `ScenarioCard` enum in `docs/architecture.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - The agent derived every state from the auth, top-up reliability, SnailPay and deployment specs, built the prototype with its recommended defaults, and put the three real forks to the maintainer one at a time: the Outage switch on the dashboard, user-facing outcome labels instead of domain terms, and a test-card list in the dialog. The maintainer accepted all three.
+  - The agent first suggested a constant in `contracts`, then checked the architecture document, confirmed it allows constants, and chose a `z.enum` that SnailPay's masking rule also uses.
+  - The prototype was captured with Playwright at 1300 px to check the dashboard and dialog panels.
+- **Time**: about 25 minutes.

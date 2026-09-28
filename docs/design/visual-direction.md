@@ -60,6 +60,8 @@ Each outcome is a shadcn `Badge` variant in the history, and an `Alert` inline i
 
 Declined and Failed share a color because both mean the Balance did not change. The word and the icon tell them apart.
 
+The rows use the domain terms. The words the UI shows (Approved, Confirming, Processing) are in [Screens: outcome labels](screens.md#outcome-labels).
+
 ### Snail silks (the chart palette)
 
 In the API's Snail order, which is also the bar chart's order:
