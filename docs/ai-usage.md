@@ -120,3 +120,16 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Eight decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one.
   - The agent widened one accepted rule before writing (any unparseable body, not only 2xx/4xx, maps to Unknown, to cover proxy `502`/`504` pages), and the maintainer confirmed the summary that included it.
   - The design was cross-checked against the SnailPay contract (the Charge is stored before the 30 s delay), the ledger write rules and the hosting research (about one minute of cold start).
+
+## 2026-09-28 — Frontend stack
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI; Context7 for current React Router and shadcn/ui docs; `npm view` for current versions.
+- **Purpose**: resolve the ticket "Choose the frontend stack: routing, server-state, forms, UI kit and charts".
+- **Produced**:
+  - `docs/specs/frontend-stack.md`.
+  - The `eslint-plugin-jsx-a11y` entry in `docs/conventions.md` and a link from `docs/architecture.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Ten decisions were put to the maintainer one at a time, each with a recommendation.
+  - The maintainer proposed Zustand for local state. The agent checked it against the read-modify-write rule in the state-and-persistence spec, showed a two-tab scenario in which the `persist` middleware loses Balance, and offered a safe read-only variant. The maintainer then chose `useSyncExternalStore`.
+  - The agent checked library versions and modes before recommending them (React Router 8 keeps declarative mode; shadcn's `Chart` uses Recharts 3). The stack was cross-checked against the top-up reliability spec, which landed during the session (10 s `AbortSignal.timeout`, no automatic `POST` retry).
