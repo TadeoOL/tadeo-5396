@@ -31,6 +31,8 @@ export function TopUpForm(props: {
   processing: boolean;
   submitDisabled: boolean;
   alert: TopUpAlert | null;
+  server: "waking" | "unreachable" | "ready";
+  onRetryServer: () => void;
   onSubmit: (values: TopUpFormValues) => void;
 }) {
   const {
@@ -89,7 +91,26 @@ export function TopUpForm(props: {
         Paid through SnailPay, a simulated gateway. Use a test card; never a
         real one.
       </DialogDescription>
-      {processing ? (
+      {props.server === "waking" ? (
+        <Alert role="status">
+          <LoaderCircle
+            aria-hidden
+            className="animate-spin motion-reduce:animate-none"
+          />
+          <AlertTitle>Waking up the server.</AlertTitle>
+          <AlertDescription>This can take up to a minute.</AlertDescription>
+        </Alert>
+      ) : props.server === "unreachable" ? (
+        <>
+          <Alert variant="destructive">
+            <AlertTitle>Can&apos;t reach the server.</AlertTitle>
+            <AlertDescription>Check your connection.</AlertDescription>
+          </Alert>
+          <Button type="button" variant="outline" onClick={props.onRetryServer}>
+            Try again
+          </Button>
+        </>
+      ) : processing ? (
         <Alert role="status">
           <LoaderCircle
             aria-hidden

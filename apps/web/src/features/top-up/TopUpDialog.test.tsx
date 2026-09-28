@@ -37,11 +37,18 @@ type Handler = (input: string, init: RequestInit) => Promise<Response>;
 const keyOf = (init: RequestInit) =>
   (init.headers as Record<string, string>)["X-Idempotency-Key"] ?? "";
 
-function stubFetch(handler: Handler) {
-  const fetchMock = vi.fn(handler);
+const healthy: Handler = () => Promise.resolve(Response.json({ status: "ok" }));
+
+function stubFetch(handler: Handler, health: Handler = healthy) {
+  const fetchMock = vi.fn((input: string, init: RequestInit) =>
+    input === "/api/health" ? health(input, init) : handler(input, init),
+  );
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 }
+
+const healthCalls = (fetchMock: ReturnType<typeof stubFetch>) =>
+  fetchMock.mock.calls.filter(([input]) => input === "/api/health");
 
 const chargeCalls = (fetchMock: ReturnType<typeof stubFetch>) =>
   fetchMock.mock.calls.filter(([input]) => input === "/api/snailpay/charges");
@@ -54,9 +61,9 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function renderDialog() {
+function renderDialog(client = new QueryClient()) {
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={client}>
       <TopUpDialog user={user} />
       <Toaster />
     </QueryClientProvider>,
@@ -70,7 +77,7 @@ async function open(ue: ReturnType<typeof userEvent.setup>) {
   );
 }
 
-async function pay(
+async function fill(
   ue: ReturnType<typeof userEvent.setup>,
   cardNumber = "1234123412341234",
 ) {
@@ -78,7 +85,16 @@ async function pay(
   await ue.type(screen.getByLabelText("Card number"), cardNumber);
   await ue.type(screen.getByLabelText("Expiry"), "1226");
   await ue.type(screen.getByLabelText("CVV"), "543");
-  await ue.click(screen.getByRole("button", { name: "Top up $150.00" }));
+}
+
+async function pay(
+  ue: ReturnType<typeof userEvent.setup>,
+  cardNumber = "1234123412341234",
+) {
+  await fill(ue, cardNumber);
+  const button = screen.getByRole("button", { name: "Top up $150.00" });
+  await waitFor(() => expect(button).toBeEnabled());
+  await ue.click(button);
 }
 
 test("shows every field error and sends no Charge", async () => {
@@ -271,4 +287,59 @@ test("reports a storage write failure and sends no Charge", async () => {
   expect(screen.getByLabelText("Card number")).toHaveValue(
     "1234 1234 1234 1234",
   );
+});
+
+test("keeps submit disabled while the server is waking", async () => {
+  stubFetch(healthy, () => new Promise<Response>(() => {}));
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  expect(screen.getByText("Waking up the server.")).toBeInTheDocument();
+  expect(screen.getByText("This can take up to a minute.")).toBeInTheDocument();
+  await fill(ue);
+  expect(screen.getByRole("button", { name: "Top up $150.00" })).toBeDisabled();
+});
+
+test("offers Try again when the server can't be reached", async () => {
+  let reachable = false;
+  stubFetch(healthy, (input, init) =>
+    reachable
+      ? healthy(input, init)
+      : Promise.reject(new TypeError("Failed to fetch")),
+  );
+  const ue = userEvent.setup();
+  renderDialog(
+    new QueryClient({ defaultOptions: { queries: { retryDelay: 0 } } }),
+  );
+  await open(ue);
+  expect(
+    await screen.findByText("Can't reach the server."),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Check your connection.")).toBeInTheDocument();
+  await fill(ue);
+  const submit = screen.getByRole("button", { name: "Top up $150.00" });
+  expect(submit).toBeDisabled();
+
+  reachable = true;
+  await ue.click(screen.getByRole("button", { name: "Try again" }));
+  await waitFor(() => expect(submit).toBeEnabled());
+  expect(screen.queryByText("Can't reach the server.")).not.toBeInTheDocument();
+  expect(screen.queryByText("Waking up the server.")).not.toBeInTheDocument();
+});
+
+test("checks the server again each time the dialog opens", async () => {
+  const fetchMock = stubFetch(healthy);
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  await waitFor(() =>
+    expect(screen.queryByText("Waking up the server.")).not.toBeInTheDocument(),
+  );
+  const first = healthCalls(fetchMock).length;
+  await ue.click(screen.getByRole("button", { name: "Cancel" }));
+  await open(ue);
+  await waitFor(() => expect(healthCalls(fetchMock)).toHaveLength(first + 1));
+  await ue.click(screen.getByRole("button", { name: "Cancel" }));
+  await open(ue);
+  await waitFor(() => expect(healthCalls(fetchMock)).toHaveLength(first + 2));
 });
