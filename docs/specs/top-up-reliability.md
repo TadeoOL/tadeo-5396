@@ -26,7 +26,7 @@ How a Top-up credits the Balance exactly once, and never on a declined, failed o
 3. The client sends `POST /api/snailpay/charges` with `AbortSignal.timeout(10_000)`.
 4. The response is mapped to an outcome with the table below, and the Charge response is stored with the Top-up in the same write.
 
-The **client timeout is 10 seconds**. A normal response is immediate, and the timeout Scenario answers after 30 seconds, so the Scenario always ends in a timeout. Waking a sleeping server is not the timeout's job: the deployment decides how the app calls `/api/health` before the form is used.
+The **client timeout is 10 seconds**. A normal response is immediate, and the timeout Scenario answers after 30 seconds, so the Scenario always ends in a timeout. Waking a sleeping server is not the timeout's job: the form stays disabled until `/api/health` answers ([Deployment](../deployment.md#warm-up-in-the-ui)).
 
 **Concurrency.** An Unknown Top-up does not block a new one; each Top-up is independent. Tabs share no lock: two tabs submitting at once create two legitimate Top-ups with different keys, and two tabs reconciling the same Top-up cannot credit it twice because of ledger rule 4.
 

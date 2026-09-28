@@ -84,7 +84,7 @@ A single workflow, `.github/workflows/ci.yml`:
   5. `build`.
   6. `npx playwright install --with-deps --only-shell chromium`, then `test:e2e`; on failure, upload `playwright-report/` ([Testing](testing.md#continuous-integration)).
 - **No version matrix.**
-- **CI does not deploy.** The deployment ticket decides how deployment works.
+- **CI does not deploy.** Render deploys `main` after its checks pass ([Deployment](deployment.md#auto-deploy-and-the-review-window)). A separate `keep-alive.yml` workflow pings the service during the review window; it gates nothing.
 
 ## Repository settings
 

@@ -55,7 +55,7 @@ packages/
   - Dev: `node --watch src/server.ts`. Prod: `node src/server.ts`.
   - `contracts` exports `./src/index.ts` directly. Node resolves the workspace symlink to its real path, so type stripping applies. This was checked on Node 24.15.
   - Relative imports use the `.ts` extension (`allowImportingTsExtensions` with `noEmit`). Type-only imports use `import type` (`verbatimModuleSyntax`).
-- **`web` is the only package with a build**: `vite build` writes `apps/web/dist`. In production, Express serves that folder as static files and returns `index.html` for any non-`/api` route (the SPA fallback). The deployment ticket decides how the path is resolved on the host.
+- **`web` is the only package with a build**: `vite build` writes `apps/web/dist`. In production, Express serves that folder as static files and returns `index.html` for any non-`/api` route (the SPA fallback). The path is resolved from `app.ts`'s own location ([Deployment](deployment.md#serving-the-web-app)).
 - **`typecheck`** runs `tsc --noEmit` in each workspace.
 
 ## Scripts
@@ -140,8 +140,8 @@ apps/web/src/
 ## Configuration
 
 - **API**: `config.ts` reads `process.env` once at startup, validates it, and exits with a clear message if a value is invalid.
-  - `PORT`: set by the host; defaults to 3000.
-  - `NODE_ENV`: `development` or `production`.
+  - `PORT`: set by the host; defaults to 3000. The server listens on `0.0.0.0`.
+  - `NODE_ENV`: `development` or `production`. Render sets `production` at runtime ([Deployment](deployment.md#environment)).
 - **Web**: no `VITE_*` variables. It always calls a relative `/api`: in production the API is the same service, and in dev Vite proxies it.
 - **No `.env` files and no dotenv.** If one is ever needed, Node 24 has `--env-file-if-exists`.
 - The delay of the timeout Scenario is a constant of the mock, not configuration. Tests control it by injecting `sleep`.

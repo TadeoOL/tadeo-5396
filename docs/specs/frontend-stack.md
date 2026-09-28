@@ -32,6 +32,7 @@ Money and dates use `Intl.NumberFormat` (MXN) and `Intl.DateTimeFormat`. There i
 ## Server state
 
 - **Race Day and Bets**: `useQuery` with the keys `['race-day', date]` and `['bets', date, userId]`, `staleTime: Infinity`, and a bounded `retry` for these idempotent GETs.
+- **Health**: `useQuery` with the key `['health']`, mounted in the app shell. It gates the Top-up submit button while the server wakes up ([Deployment](../deployment.md#warm-up-in-the-ui)).
 - **Charge**: `useMutation` with `retry: 0`. A payment is never retried generically. Every retry rule (the idempotency key, the write-ahead, Reconciliation and its backoff) belongs to [top-up reliability](top-up-reliability.md), which lives in the `top-up` feature.
 - TanStack Query holds only data that comes from the server. The Balance, the ledger and the Session are not server state and never go through it.
 - Rejected: **custom `fetch` hooks** with a `Map` cache, which would reimplement dedupe, loading and error state, cancellation on unmount, and invalidation. **SWR** has weaker mutations.
