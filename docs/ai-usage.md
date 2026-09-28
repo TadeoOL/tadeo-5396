@@ -263,3 +263,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the `@snailrace/web` Vite and React app with the app shell header, the shadcn/ui kit adapted to the design tokens, the `web` Vitest project, the React ESLint blocks, the root `dev` script with `concurrently`, two end-to-end tests with axe, and the README run sections.
 - **Validation**: `npm run check`, `npm run build && npm run test:e2e` on a random port, `curl` of `/api/health` through the Vite proxy on custom ports, and a Playwright script on `npm start` checking the CSP header, the SPA fallback and an empty console.
 - **Time**: about 20 minutes.
+
+## 2026-09-28 — Users and the Session in the browser
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #24, "Keep Users and the Session in the browser".
+- **Produced**: the web `storage` module (backend seam, in-memory `Storage`, change subscription, Users registry, Session with `useSession`), the sign-up schemas, the PBKDF2 credential and `signUp`, each with Vitest suites over an in-memory backend.
+- **Validation**: `npm run check` and `npx vitest run --project web` (about 1 s with the real 600,000 iterations), and the `ci` check on the PR.
+- **Time**: about 15 minutes.
