@@ -59,8 +59,8 @@ Money and dates use `Intl.NumberFormat` (MXN) and `Intl.DateTimeFormat`. There i
 - `useForm` with `zodResolver(schema)`, `mode: 'onBlur'` and `reValidateMode: 'onChange'`.
 - **Auth**: the sign-up and sign-in schemas, with the rules and error copy from the [auth spec](auth.md), live in `features/auth/schemas.ts`. Nothing else defines those rules.
 - **Top-up**: the form schema is built from the `@snailrace/contracts` primitives (amount limits and card formats), so the form and the API reject the same input. The form schema also converts the amount from pesos, as typed, to integer cents before the request is built.
-- **Form-level errors** (duplicate email, "Invalid email or password.", the throttle countdown, storage write failures) use `setError('root', …)` and render in an element with `role="alert"`.
-- Fields render with shadcn's `Field` components, which set `aria-invalid` and link the error with `aria-describedby`.
+- **Form-level errors** (duplicate email, "Invalid email or password.", storage write failures) use `setError('root', …)`. The throttle countdown is not a form error: the sign-in form keeps the lock's end time in component state and ticks it every second. Each of these alerts renders in an element with `role="alert"` and takes focus (`components/FormAlert.tsx`).
+- Fields render through `components/TextField.tsx`, built on shadcn's `Field` components. shadcn's `Field` sets neither `aria-invalid` nor `aria-describedby`, so `TextField` sets `aria-invalid` on the input and links the hint and the error with `aria-describedby`.
 - Rejected: **controlled inputs with `useState`**, which would re-implement touched state, focus on the first error and submit state. **React 19 form actions** (`useActionState`), which validate only on submit and lose per-field validation on blur.
 
 ## UI kit and styling

@@ -287,3 +287,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the per-email throttle, `signInSchema` and `signIn`, the sign-in form with the invalid, locked and expired states, the header's "Sign out", end-to-end spec 1 with its helpers (replacing the smoke spec), their Vitest suites, and the README Status line.
 - **Validation**: `npm run check`, `npm run build && npm run test:e2e`, a Playwright script for the manual criteria (narrow header, live countdown, `lockCount: 1`), and the `ci` check on the PR.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — Review of the "Minimum valid delivery" milestone
+
+- **Tool**: Claude Code (Claude Opus 5.5), reviewer agent.
+- **Purpose**: run review issue #27 over the milestone's five issues (#22–#26).
+- **Produced**: the review report on #27, and a fix to `docs/specs/frontend-stack.md#forms`, which described two mechanisms the code does not use (the throttle countdown as a root form error, and shadcn's `Field` wiring `aria-invalid` and `aria-describedby`).
+- **Validation**: read every issue, PR and changed file in the range against the specs; `npm run check`, `npm run build && npm run test:e2e`; `curl` of the production server's headers and request log; the dev proxy on custom ports; a Playwright script for every manual criterion (redirects, back button, stored Credential and Session, two tabs, sign-out, the lock countdown, the expired Session notice, an empty console); and the `ci` check on the PR.
+- **Time**: about 1 hour.
