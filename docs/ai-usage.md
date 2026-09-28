@@ -247,3 +247,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
   - The drafting subagents prototyped the risky library behavior in scratch projects: the toolchain versions, Express 5, zod 4, Recharts and shadcn.
   - Every doc anchor in the issues was checked, and the issues were scanned for any reference to the requirements' origin.
 - **Time**: about 4 hours.
+
+## 2026-09-28 — Workspace, API and CI bootstrap
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #22, "Set up the workspace, the API and CI".
+- **Produced**: the npm workspaces, `@snailrace/contracts`, the Express API with the health check and base middleware, the Vitest and Playwright setup, the `ci` workflow, the PR template, the README and the `main` ruleset.
+- **Validation**: `npm run check`, `npm run build && npm run test:e2e`, manual `curl` of `/api/health` against `npm run dev`, the `ci` check on the PR, and `gh api` reads of the ruleset and merge settings.
+- **Time**: about 30 minutes.
