@@ -50,6 +50,7 @@ Race-day data, the dashboard charts and the recovery screens. Local development 
 | #37 [Chart the Race Day on the dashboard](https://github.com/TadeoOL/tadeo-5396/issues/37) | #36 | `roadmap` |
 | #38 [Recover from unreadable local data and render errors](https://github.com/TadeoOL/tadeo-5396/issues/38) | #35 | `roadmap` |
 | #39 [Review milestone: Race-day charts and recovery](https://github.com/TadeoOL/tadeo-5396/issues/39) | #36, #37, #38 | `review` |
+| #60 [Stabilize the axe check after the approved Top-up toast](https://github.com/TadeoOL/tadeo-5396/issues/60) | — | `roadmap` (opened during the milestone; fixed by the review) |
 
 ## Delivery
 
