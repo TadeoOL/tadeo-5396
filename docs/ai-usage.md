@@ -343,3 +343,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the outcome copy, `announceOutcome`, the mismatched-field marking and test cards in `TopUpForm`, `TopUpHistory`, `outageQuery`/`setOutage`, `SimulationControls`, their tier 3 tests, and the README System error row and Status line.
 - **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, a Playwright check of the Outage path against `npm start`, and the `ci` check on the PR.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — Reconciliation
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #34, "Confirm unknown Top-ups with Reconciliation".
+- **Produced**: `markPendingAsUnknown`, `lookUpCharge`, `reconciliation.ts` (backoff, lookup mapping, run registry, resume on load), `ConfirmingPanel`, the Confirming toast, Check again in the history and dialog, the Balance warning line, their tier 1 and tier 3 tests, and the README Timeout row and Status line.
+- **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, a Playwright check of the Timeout path and the reload resume against the build, and the `ci` check on the PR.
+- **Time**: about 15 minutes.
