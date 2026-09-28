@@ -4,7 +4,7 @@ Shared instructions for every coding agent in this repository.
 
 ## What this is
 
-A small web app for betting on simulated snail races: Users sign up, follow a simulated Race Day and top up their Balance through SnailPay, a mock payment API, while the browser keeps the ledger in localStorage. The app is not built yet; the roadmap in GitHub issues builds it, and [`docs/roadmap.md`](docs/roadmap.md) is the index.
+A small web app for betting on simulated snail races: Users sign up, follow a simulated Race Day and top up their Balance through SnailPay, a mock payment API, while the browser keeps the ledger in localStorage. The roadmap in GitHub issues builds it, and [`docs/roadmap.md`](docs/roadmap.md) is the index.
 
 ## Docs map
 
@@ -33,7 +33,7 @@ The docs are the source of truth. Read only the sections your issue links.
 
 ## Commands
 
-Node 24 (`.nvmrc`) and npm. Install with `npm ci`. These root scripts exist once the bootstrap issue lands:
+Node 24 (`.nvmrc`) and npm. Install with `npm ci`. The root scripts:
 
 | Script | What it does |
 |---|---|
