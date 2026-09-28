@@ -66,3 +66,17 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
 - **Validation**:
   - Before asking anything, the agent checked the facts behind each question: the local toolchain versions, the existing commit history, and the repository's merge and branch-protection settings.
   - Over two question rounds, ten decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
+
+## 2026-09-28 — System architecture
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling`, `domain-modeling` and `codebase-design` skills; GitHub CLI.
+- **Purpose**: resolve the ticket "Define the system architecture: monorepo layout, layering and shared contracts".
+- **Produced**:
+  - `docs/architecture.md`, with a component diagram.
+  - `docs/adr/0002-run-typescript-with-node-type-stripping.md`.
+  - The commit scope list in `docs/conventions.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Before asking, the agent built a throwaway npm workspace and confirmed that Node 24.15 runs a `.ts` file imported from a symlinked workspace package.
+  - Over two question rounds, nine decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
+  - The maintainer confirmed the summary before any file was written.
