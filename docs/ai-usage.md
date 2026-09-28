@@ -31,3 +31,17 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
 - **Validation**:
   - Over two question rounds, each term and rule was put to the maintainer with a recommendation, and the maintainer accepted each one explicitly.
   - The maintainer confirmed the final glossary before it was committed.
+
+## 2026-09-28 — State ownership and persistence
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills.
+- **Purpose**: resolve the ticket "Decide state ownership and persistence between browser and server".
+- **Produced**:
+  - `docs/specs/state-and-persistence.md`.
+  - `docs/adr/0001-browser-as-ledger.md`.
+  - The "Pending" term in `CONTEXT.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Over two question rounds, ten decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
+  - The maintainer confirmed the summary before any file was written.
+  - The decisions were cross-checked against the requirements brief and the research write-ups on payment gateways and hosting.
