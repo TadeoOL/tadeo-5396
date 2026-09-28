@@ -3,6 +3,12 @@
 A web app where a User follows a simulated day of snail races, sees how their simulated bets went, and adds funds to their Balance through SnailPay, a mock payment gateway.
 The browser keeps Users, the Session and the Balance in localStorage; one Express server hosts SnailPay and the race-day data.
 
+## Live app
+
+https://snail-race-cozd.onrender.com
+
+The first request after 15 idle minutes takes about a minute while the free service starts.
+
 ## Requirements
 
 Node 24 (see `.nvmrc`) and npm.
@@ -99,3 +105,4 @@ Sending the same key and body again returns the stored response with `Idempotent
 - **Recovery screens**: done. If the Users registry or a ledger in localStorage fails its checks, the app shows "No se pueden leer tus datos guardados" with "Restablecer datos locales", which removes every `snailrace.v1.*` key. Any other render error shows "Algo salió mal" with "Recargar la página".
 - **Race-day charts**: done. The dashboard charts today's Wins per Snail as bars in each Snail's silks and the User's won and lost Bets as a donut. Each chart has a text summary, a loading skeleton and a "Intentar de nuevo" on error.
 - **Spanish UI**: done. Every screen, message and format is in neutral Spanish.
+- **Deployment**: done. The app runs on one free Render Web Service (see Live app).
