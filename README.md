@@ -74,15 +74,15 @@ outage() {
 
 | To reproduce | API call | Expected response | Expected Top-up outcome | In the UI |
 |---|---|---|---|---|
-| Approved | `charge 1234123412341234 12/26 543` | `201 approved / accredited` | Credited | — |
-| Unknown card number | `charge 1111222233334444 12/26 543` | `402 rejected / cc_rejected_bad_filled_card_number`, with the number masked | Declined | — |
-| Wrong expiry | `charge 1234123412341234 11/26 543` | `402 rejected / cc_rejected_bad_filled_date` | Declined | — |
-| Wrong CVV | `charge 1234123412341234 12/26 123` | `402 rejected / cc_rejected_bad_filled_security_code` | Declined | — |
-| Insufficient funds | `charge 1234123412340002 12/26 543` | `402 rejected / cc_rejected_insufficient_amount` | Declined | — |
-| High risk | `charge 1234123412340003 12/26 543` | `402 rejected / cc_rejected_high_risk` | Declined | — |
+| Approved | `charge 1234123412341234 12/26 543` | `201 approved / accredited` | Credited | Sign in, press **Top up**, enter the row's card number, expiry and CVV and any amount, then press **Top up**. |
+| Unknown card number | `charge 1111222233334444 12/26 543` | `402 rejected / cc_rejected_bad_filled_card_number`, with the number masked | Declined | Sign in, press **Top up**, enter the row's card number, expiry and CVV and any amount, then press **Top up**. |
+| Wrong expiry | `charge 1234123412341234 11/26 543` | `402 rejected / cc_rejected_bad_filled_date` | Declined | Sign in, press **Top up**, enter the row's card number, expiry and CVV and any amount, then press **Top up**. |
+| Wrong CVV | `charge 1234123412341234 12/26 123` | `402 rejected / cc_rejected_bad_filled_security_code` | Declined | Sign in, press **Top up**, enter the row's card number, expiry and CVV and any amount, then press **Top up**. |
+| Insufficient funds | `charge 1234123412340002 12/26 543` | `402 rejected / cc_rejected_insufficient_amount` | Declined | Sign in, press **Top up**, enter the row's card number, expiry and CVV and any amount, then press **Top up**. |
+| High risk | `charge 1234123412340003 12/26 543` | `402 rejected / cc_rejected_high_risk` | Declined | Sign in, press **Top up**, enter the row's card number, expiry and CVV and any amount, then press **Top up**. |
 | Timeout | `charge 1234123412340004 12/26 543 -m 10`, then `lookup <reference>` | No answer within 10 s (`curl` gives up, as the app does), then the lookup answers `200` with `approved / accredited` | Unknown, then Credited | — |
 | System error | `outage true`, then `charge 1234123412341234 12/26 543`, then `outage false` | `503 error / service_unavailable`, with `Retry-After: 30` | Failed | — |
-| Invalid data (API only) | `charge 123412341234123 12/26 543` | `400 rejected / invalid_request`, with `errors` | — | — |
+| Invalid data (API only) | `charge 123412341234123 12/26 543` | `400 rejected / invalid_request`, with `errors` | — | The form rejects the same input, so it never reaches SnailPay. |
 
 Sending the same key and body again returns the stored response with `Idempotent-Replayed: true`. The same key with another body returns `422 rejected / idempotency_key_reused`. After 10 Charges in a minute from one IP, SnailPay answers `429 error / rate_limited`.
 
@@ -91,3 +91,4 @@ Sending the same key and body again returns the stored response with `Idempotent
 - **Sign-up and the protected dashboard**: done. A User registers with full name, email, password and confirmation, is signed in for 24 h, and lands on `/dashboard`, which shows their name and a $0.00 Balance and needs an active Session.
 - **Sign-in and sign-out**: done. A User signs out from the header and signs back in with the same email and password. Five failed attempts lock that email for 30 s, doubling up to 15 min.
 - **SnailPay API**: done. `POST /api/snailpay/charges` answers every card Scenario in one response shape, replays a repeated `X-Idempotency-Key`, masks card numbers outside the Scenario catalog and allows 10 Charges per minute per IP. `GET /api/snailpay/charges?reference=` looks a Charge up (60 per minute per IP), and `PUT /api/snailpay/outage` switches the Outage, during which both Charge routes answer `503`.
+- **Top-ups**: done. The dashboard's **Top up** dialog validates the amount and the Card and pays through SnailPay. An approved Charge credits the Balance once and shows a receipt and a toast; the Balance is kept per User in localStorage and survives a reload.
