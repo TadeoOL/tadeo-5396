@@ -255,3 +255,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the npm workspaces, `@snailrace/contracts`, the Express API with the health check and base middleware, the Vitest and Playwright setup, the `ci` workflow, the PR template, the README and the `main` ruleset.
 - **Validation**: `npm run check`, `npm run build && npm run test:e2e`, manual `curl` of `/api/health` against `npm run dev`, the `ci` check on the PR, and `gh api` reads of the ruleset and merge settings.
 - **Time**: about 30 minutes.
+
+## 2026-09-28 — Walking skeleton
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #23, "Bootstrap the walking skeleton".
+- **Produced**: the `@snailrace/web` Vite and React app with the app shell header, the shadcn/ui kit adapted to the design tokens, the `web` Vitest project, the React ESLint blocks, the root `dev` script with `concurrently`, two end-to-end tests with axe, and the README run sections.
+- **Validation**: `npm run check`, `npm run build && npm run test:e2e` on a random port, `curl` of `/api/health` through the Vite proxy on custom ports, and a Playwright script on `npm start` checking the CSP header, the SPA fallback and an empty console.
+- **Time**: about 20 minutes.
