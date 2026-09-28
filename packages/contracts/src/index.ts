@@ -79,3 +79,38 @@ export const ChargeResponse = z.object({
     .optional(),
 });
 export type ChargeResponse = z.infer<typeof ChargeResponse>;
+
+export const SnailId = z.enum([
+  "comet",
+  "mossback",
+  "pepper",
+  "drizzle",
+  "nacho",
+  "sprinkles",
+]);
+export type SnailId = z.infer<typeof SnailId>;
+
+export const RaceDayResponse = z.object({
+  date: IsoDate,
+  snails: z.array(z.object({ id: SnailId, name: z.string() })).length(6),
+  races: z
+    .array(z.object({ number: z.int().min(1).max(6), winnerSnailId: SnailId }))
+    .length(6),
+});
+export type RaceDayResponse = z.infer<typeof RaceDayResponse>;
+
+export const BetsResponse = z.object({
+  date: IsoDate,
+  userId: Uuid,
+  bets: z
+    .array(
+      z.object({
+        raceNumber: z.int().min(1).max(6),
+        snailId: SnailId,
+        outcome: z.enum(["won", "lost"]),
+      }),
+    )
+    .min(4)
+    .max(12),
+});
+export type BetsResponse = z.infer<typeof BetsResponse>;
