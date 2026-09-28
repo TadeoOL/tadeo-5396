@@ -173,3 +173,15 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Eight decisions were put to the maintainer in one round, each with a recommendation, and the maintainer accepted all of them.
   - The subagent's findings changed two recommendations before the answer: Render already sets `NODE_ENV=production` at runtime, so it is not set in the Blueprint; and Render does not document its proxy hop count (Cloudflare plus its load balancer), so the security baseline's `trust proxy: 1` became a value measured on the first deploy.
   - Facts the docs leave open (whether the build sees service variables, what a `fetch` gets during spin-up, whether a Blueprint asks for a card) are marked as such, and each has a fallback that works either way.
+
+## 2026-09-28 — Database proposal
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI.
+- **Purpose**: resolve the ticket "Draft the database proposal for the optional deliverable".
+- **Produced**:
+  - `docs/db-proposal.md`, with a Mermaid ERD.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Eight decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one.
+  - The maintainer asked whether a database contradicts the brief's localStorage requirement. The agent checked the brief: the requirement covers the delivered app, and the optional task asks for a proposal that is not implemented. So the document opens by stating that, and it calls out that the card and CVV kept in localStorage are an artifact of the simulation.
+  - The brief bans code in the response PDF, so the proposal describes its constraints in prose and contains no DDL.
