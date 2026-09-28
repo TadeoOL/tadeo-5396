@@ -1,8 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import { Outlet, useNavigate } from "react-router";
+import { healthQuery } from "@/api/health";
 import { Button } from "@/components/ui/button";
 import { endSession, useSession } from "@/storage/session";
 
 export function AppShell() {
+  useQuery(healthQuery);
   const session = useSession();
   const navigate = useNavigate();
   return (
