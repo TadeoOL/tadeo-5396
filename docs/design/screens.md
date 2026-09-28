@@ -14,7 +14,7 @@ UI copy is in English, like every artifact. Quoted strings below are final copy;
 - **App shell**: an ink header bar with the wordmark (a Mossback silks shirt and "Snailrace"). On the dashboard it adds the User's full name (hidden below `md`) and a ghost "Sign out" button. The `['health']` query is mounted here, on every screen.
 - **Titles and focus**: `document.title` is "{Screen} · Snailrace" ("Sign in", "Create account", "Dashboard"). Each screen has one `h1`, and focus moves to it on every route change.
 - **Money**: `Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' })`, which renders `$1,250.00`. The Balance adds a small "MXN" after the amount. **Dates and times**: `Intl.DateTimeFormat('en-US')`.
-- **Cards** are shown as `•••• {last 4}`. The CVV is never shown after submit.
+- **Cards** are shown as `•••• {last 4}`. A stored CVV is never shown. In the Top-up form, the CVV is masked as `•••` while the Top-up is Processing; after a Declined or Failed result the form keeps what the User typed, so "Try again" resends it.
 - **Busy buttons**: disabled, with a spinner and a verb in progress ("Signing in…"). Inputs become read-only while the form is busy.
 - **Status and alerts**: progress messages use `role="status"`; errors and outcomes use `role="alert"`. When a form-level alert appears, focus moves to it.
 - **Toasts**: Sonner at `bottom-right` (Sonner spans the bottom edge on phones). A toast always repeats something the screen already shows; it is never the only place (see [Notifications](../specs/frontend-stack.md#notifications)).
