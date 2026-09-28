@@ -367,3 +367,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the `SnailId`, `RaceDayResponse` and `BetsResponse` contracts, the seeded `generateRaceDay`/`generateBets` generator, the `/api/race-days` routes with their cache headers, their tier 2 tests, and the README Status line.
 - **Validation**: `npm run check`, `npx vitest run --project api`, `curl` against `npm start` for the Race Day, the `304`, the `400` envelope and the Bets log line, and the `ci` check on the PR.
 - **Time**: about 10 minutes.
+
+## 2026-09-28 — Recovery screens
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #38, "Recover from unreadable local data and render errors".
+- **Produced**: `resetLocalData`, `SystemScreens` (unreadable data and render error), the `ErrorBoundary` around the whole app, the `readUsers` subscription in `PublicOnly`, their tier 3 tests, and the README Status line.
+- **Validation**: `npm run check`, `npx vitest run --project web`, a Playwright script against the production build for the damaged registry (with axe), Reset local data and the broken ledger invariant, and the `ci` check on the PR.
+- **Time**: about 10 minutes.
