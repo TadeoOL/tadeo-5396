@@ -72,19 +72,7 @@ Every Card that SnailPay recognizes uses expiry `12/26` and CVV `543`, and any n
 
 ### Reproduction table (seed)
 
-This table seeds the one in the README. "Approval Card" means `1234123412341234`, `12/26`, `543`, with any name and any amount from $0.01 to $10,000.00.
-
-| To reproduce | Enter | Expected response | Expected Top-up outcome |
-|---|---|---|---|
-| Approved | Approval Card | `201 approved / accredited` | Credited |
-| Unknown card number | Any other 16 digits, e.g. `1111222233334444` | `402 rejected / cc_rejected_bad_filled_card_number` | Declined |
-| Wrong expiry | Approval Card with expiry `11/26` | `402 rejected / cc_rejected_bad_filled_date` | Declined |
-| Wrong CVV | Approval Card with CVV `123` | `402 rejected / cc_rejected_bad_filled_security_code` | Declined |
-| Insufficient funds | `1234123412340002`, `12/26`, `543` | `402 rejected / cc_rejected_insufficient_amount` | Declined |
-| High risk | `1234123412340003`, `12/26`, `543` | `402 rejected / cc_rejected_high_risk` | Declined |
-| Timeout | `1234123412340004`, `12/26`, `543` | Client timeout, then `201 approved` on Reconciliation | Unknown, then Credited |
-| System error | Turn the Outage on, then submit the Approval Card | `503 error / service_unavailable` | Failed |
-| Invalid data (API only) | Call the API with, for example, a 15-digit card number | `400 rejected / invalid_request` | — |
+The canonical Scenario table, with an API call for every row and UI steps where the app can trigger it, is in the README: [Reproduce SnailPay responses](../../README.md#reproduce-snailpay-responses).
 
 ## Response
 

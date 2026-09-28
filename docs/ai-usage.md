@@ -295,3 +295,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the review report on #27, and a fix to `docs/specs/frontend-stack.md#forms`, which described two mechanisms the code does not use (the throttle countdown as a root form error, and shadcn's `Field` wiring `aria-invalid` and `aria-describedby`).
 - **Validation**: read every issue, PR and changed file in the range against the specs; `npm run check`, `npm run build && npm run test:e2e`; `curl` of the production server's headers and request log; the dev proxy on custom ports; a Playwright script for every manual criterion (redirects, back button, stored Credential and Session, two tabs, sign-out, the lock countdown, the expired Session notice, an empty console); and the `ci` check on the PR.
 - **Time**: about 1 hour.
+
+## 2026-09-28 — SnailPay Charges
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #28, "SnailPay: create Charges for every Scenario".
+- **Produced**: the Charge contracts, the SnailPay charge store, core and router (Scenario rules, masking, idempotent replay, `422`, 10/min limit, Charge-shaped `400` and `500`), their Supertest suite, the README Scenario table and Status line, and the two doc links.
+- **Validation**: `npm run check`, `npx vitest run --project api`, the README helper against `npm start` for every row, and the `ci` check on the PR.
+- **Time**: about 15 minutes.
