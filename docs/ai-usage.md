@@ -351,3 +351,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: `markPendingAsUnknown`, `lookUpCharge`, `reconciliation.ts` (backoff, lookup mapping, run registry, resume on load), `ConfirmingPanel`, the Confirming toast, Check again in the history and dialog, the Balance warning line, their tier 1 and tier 3 tests, and the README Timeout row and Status line.
 - **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, a Playwright check of the Timeout path and the reload resume against the build, and the `ci` check on the PR.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — Review of the "Top-ups" milestone
+
+- **Tool**: Claude Code (Claude Opus 5.5), reviewer agent, with one read-only subagent for an adversarial pass over the money path.
+- **Purpose**: run review issue #35 over the milestone's seven issues (#28–#34).
+- **Produced**: the review report on #35; a fix in `TopUpDialog` so an offline browser sends the Charge at once (`networkMode: "always"`, the Top-up becomes Unknown) and only the tab that settles a Top-up announces it, with two tier 3 tests and the `docs/specs/frontend-stack.md` Charge bullet; README, `AGENTS.md`, `docs/architecture.md` and `docs/delivery.md` now say that `npm start` serves the built app only with `NODE_ENV=production`; `docs/design/screens.md` and `docs/specs/security.md` now say when the Top-up form shows the CVV; refreshed bodies of #36, #37 and #38.
+- **Validation**: read every issue, PR and changed file in the range against the specs and the contracts; `npm run check`, `npm run build && npm run test:e2e`; every README Scenario row through the `charge`, `lookup` and `outage` helpers; a Playwright script against the production build for the Outage, the five declines, the timeout card (Confirming, then the receipt) and a reload during Processing; `npm start` without `NODE_ENV` answering 404 on the SPA routes; each new test failing without its fix; a Playwright check of an offline Top-up; and the `ci` check on the PR.
+- **Time**: about 1 hour.
