@@ -99,8 +99,15 @@ export async function createCharge(input: {
   key: string;
   request: ChargeRequest;
   sleep: Sleep;
+  outageActive: boolean;
 }): Promise<ChargeReply> {
   const { store, key, request, sleep } = input;
+  if (input.outageActive)
+    return {
+      status: 503,
+      body: echoCharge("service_unavailable", key, request),
+      replayed: false,
+    };
   const requestHash = createHash("sha256")
     .update(JSON.stringify(Object.values(request)))
     .digest("hex");
@@ -138,4 +145,25 @@ export async function createCharge(input: {
   if (request.card_number === "1234123412340004")
     await sleep(TIMEOUT_SCENARIO_DELAY_MS);
   return { status, body, replayed: false };
+}
+
+export function lookUpCharge(input: {
+  store: ChargeStore;
+  reference: string;
+  outageActive: boolean;
+}): ChargeReply {
+  const { store, reference } = input;
+  if (input.outageActive)
+    return {
+      status: 503,
+      body: echoCharge("service_unavailable", reference, undefined),
+      replayed: false,
+    };
+  const stored = store.get(reference);
+  if (stored) return { status: 200, body: stored.body, replayed: false };
+  return {
+    status: 404,
+    body: echoCharge("charge_not_found", reference, undefined),
+    replayed: false,
+  };
 }

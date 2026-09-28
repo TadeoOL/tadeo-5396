@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { ChargeResponse, Uuid } from "@snailrace/contracts";
+import { ChargeResponse, ErrorEnvelope, Uuid } from "@snailrace/contracts";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../app.ts";
@@ -364,5 +364,192 @@ describe("POST /api/snailpay/charges", () => {
     expect(res.text).not.toContain("boom");
     expect(log).toHaveBeenCalledOnce();
     expect(chargeStore.size).toBe(0);
+  });
+});
+
+const UNKNOWN = "0b7e2f0e-6a1d-4f7b-9d43-2a1c5e9f8b10";
+
+function outageSetup() {
+  const ctx = setup();
+  const lookup = (reference?: string) =>
+    request(ctx.app)
+      .get(PATH)
+      .query(reference === undefined ? {} : { reference });
+  const outage = (body: object | string) =>
+    request(ctx.app)
+      .put("/api/snailpay/outage")
+      .set("Content-Type", "application/json")
+      .send(body);
+  return { ...ctx, lookup, outage };
+}
+
+describe("GET /api/snailpay/charges and the Outage", () => {
+  it("looks a Charge up by reference", async () => {
+    const { post, lookup } = outageSetup();
+    const created = await post(BODY, KEY);
+    const res = await lookup(KEY);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(created.body);
+    expect(res.headers["idempotent-replayed"]).toBeUndefined();
+    const key = randomUUID();
+    await post({ ...BODY, card_number: "1234123412340002" }, key);
+    const declined = await lookup(key);
+    expect(declined.status).toBe(200);
+    expect(ChargeResponse.parse(declined.body).status).toBe("rejected");
+  });
+
+  it("answers 404 charge_not_found for an unknown reference", async () => {
+    const { lookup } = outageSetup();
+    const res = await lookup(UNKNOWN);
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({
+      id: null,
+      status: "error",
+      status_detail: "charge_not_found",
+      transaction_amount: null,
+      date_created: null,
+      authorization_code: null,
+      reference: UNKNOWN,
+      payer_id: null,
+      payer_email: null,
+      card: {
+        card_number: null,
+        expiration_date: null,
+        security_code: null,
+        cardholder_name: null,
+      },
+    });
+  });
+
+  it("answers 400 for a missing or non-UUID reference", async () => {
+    const { lookup } = outageSetup();
+    const res = await lookup("nope");
+    expect(res.status).toBe(400);
+    expect(ChargeResponse.parse(res.body)).toMatchObject({
+      status: "rejected",
+      status_detail: "invalid_request",
+      reference: "nope",
+      errors: [{ field: "reference", message: "Must be a UUID." }],
+    });
+    const missing = await lookup();
+    expect(missing.status).toBe(400);
+    expect(ChargeResponse.parse(missing.body).reference).toBeNull();
+  });
+
+  it("switches the Outage on and off", async () => {
+    const { app, outage } = outageSetup();
+    const get = () => request(app).get("/api/snailpay/outage");
+    expect((await get()).status).toBe(200);
+    expect((await get()).body).toEqual({ active: false });
+    const on = await outage({ active: true });
+    expect(on.status).toBe(200);
+    expect(on.body).toEqual({ active: true });
+    expect((await get()).body).toEqual({ active: true });
+    expect((await outage({ active: false })).body).toEqual({ active: false });
+  });
+
+  it("rejects any other Outage body with 400 in the error envelope", async () => {
+    const { outage } = outageSetup();
+    for (const body of [
+      { active: "yes" },
+      {},
+      { active: true, extra: 1 },
+      "{",
+    ]) {
+      const res = await outage(body);
+      expect(res.status).toBe(400);
+      expect(ErrorEnvelope.parse(res.body).error.code).toBe("invalid_request");
+    }
+  });
+
+  it("answers 503 with Retry-After on both Charge routes during the Outage", async () => {
+    const { post, lookup, outage } = outageSetup();
+    await outage({ active: true });
+    const res = await post(BODY, KEY);
+    expect(res.status).toBe(503);
+    expect(res.headers["retry-after"]).toBe("30");
+    expect(ChargeResponse.parse(res.body)).toMatchObject({
+      status: "error",
+      status_detail: "service_unavailable",
+      id: null,
+      transaction_amount: 15000,
+      reference: KEY,
+      card: {
+        card_number: BODY.card_number,
+        expiration_date: BODY.expiration_date,
+        security_code: BODY.security_code,
+        cardholder_name: BODY.cardholder_name,
+      },
+    });
+    const found = await lookup(KEY);
+    expect(found.status).toBe(503);
+    expect(found.headers["retry-after"]).toBe("30");
+    expect(ChargeResponse.parse(found.body).reference).toBe(KEY);
+  });
+
+  it("stores nothing during the Outage", async () => {
+    const { post, lookup, outage } = outageSetup();
+    await outage({ active: true });
+    expect((await post(BODY, KEY)).status).toBe(503);
+    await outage({ active: false });
+    expect((await lookup(KEY)).status).toBe(404);
+    const res = await post(BODY, KEY);
+    expect(res.status).toBe(201);
+    expect(res.headers["idempotent-replayed"]).toBeUndefined();
+  });
+
+  it("answers 503 for a stored key during the Outage and replays it after", async () => {
+    const { post, outage } = outageSetup();
+    const first = await post(BODY, KEY);
+    expect(first.status).toBe(201);
+    await outage({ active: true });
+    expect((await post(BODY, KEY)).status).toBe(503);
+    await outage({ active: false });
+    const again = await post(BODY, KEY);
+    expect(again.status).toBe(201);
+    expect(again.headers["idempotent-replayed"]).toBe("true");
+    expect(ChargeResponse.parse(again.body).id).toBe(
+      ChargeResponse.parse(first.body).id,
+    );
+  });
+
+  it("keeps format errors and the health check during the Outage", async () => {
+    const { app, post, outage } = outageSetup();
+    await outage({ active: true });
+    const res = await post({ ...BODY, security_code: "54" });
+    expect(res.status).toBe(400);
+    expect(ChargeResponse.parse(res.body).status_detail).toBe(
+      "invalid_request",
+    );
+    const health = await request(app).get("/api/health");
+    expect(health.status).toBe(200);
+    expect(health.body).toEqual({ status: "ok" });
+  });
+
+  it("limits each IP to 60 lookups a minute", async () => {
+    const { lookup } = outageSetup();
+    for (let i = 0; i < 60; i++)
+      expect((await lookup(UNKNOWN)).status).toBe(404);
+    const res = await lookup(UNKNOWN);
+    expect(res.status).toBe(429);
+    expect(ChargeResponse.parse(res.body)).toMatchObject({
+      status: "error",
+      status_detail: "rate_limited",
+      reference: UNKNOWN,
+    });
+    expect(String(res.headers["retry-after"])).toMatch(/^[1-9]\d*$/);
+  });
+
+  it("answers an unexpected lookup error with 500 in the Charge shape", async () => {
+    const { lookup, chargeStore } = outageSetup();
+    vi.spyOn(chargeStore, "get").mockImplementation(() => {
+      throw new Error("boom");
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await lookup(KEY);
+    expect(res.status).toBe(500);
+    expect(ChargeResponse.parse(res.body).status_detail).toBe("internal_error");
+    expect(ChargeResponse.parse(res.body).reference).toBe(KEY);
+    expect(res.text).not.toContain("boom");
   });
 });
