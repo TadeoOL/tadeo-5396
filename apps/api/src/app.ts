@@ -5,6 +5,7 @@ import helmet from "helmet";
 import { errorHandler, sendError } from "./http/errors.ts";
 import { requestId } from "./http/request-id.ts";
 import { requestLog } from "./http/request-log.ts";
+import { raceDaysRouter } from "./race-days/routes.ts";
 import type { ChargeStore } from "./snailpay/charge-store.ts";
 import type { Sleep } from "./snailpay/charges.ts";
 import { createSnailPayRouter } from "./snailpay/routes.ts";
@@ -30,6 +31,7 @@ export function createApp(deps: AppDeps): express.Express {
     const body: HealthResponse = { status: "ok" };
     res.json(body);
   });
+  app.use("/api/race-days", raceDaysRouter);
 
   if (deps.serveWeb) {
     app.use("/api", (_req, res) => {
