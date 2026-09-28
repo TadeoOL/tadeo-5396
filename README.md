@@ -47,7 +47,7 @@ npm run build && npm run test:e2e
 
 SnailPay decides each result from the Card. The Scenario cards use expiry `12/26` and CVV `543`; any name and any amount from $0.01 to $10,000.00 work. Every Card here is fictitious.
 
-To call the API, start the app (`npm run dev`, or `npm run build && npm start`) and paste this helper into bash or zsh. It sends a $150.00 Charge with a new idempotency key, prints the key (the Charge `reference`), then the status line, the headers and the body. Extra arguments go to `curl`.
+To call the API, start the app (`npm run dev`, or `npm run build && npm start`) and paste this helper into bash or zsh. It sends a $150.00 Charge with a new idempotency key, prints the key (the Charge `reference`), then the status line, the headers and the body. Extra arguments go to `curl`. `lookup <reference>` looks a Charge up, and `outage true` or `outage false` switches the Outage.
 
 ```sh
 PORT=${PORT:-3000}
@@ -61,6 +61,15 @@ charge() {
     -d "{\"card_number\":\"$card\",\"expiration_date\":\"$expiry\",\"security_code\":\"$cvv\",\"cardholder_name\":\"Ana Lopez\",\"transaction_amount\":15000,\"payer_id\":\"9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d\",\"payer_email\":\"ana@example.com\"}"
   echo
 }
+lookup() {
+  curl -si "http://localhost:$PORT/api/snailpay/charges?reference=$1"
+  echo
+}
+outage() {
+  curl -si -X PUT "http://localhost:$PORT/api/snailpay/outage" \
+    -H 'Content-Type: application/json' -d "{\"active\":$1}"
+  echo
+}
 ```
 
 | To reproduce | API call | Expected response | Expected Top-up outcome | In the UI |
@@ -71,7 +80,8 @@ charge() {
 | Wrong CVV | `charge 1234123412341234 12/26 123` | `402 rejected / cc_rejected_bad_filled_security_code` | Declined | — |
 | Insufficient funds | `charge 1234123412340002 12/26 543` | `402 rejected / cc_rejected_insufficient_amount` | Declined | — |
 | High risk | `charge 1234123412340003 12/26 543` | `402 rejected / cc_rejected_high_risk` | Declined | — |
-| Timeout | `charge 1234123412340004 12/26 543` | `201 approved / accredited`, after 30 s | Unknown, then Credited | — |
+| Timeout | `charge 1234123412340004 12/26 543 -m 10`, then `lookup <reference>` | No answer within 10 s (`curl` gives up, as the app does), then the lookup answers `200` with `approved / accredited` | Unknown, then Credited | — |
+| System error | `outage true`, then `charge 1234123412341234 12/26 543`, then `outage false` | `503 error / service_unavailable`, with `Retry-After: 30` | Failed | — |
 | Invalid data (API only) | `charge 123412341234123 12/26 543` | `400 rejected / invalid_request`, with `errors` | — | — |
 
 Sending the same key and body again returns the stored response with `Idempotent-Replayed: true`. The same key with another body returns `422 rejected / idempotency_key_reused`. After 10 Charges in a minute from one IP, SnailPay answers `429 error / rate_limited`.
@@ -80,4 +90,4 @@ Sending the same key and body again returns the stored response with `Idempotent
 
 - **Sign-up and the protected dashboard**: done. A User registers with full name, email, password and confirmation, is signed in for 24 h, and lands on `/dashboard`, which shows their name and a $0.00 Balance and needs an active Session.
 - **Sign-in and sign-out**: done. A User signs out from the header and signs back in with the same email and password. Five failed attempts lock that email for 30 s, doubling up to 15 min.
-- **SnailPay API**: done. `POST /api/snailpay/charges` answers every card Scenario in one response shape, replays a repeated `X-Idempotency-Key`, masks card numbers outside the Scenario catalog and allows 10 Charges per minute per IP.
+- **SnailPay API**: done. `POST /api/snailpay/charges` answers every card Scenario in one response shape, replays a repeated `X-Idempotency-Key`, masks card numbers outside the Scenario catalog and allows 10 Charges per minute per IP. `GET /api/snailpay/charges?reference=` looks a Charge up (60 per minute per IP), and `PUT /api/snailpay/outage` switches the Outage, during which both Charge routes answer `503`.
