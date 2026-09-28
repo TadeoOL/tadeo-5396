@@ -57,3 +57,12 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Over two question rounds, eleven decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
   - The maintainer confirmed the summary before any file was written.
   - The spec was cross-checked against the glossary and the state-and-persistence spec: Race Days and Bets are not persisted, and the `userId` is a UUID.
+
+## 2026-09-28 — Engineering conventions
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI.
+- **Purpose**: resolve the ticket "Set engineering conventions: Git workflow, commits, linting, formatting and CI".
+- **Produced**: `docs/conventions.md` and the ticket's resolution comment.
+- **Validation**:
+  - Before asking anything, the agent checked the facts behind each question: the local toolchain versions, the existing commit history, and the repository's merge and branch-protection settings.
+  - Over two question rounds, ten decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
