@@ -271,3 +271,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the web `storage` module (backend seam, in-memory `Storage`, change subscription, Users registry, Session with `useSession`), the sign-up schemas, the PBKDF2 credential and `signUp`, each with Vitest suites over an in-memory backend.
 - **Validation**: `npm run check` and `npx vitest run --project web` (about 1 s with the real 600,000 iterations), and the `ci` check on the PR.
 - **Time**: about 15 minutes.
+
+## 2026-09-28 — Sign-up and the protected dashboard
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #25, "Sign up and land on the protected dashboard".
+- **Produced**: the sign-up screen and form, the sign-in placeholder, the route guards, the dashboard greeting and Balance, the shared `ScreenTitle`, `AuthLayout`, `TextField` and `FormAlert`, `formatMxn`, their Vitest suites, and the README Status section.
+- **Validation**: `npm run check`, `npm run build && npm run test:e2e`, a Playwright script against `npm run dev` for the manual criteria, and the `ci` check on the PR.
+- **Time**: about 20 minutes.
