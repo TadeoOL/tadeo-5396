@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: snail-race
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    buildFilter:
+      ignoredPaths:
+        - docs/**
+        - "**/*.md"
+        - .github/**
