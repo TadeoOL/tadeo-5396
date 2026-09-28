@@ -30,6 +30,10 @@ _Avoid_: Recharge, Deposit, Payment, Transaction
 How a Top-up ended. **Credited**: its Charge was approved and the amount was added to the Balance exactly once. **Declined**: its Charge was rejected. **Failed**: SnailPay could not process it. **Unknown**: no answer arrived from SnailPay. Unknown is provisional: the Balance stays unchanged until Reconciliation settles the Top-up as Credited, Declined or Failed.
 _Avoid_: Top-up status (status belongs to a Charge)
 
+**Pending**:
+A Top-up that has started but has no Top-up outcome yet, because its Charge has not been answered. A Pending Top-up that the app loses track of, for example because the page was reloaded, is treated as Unknown.
+_Avoid_: Processing, In progress
+
 **Reconciliation**:
 Confirming with SnailPay what happened to a Top-up whose outcome is Unknown, and settling it.
 _Avoid_: Sync, Recovery
