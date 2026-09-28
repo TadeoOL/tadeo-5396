@@ -228,3 +228,22 @@ Every working session appends one entry: tool, purpose, what it produced, how th
   - The agent first suggested a constant in `contracts`, then checked the architecture document, confirmed it allows constants, and chose a `z.enum` that SnailPay's masking rule also uses.
   - The prototype was captured with Playwright at 1300 px to check the dashboard and dialog panels.
 - **Time**: about 25 minutes.
+
+## 2026-09-28 — Implementation roadmap and agent loop
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; four drafting subagents (one per milestone plus a sample), a research subagent with web access, and a Claude Code docs subagent; GitHub CLI; Orca.
+- **Purpose**: resolve the ticket "Slice the implementation roadmap into agent-sized issues", and set up the agents and the automation that build the app.
+- **Produced**:
+  - 21 GitHub issues (#22–#42) in four milestones: 15 implementation issues, 3 milestone reviews and 3 human-driven delivery issues. They have native blocked-by dependencies and the labels `roadmap`, `review`, `hitl`, `needs-high` and `needs-human`.
+  - `docs/roadmap.md`: the index and the coverage table.
+  - `AGENTS.md`: the shared agent instructions (docs map, commands, how to pick and claim an issue, worktrees and ports for parallel agents, reporting findings, and the Definition of done).
+  - `.claude/agents/implementer.md`, `implementer-high.md` and `reviewer.md`: Opus 5.5 at low, high and xhigh effort.
+  - Spec corrections found while drafting: the SnailPay `500` body, the multi-tab storage filter, `HealthResponse`, the write-ahead failure copy, the component install list, README Status per issue, and the Scenario table's home.
+  - A local Orca automation (not in the repository) that runs the loop every 5 minutes and stops itself when local development is done.
+- **Validation**:
+  - The maintainer decided every structural choice in grilling rounds: vertical slices, the review gates, the issue template, the agent models, and splitting oversized issues.
+  - The implementer model was chosen from published benchmark data: Opus 5.5 at low effort with escalation, instead of Sonnet 5 at high effort.
+  - The maintainer reviewed a sample issue before the rest were drafted.
+  - The drafting subagents prototyped the risky library behavior in scratch projects: the toolchain versions, Express 5, zod 4, Recharts and shadcn.
+  - Every doc anchor in the issues was checked, and the issues were scanned for any reference to the requirements' origin.
+- **Time**: about 4 hours.
