@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 
@@ -22,6 +24,17 @@ export async function signUp(
 }
 
 export async function expectNoA11yViolations(page: Page): Promise<void> {
+  // Axe reads blended colors while a dialog or a toast is still fading in,
+  // so wait until only endless animations (spinners, skeletons) are running.
+  await page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .every(
+        (animation) =>
+          animation.playState !== "running" ||
+          animation.effect?.getTiming().iterations === Infinity,
+      ),
+  );
   const { violations } = await new AxeBuilder({ page }).analyze();
   expect(
     violations.filter((v) => v.impact === "serious" || v.impact === "critical"),
