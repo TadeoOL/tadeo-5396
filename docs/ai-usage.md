@@ -1,6 +1,6 @@
 # AI usage log
 
-Every working session appends one entry: tool, purpose, what it produced, and how the output was validated. This log feeds the "AI usage" section of the final response document.
+Every working session appends one entry: tool, purpose, what it produced, how the output was validated, and the time spent. This log feeds the "AI usage" section of the final response document.
 
 ## 2026-09-28 — Requirements intake and repository setup
 
@@ -200,3 +200,16 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Every token pair was checked with a WCAG contrast script. One silk (Nacho's gold, 1.63:1 on white) fails the 3:1 non-text minimum on its own, so every silk shape carries an ink outline, and the document records the exception.
   - The prototype was captured at 1280 px and 390 px wide. The mobile capture showed a horizontal overflow in the Top-up dialog, which was fixed and captured again. The skill's anti-pattern detector reported no findings.
   - The Archivo package was inspected to confirm that its `wdth.css` file exposes the width axis under the family name the tokens use.
+
+## 2026-09-28 — Delivery package
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI.
+- **Purpose**: resolve the ticket "Plan the delivery package: README, scenario table, response-document outline and hygiene pass".
+- **Produced**:
+  - `docs/delivery.md`: README sections, the canonical home of the Scenario table, the response-document format and outline, the hygiene pass and the two roadmap closing issues.
+  - The `Time` line in this log's entry format.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Eight decisions were put to the maintainer in one round, each with a recommendation, and the maintainer accepted all of them.
+  - Before asking, the agent checked the history of every branch, the commit messages and the issues for references to the organization, and confirmed the brief was never tracked. All came back clean.
+- **Time**: about 15 minutes.
