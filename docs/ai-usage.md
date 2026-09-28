@@ -319,3 +319,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the per-User ledger (`readLedger`, `startTopUp`, `settleTopUp`, `useLedger`), the `fetch` wrapper `request`, `createCharge`, `outcomeOfCharge`, the Top-up form schema, and their Vitest suites.
 - **Validation**: `npm run check`, `npx vitest run --project web`, and the `ci` check on the PR.
 - **Time**: about 10 minutes.
+
+## 2026-09-28 — Top up with the approval card
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #31, "Top up with the approval card".
+- **Produced**: the query client and toaster in `App`, `TopUpForm`, `TopUpReceipt` and `TopUpDialog`, the Balance region reading the ledger, the tier 3 suite, end-to-end spec 2, and the README Scenario table and Status line.
+- **Validation**: `npm run check`, `npx vitest run --project web`, `npm run build && npm run test:e2e`, the `grep` for `localStorage` and `fetch(` in features, and the `ci` check on the PR.
+- **Time**: about 15 minutes.
