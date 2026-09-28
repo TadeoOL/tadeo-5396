@@ -49,7 +49,7 @@ Every implementation issue follows these rules. They were decided in the ticket 
 
 ## Toolchain
 
-- **Node 24 LTS.** `.nvmrc` contains `24`, and the root `package.json` declares `"engines": { "node": ">=24" }`.
+- **Node 24 LTS.** `.nvmrc` contains `24`, and the root `package.json` declares `"engines": { "node": "24.x" }`. The range has an upper bound because Render resolves an open-ended range to the newest Node release.
 - **npm**, which ships with Node, so a reviewer needs nothing else installed. `package-lock.json` is committed, and CI installs with `npm ci`.
 - **Root scripts**:
 
