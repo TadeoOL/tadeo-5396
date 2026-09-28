@@ -22,10 +22,10 @@ Open the app on `localhost`. Sign-up and sign-in use Web Crypto, which browsers 
 
 ```sh
 npm run build
-npm start
+NODE_ENV=production npm start
 ```
 
-`npm start` serves the app and the API on http://localhost:3000.
+The app and the API are served on http://localhost:3000. `npm start` alone serves only the API: the built app is mounted only when `NODE_ENV` is `production`, as on the host.
 
 ## Tests
 
@@ -47,7 +47,7 @@ npm run build && npm run test:e2e
 
 SnailPay decides each result from the Card. The Scenario cards use expiry `12/26` and CVV `543`; any name and any amount from $0.01 to $10,000.00 work. Every Card here is fictitious.
 
-To call the API, start the app (`npm run dev`, or `npm run build && npm start`) and paste this helper into bash or zsh. It sends a $150.00 Charge with a new idempotency key, prints the key (the Charge `reference`), then the status line, the headers and the body. Extra arguments go to `curl`. `lookup <reference>` looks a Charge up, and `outage true` or `outage false` switches the Outage.
+To call the API, start the app (`npm run dev`, or `npm run build && NODE_ENV=production npm start`) and paste this helper into bash or zsh. It sends a $150.00 Charge with a new idempotency key, prints the key (the Charge `reference`), then the status line, the headers and the body. Extra arguments go to `curl`. `lookup <reference>` looks a Charge up, and `outage true` or `outage false` switches the Outage.
 
 ```sh
 PORT=${PORT:-3000}

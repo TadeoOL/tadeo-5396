@@ -39,7 +39,7 @@ Node 24 (`.nvmrc`) and npm. Install with `npm ci`. These root scripts exist once
 |---|---|
 | `npm run dev` | Runs the API (port 3000) and Vite (port 5173) together; Vite proxies `/api`. |
 | `npm run build` | Builds `web` with Vite. `api` and `contracts` run as TypeScript source. |
-| `npm start` | Starts the API, which also serves `apps/web/dist`. |
+| `npm start` | Starts the API. With `NODE_ENV=production` it also serves `apps/web/dist`; without it, the SPA routes answer 404. |
 | `npm run typecheck` | Type-checks every package. |
 | `npm run lint` | Runs ESLint. |
 | `npm run format` | Formats files with Prettier. |
