@@ -12,7 +12,7 @@ export function BetsChart({ totals }: { totals: BetTotals }) {
         className="relative mx-auto mt-3 size-40"
       >
         <ChartContainer
-          config={{ won: { label: "Won" }, lost: { label: "Lost" } }}
+          config={{ won: { label: "Ganadas" }, lost: { label: "Perdidas" } }}
           className="aspect-square size-40"
         >
           <PieChart accessibilityLayer={false}>
@@ -35,15 +35,15 @@ export function BetsChart({ totals }: { totals: BetTotals }) {
           <span className="text-2xl font-black">
             {won}/{total}
           </span>
-          <span className="text-sm">won</span>
+          <span className="text-sm">ganadas</span>
         </div>
       </div>
       <p className="mt-2 text-center text-sm text-muted-foreground">
         <span aria-hidden="true">
-          ■ {won} won · ▨ {lost} lost, out of {total} bets.
+          ■ {won} ganadas · ▨ {lost} perdidas, de {total} apuestas.
         </span>
         <span id="bets-summary" className="sr-only">
-          {won} won, {lost} lost, out of {total} bets.
+          {won} ganadas, {lost} perdidas, de {total} apuestas.
         </span>
       </p>
     </>

@@ -12,9 +12,9 @@ export function SignIn() {
   return (
     <AuthLayout>
       <SilksRow />
-      <ScreenTitle title="Sign in">Sign in</ScreenTitle>
+      <ScreenTitle title="Iniciar sesión">Iniciar sesión</ScreenTitle>
       <p className="mt-1 mb-6 text-sm text-muted-foreground">
-        See how today's races went and top up your balance.
+        Mira cómo salieron las carreras de hoy y recarga tu saldo.
       </p>
       <SignInForm
         sessionExpired={state?.sessionExpired === true}
@@ -27,9 +27,9 @@ export function SignIn() {
         }}
       />
       <p className="mt-4 text-center text-sm">
-        New here?{" "}
+        ¿Primera vez aquí?{" "}
         <Link to="/sign-up" className="font-bold underline">
-          Create an account
+          Crea una cuenta
         </Link>
       </p>
     </AuthLayout>

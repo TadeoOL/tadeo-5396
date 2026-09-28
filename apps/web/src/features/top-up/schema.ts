@@ -20,21 +20,21 @@ export const topUpFormSchema = z
       .string()
       .refine(
         (v) => parseAmountCents(v) !== null,
-        "Enter an amount from $0.01 to $10,000.00.",
+        "Ingresa un monto de $0.01 a $10,000.00.",
       ),
     cardNumber: z
       .string()
       .refine(
         (v) => accepts(fields.card_number)(v.replaceAll(" ", "")),
-        "Enter the 16 digits of the card.",
+        "Ingresa los 16 dígitos de la tarjeta.",
       ),
-    expiry: z.string().refine(accepts(fields.expiration_date), "Use MM/YY."),
-    cvv: z.string().refine(accepts(fields.security_code), "Enter 3 digits."),
+    expiry: z.string().refine(accepts(fields.expiration_date), "Usa MM/AA."),
+    cvv: z.string().refine(accepts(fields.security_code), "Ingresa 3 dígitos."),
     cardholderName: z
       .string()
       .refine(
         accepts(fields.cardholder_name),
-        "Enter the name on the card (up to 100 characters).",
+        "Ingresa el nombre que aparece en la tarjeta (hasta 100 caracteres).",
       ),
   })
   .transform((v) => ({

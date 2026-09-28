@@ -6,7 +6,7 @@ export function WinsChart({ wins }: { wins: SnailWins[] }) {
   return (
     <>
       <ChartContainer
-        config={{ wins: { label: "Wins" } }}
+        config={{ wins: { label: "Victorias" } }}
         role="img"
         aria-labelledby="wins-summary"
         className="mt-3 aspect-auto h-55 w-full"

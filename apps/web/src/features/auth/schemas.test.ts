@@ -5,7 +5,8 @@ import { signUpSchema } from "./schemas";
 
 beforeEach(() => setBackend(createMemoryStorage()));
 
-const PASSWORD_ERROR = "Use at least 15 characters. A short phrase works well.";
+const PASSWORD_ERROR =
+  "Usa al menos 15 caracteres. Una frase corta funciona bien.";
 const valid = {
   fullName: "Ana López",
   email: "ana@example.com",
@@ -61,10 +62,10 @@ test("reports every field error with the spec copy", () => {
       confirmPassword: "different",
     }),
   ).toEqual([
-    ["fullName", "Enter your full name (2–80 characters)."],
-    ["email", "Enter a valid email address."],
+    ["fullName", "Ingresa tu nombre completo (de 2 a 80 caracteres)."],
+    ["email", "Ingresa un correo electrónico válido."],
     ["password", PASSWORD_ERROR],
-    ["confirmPassword", "Passwords don't match."],
+    ["confirmPassword", "Las contraseñas no coinciden."],
   ]);
 });
 
@@ -74,7 +75,7 @@ test("accepts real-world names and rejects control characters", () => {
   }
   for (const fullName of ["Ana\u0007López", "a".repeat(81)]) {
     expect(errorsFor({ fullName })).toEqual([
-      ["fullName", "Enter your full name (2–80 characters)."],
+      ["fullName", "Ingresa tu nombre completo (de 2 a 80 caracteres)."],
     ]);
   }
 });
@@ -87,7 +88,7 @@ test("rejects malformed emails", () => {
   ]) {
     expect(errorsFor({ email })).toContainEqual([
       "email",
-      "Enter a valid email address.",
+      "Ingresa un correo electrónico válido.",
     ]);
   }
 });

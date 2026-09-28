@@ -8,19 +8,19 @@ export function announceOutcome(
 ): void {
   const amount = formatMxn(topUp.amountCents);
   if (topUp.outcome === "credited")
-    toast.success("Top-up approved", {
-      description: `+${amount} added to your balance.`,
+    toast.success("Recarga aprobada", {
+      description: `+${amount} agregados a tu saldo.`,
     });
   else if (topUp.outcome === "declined")
-    toast.error("Top-up declined", {
+    toast.error("Recarga rechazada", {
       description: `${amount} · ${copyOf(topUp.charge).shortReason}`,
     });
   else if (topUp.outcome === "failed")
-    toast.error("Top-up failed", {
+    toast.error("Recarga fallida", {
       description: `${amount} · ${copyOf(topUp.charge).shortReason}`,
     });
   else if (topUp.outcome === "unknown")
-    toast.warning("Payment not confirmed yet", {
-      description: `${amount} · We're checking with SnailPay.`,
+    toast.warning("Pago aún sin confirmar", {
+      description: `${amount} · Estamos verificando con SnailPay.`,
     });
 }

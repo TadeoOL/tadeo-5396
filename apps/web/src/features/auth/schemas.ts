@@ -2,9 +2,10 @@ import { z } from "zod";
 
 export const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const NAME_ERROR = "Enter your full name (2–80 characters).";
-const EMAIL_ERROR = "Enter a valid email address.";
-const PASSWORD_ERROR = "Use at least 15 characters. A short phrase works well.";
+const NAME_ERROR = "Ingresa tu nombre completo (de 2 a 80 caracteres).";
+const EMAIL_ERROR = "Ingresa un correo electrónico válido.";
+const PASSWORD_ERROR =
+  "Usa al menos 15 caracteres. Una frase corta funciona bien.";
 
 export const signUpSchema = z
   .object({
@@ -29,7 +30,7 @@ export const signUpSchema = z
     confirmPassword: z.string().normalize("NFKC"),
   })
   .refine((v) => v.password === v.confirmPassword, {
-    message: "Passwords don't match.",
+    message: "Las contraseñas no coinciden.",
     path: ["confirmPassword"],
   });
 
@@ -41,9 +42,9 @@ export const signInSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .min(1, "Enter your email.")
+    .min(1, "Ingresa tu correo electrónico.")
     .regex(EMAIL_FORMAT, EMAIL_ERROR),
-  password: z.string().normalize("NFKC").min(1, "Enter your password."),
+  password: z.string().normalize("NFKC").min(1, "Ingresa tu contraseña."),
 });
 
 export type SignInInput = z.input<typeof signInSchema>;

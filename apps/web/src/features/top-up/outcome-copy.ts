@@ -4,9 +4,9 @@ import type { TopUp } from "@/storage/ledger";
 export type OutcomeCopy = { title: string; body: string; shortReason: string };
 
 const PAYMENT_ERROR: OutcomeCopy = {
-  title: "Something went wrong with this payment",
-  body: "Nothing was charged. Try again.",
-  shortReason: "Payment error",
+  title: "Algo salió mal con este pago",
+  body: "No se cobró nada. Intenta de nuevo.",
+  shortReason: "Error en el pago",
 };
 
 export const OUTCOME_COPY: Record<
@@ -14,51 +14,51 @@ export const OUTCOME_COPY: Record<
   OutcomeCopy
 > = {
   cc_rejected_bad_filled_card_number: {
-    title: "Declined: card not recognized",
-    body: "Check the card number and try again.",
-    shortReason: "Card not recognized",
+    title: "Rechazada: tarjeta no reconocida",
+    body: "Revisa el número de tarjeta e intenta de nuevo.",
+    shortReason: "Tarjeta no reconocida",
   },
   cc_rejected_bad_filled_date: {
-    title: "Declined: wrong expiry date",
-    body: "Check the expiry date on the card.",
-    shortReason: "Wrong expiry date",
+    title: "Rechazada: fecha de vencimiento incorrecta",
+    body: "Revisa la fecha de vencimiento de la tarjeta.",
+    shortReason: "Fecha de vencimiento incorrecta",
   },
   cc_rejected_bad_filled_security_code: {
-    title: "Declined: wrong security code",
-    body: "Check the 3-digit code on the back of the card.",
-    shortReason: "Wrong security code",
+    title: "Rechazada: código de seguridad incorrecto",
+    body: "Revisa el código de 3 dígitos al reverso de la tarjeta.",
+    shortReason: "Código de seguridad incorrecto",
   },
   cc_rejected_insufficient_amount: {
-    title: "Declined: insufficient funds",
-    body: "The card doesn't have enough funds. Try a smaller amount or another card.",
-    shortReason: "Insufficient funds",
+    title: "Rechazada: fondos insuficientes",
+    body: "La tarjeta no tiene fondos suficientes. Prueba con un monto menor o con otra tarjeta.",
+    shortReason: "Fondos insuficientes",
   },
   cc_rejected_high_risk: {
-    title: "Declined for security reasons",
-    body: "SnailPay declined this payment to protect you. Use another card.",
-    shortReason: "Declined for security",
+    title: "Rechazada por seguridad",
+    body: "SnailPay rechazó este pago para protegerte. Usa otra tarjeta.",
+    shortReason: "Rechazada por seguridad",
   },
   service_unavailable: {
-    title: "SnailPay is unavailable",
-    body: "Nothing was charged and your balance did not change. Try again in a few moments.",
-    shortReason: "SnailPay was unavailable",
+    title: "SnailPay no está disponible",
+    body: "No se cobró nada y tu saldo no cambió. Intenta de nuevo en unos momentos.",
+    shortReason: "SnailPay no estaba disponible",
   },
   rate_limited: {
-    title: "Too many attempts",
-    body: "Nothing was charged. Wait a minute and try again.",
-    shortReason: "Too many attempts",
+    title: "Demasiados intentos",
+    body: "No se cobró nada. Espera un minuto e intenta de nuevo.",
+    shortReason: "Demasiados intentos",
   },
   internal_error: {
-    title: "SnailPay couldn't process the payment",
-    body: "Nothing was charged and your balance did not change. Try again.",
-    shortReason: "SnailPay error",
+    title: "SnailPay no pudo procesar el pago",
+    body: "No se cobró nada y tu saldo no cambió. Intenta de nuevo.",
+    shortReason: "Error de SnailPay",
   },
   invalid_request: PAYMENT_ERROR,
   idempotency_key_reused: PAYMENT_ERROR,
   charge_not_found: {
-    title: "Payment not found",
-    body: "SnailPay has no record of this payment, so nothing was charged.",
-    shortReason: "No record at SnailPay",
+    title: "Pago no encontrado",
+    body: "SnailPay no tiene registro de este pago, así que no se cobró nada.",
+    shortReason: "Sin registro en SnailPay",
   },
 };
 
@@ -80,12 +80,12 @@ export const MISMATCHED_FIELD: Partial<
 export function shortReason(topUp: TopUp): string | null {
   switch (topUp.outcome) {
     case "credited":
-      return `Auth. code ${topUp.charge?.authorization_code ?? ""}`;
+      return `Cód. de autorización ${topUp.charge?.authorization_code ?? ""}`;
     case "declined":
     case "failed":
       return copyOf(topUp.charge).shortReason;
     case "unknown":
-      return "Not confirmed yet.";
+      return "Aún sin confirmar.";
     case "pending":
       return null;
   }
