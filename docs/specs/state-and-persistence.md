@@ -86,7 +86,7 @@ type TopUp = {
 
 - The Express process holds one in-memory store of Charges, keyed by idempotency key. The idempotency key is also the `reference`, so the same map serves idempotent replays and lookups by `reference` for Reconciliation. The SnailPay contract defines what is stored per entry and which responses are stored. System errors, for example, are not stored.
 - The server never computes, stores or returns a Balance.
-- **Restart ceiling:** a restart, redeploy or sleep on the hosting tier empties the store. The Balance is unaffected because the browser owns it. The top-up reliability spec decides how Reconciliation settles an `unknown` Top-up whose Charge the server no longer knows.
+- **Restart ceiling:** a restart, redeploy or sleep on the hosting tier empties the store. The Balance is unaffected because the browser owns it. [Top-up reliability](top-up-reliability.md) settles an `unknown` Top-up whose Charge the server no longer knows as `failed` once the Top-up is 2 minutes old.
 - The store is not capped. This is a deliberate ceiling for a mock; a TTL or LRU is the upgrade path if memory ever matters.
 
 ## Trust boundary
@@ -98,6 +98,6 @@ type TopUp = {
 
 - **Auth spec:** defines `Credential`, `SessionRecord` and the sign-in throttle ([auth.md](auth.md)). The Users registry is keyed by `id`, and sign-in finds a User by email with a linear scan.
 - **SnailPay contract:** after a reload, a Top-up has no card data, so Reconciliation must be able to look a Charge up by `reference` alone, without resending the request.
-- **Top-up reliability:** decides the Reconciliation flow, including the case where the Charge was forgotten after a server restart, and the retry and timeout rules that move a Top-up between outcomes.
+- **Top-up reliability:** decides the Reconciliation flow, including the case where the Charge was forgotten after a server restart, and the retry and timeout rules that move a Top-up between outcomes ([top-up-reliability.md](top-up-reliability.md)).
 - **Race-day data:** decides the seed and how the data is generated. It must stay stable across reloads without being persisted.
 - **Security baseline:** decides how card data is masked in the UI. It is stored unmasked, because the brief requires it.

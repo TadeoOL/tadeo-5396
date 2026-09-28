@@ -68,7 +68,7 @@ Every Card that SnailPay recognizes uses expiry `12/26` and CVV `543`, and any n
 | `1234123412340003` | `402` | `rejected` / `cc_rejected_high_risk` | Declined for fraud risk |
 | `1234123412340004` | `201` after 30 s | `approved` / `accredited` | Timeout: see below |
 
-**Timeout.** With `1234123412340004`, SnailPay stores the approved Charge **immediately**, then waits 30 seconds before responding. The client gives up before then (its timeout must be shorter than 30 s; the top-up reliability spec sets it), so the Top-up becomes Unknown. Reconciliation then finds the Charge approved and credits it. The scenario shows that a timeout is an unknown outcome, not a failure. The delay is a code constant, not configuration.
+**Timeout.** With `1234123412340004`, SnailPay stores the approved Charge **immediately**, then waits 30 seconds before responding. The client gives up before then (its timeout is 10 s; see [Top-up reliability](top-up-reliability.md)), so the Top-up becomes Unknown. Reconciliation then finds the Charge approved and credits it. The scenario shows that a timeout is an unknown outcome, not a failure. The delay is a code constant, not configuration.
 
 ### Reproduction table (seed)
 
@@ -120,10 +120,11 @@ Every response from the Charge routes has **one shape**, whatever the result, so
 | `400` | `rejected` | `invalid_request` | No |
 | `422` | `rejected` | `idempotency_key_reused` | No |
 | `503` | `error` | `service_unavailable` | No |
+| `429` | `error` | `rate_limited` | No. Only if the security baseline adds a rate limiter |
 | `500` | `error` | `internal_error` | No |
 | `404` | `error` | `charge_not_found` | Lookup only |
 
-A `503` also carries a `Retry-After: 30` header. A `500` means an unhandled exception; it is never an approval.
+A `503` also carries a `Retry-After: 30` header, and a `429` carries `Retry-After` too. A `500` means an unhandled exception; it is never an approval.
 
 ### Examples
 
@@ -191,7 +192,7 @@ The in-memory Charge store is keyed by `X-Idempotency-Key`, which is also the `r
 | `reference` is not a UUID | `400 rejected / invalid_request` |
 | The Outage is active | `503 error / service_unavailable` |
 
-The body shape is the same as for creation, so Reconciliation reuses the same parser. What the client does with a `404` is decided by the top-up reliability spec.
+The body shape is the same as for creation, so Reconciliation reuses the same parser. What the client does with a `404` is decided by [Top-up reliability](top-up-reliability.md).
 
 ## Outage
 
