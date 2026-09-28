@@ -80,6 +80,7 @@ It contains:
 - The Charge request and response schemas, with the shape defined by the SnailPay contract.
 - The Race Day and Bets response schemas from the [simulated data spec](specs/simulated-data.md).
 - The error envelope (see [Errors and logging](#errors-and-logging)).
+- `HealthResponse`: `{ status: "ok" }`, the body of `GET /api/health`.
 - Shared primitives: `IsoDate`, `Uuid`, and the Top-up amount limits.
 - `ScenarioCard`: a `z.enum` of the Scenario card numbers. SnailPay uses it to decide which cards it echoes unmasked, and the Top-up dialog lists its `.options` as test cards ([Screens](design/screens.md#top-up-dialog)).
 
@@ -105,7 +106,7 @@ apps/api/src/
   config.ts          reads and validates process.env once
   http/              request id, request logging, error handler
   snailpay/
-    routes.ts        HTTP only: parse with contracts, call the core, map the result to a status
+    routes.ts        HTTP only: parse with contracts, call the core, map the result to a status; its own error handler answers 500 in the Charge shape
     charges.ts       the core: decide the Charge from the Scenario, idempotent replay, lookup by reference
     charge-store.ts  the in-memory store of Charges
   race-days/
@@ -158,7 +159,9 @@ apps/web/src/
 
   The race-day endpoints use it for their `400`s. The SnailPay contract defines the bodies of its own error responses.
 
-- **One central error-handling middleware.** An unexpected error responds `500` with the envelope and code `internal_error`. The stack trace is logged, never returned.
+- **One central error-handling middleware** for the non-SnailPay routes. An unexpected error responds `500` with the envelope and code `internal_error`.
+- **The SnailPay router has its own error handler.** An unexpected error there responds `500` in the Charge shape, with `status: "error"` and `status_detail: "internal_error"`, and no Charge is stored ([SnailPay API](specs/snailpay-api.md#status-catalog)).
+- In both cases the stack trace is logged, never returned.
 - **Request log**: one JSON line per request, written with `console`, with `requestId`, `method`, `path`, `status` and `durationMs`.
 - **Request bodies and query strings are never logged, for any route.** Card data therefore cannot reach a log, and there is no redaction list to keep up to date.
 - Security middleware (`helmet`, body limit, rate limits, `trust proxy`) is specified in the [security baseline](specs/security.md#express).

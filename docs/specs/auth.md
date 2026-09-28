@@ -102,7 +102,7 @@ type SessionRecord = {
 - **One Session per browser**, shared by every tab (state spec). Each sign-in replaces the key with a new `id`, so another tab can tell "signed out and back in" apart from "same Session".
 - **Absolute expiry of 24 h** from `issuedAt`. There is no idle timeout and no sliding renewal. When the Session expires, the User signs in again.
 - **Valid** means all three of the following hold: the value passes its schema, `expiresAt` is in the future, and `userId` exists in `snailrace.v1.users`. Otherwise the key is removed and the User is treated as signed out.
-- **Checked** on app load, in the route guards, and on every `storage` event for the Session key (`key === 'snailrace.v1.session' || key === null`). In addition, a `setTimeout` set to fire at `expiresAt` signs the User out while the tab stays open. With only one protected route, nothing else would notice the expiry.
+- **Checked** on app load, in the route guards, and on every `storage` event whose key has the `snailrace.v1.` prefix or is `null` (`key === null || key.startsWith('snailrace.v1.')`), the same filter as [State and persistence](state-and-persistence.md#multi-tab-consistency). In addition, a `setTimeout` set to fire at `expiresAt` signs the User out while the tab stays open. With only one protected route, nothing else would notice the expiry.
 - **Restore on reload** is a synchronous localStorage read before the first render, so there is no "loading session" state and no flash of the wrong screen.
 
 ## Sign-out

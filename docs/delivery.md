@@ -26,14 +26,15 @@ One `README.md` at the root, written for a reviewer. Sections, in this order:
 8. **Status**: what is finished and what is pending. It must match the code exactly, since any gap between the code and what is declared finished is penalized.
 9. **Docs**: links to `CONTEXT.md`, `docs/adr/`, `docs/specs/`, `docs/design/`, and the other `docs/*.md` files.
 
-The README grows with the build. The bootstrap issue creates it with sections 1, 3, 4 and 6. Each feature issue updates the sections it changes. The final README issue completes the Status section and checks every command against a fresh clone.
+The README grows with the build. The bootstrap issue creates it with sections 1, 3, 4 and 6. Each feature issue updates the sections it changes and, in the same PR, adds or updates its own line in the Status section, so Status matches the code at every merge. The final README issue verifies Status against the code and checks every command against a fresh clone.
 
 ## Scenario table
 
-The README holds the **canonical** Scenario table. Each row gives the steps a reviewer takes in the UI, including how to turn the Outage on and off (that control comes from the screen design), plus the equivalent API call for rows the UI cannot trigger.
+The README holds the **canonical** Scenario table. Each row gives the API call that reproduces it and, where the UI can trigger it, the steps a reviewer takes in the UI, including how to turn the Outage on and off (that control comes from the screen design).
 
 - **Starting point**: the [seed table](specs/snailpay-api.md#reproduction-table-seed) in the SnailPay spec.
-- **When the README table lands**, the seed section in the spec is replaced by a link to it, and the link in the [requirement map](testing.md#requirement-map) moves with it. The table then lives in exactly one place.
+- **The table lands with the issue "SnailPay: create Charges for every Scenario"**, with the API call for every row. That issue also replaces the seed section in the spec with a link to the README table, and the link in the [requirement map](testing.md#requirement-map) moves with it. The table then lives in exactly one place.
+- **Later issues add the UI steps** to the rows their screens can trigger.
 - The tier 1 test that runs every row keeps the table and the code in sync.
 
 ## Response document
@@ -80,5 +81,5 @@ Runs before submission, after the last feature issue:
 
 The implementation roadmap ends with two issues:
 
-1. **Finalize the README and run the hygiene pass** (AFK): completes the Status section, moves the Scenario table, checks every README command on a fresh clone, and runs the hygiene pass.
+1. **Finalize the README and run the hygiene pass** (AFK): verifies the Status section and the Scenario table against the code, checks every README command on a fresh clone, and runs the hygiene pass.
 2. **Write the response document** (HITL), blocked by the first: the maintainer states the time spent and confirms how the AI output was validated.

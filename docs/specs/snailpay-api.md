@@ -104,7 +104,7 @@ Every response from the Charge routes has **one shape**, whatever the result, so
 | `card` | `{ card_number, expiration_date, security_code, cardholder_name }`, echoed. A number outside the Scenario catalog is masked (see below). |
 | `errors` | Only on `400`: `[{ field, message }]`. |
 
-- **Echoed** means the value the request sent, or `null` if it could not be read (possible only on `400`).
+- **Echoed** means the value the request sent, or `null` if it could not be read (possible only on `400` and `500`).
 - **Scenario cards are returned unmasked.** The brief requires the card number and CVV to be in the response and in localStorage, and to be always fictitious. SnailPay echoes a number verbatim only if it is in the Scenario catalog. Any other number is masked in every response (first 6 and last 4 digits kept, `security_code: null`), so a real card is never stored in full. The rule and the UI masking are in the [security baseline](security.md#card-data).
 
 ### Status catalog
@@ -124,7 +124,7 @@ Every response from the Charge routes has **one shape**, whatever the result, so
 | `500` | `error` | `internal_error` | No |
 | `404` | `error` | `charge_not_found` | Lookup only |
 
-A `503` also carries a `Retry-After: 30` header, and a `429` carries `Retry-After` too. A `500` means an unhandled exception; it is never an approval.
+A `503` also carries a `Retry-After: 30` header, and a `429` carries `Retry-After` too. A `500` means an unhandled exception; it is never an approval. An error handler scoped to the SnailPay router answers it in the same Charge shape: the nine fields plus the Card, with `null` wherever there is no Charge (as in the Outage example below), `status: "error"` and `status_detail: "internal_error"`. No Charge is stored. The central error envelope in the [architecture](../architecture.md#errors-and-logging) covers only the other routes.
 
 ### Examples
 
