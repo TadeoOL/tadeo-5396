@@ -5,6 +5,7 @@ import { useResumeReconciliation } from "@/features/top-up/reconciliation";
 import { SimulationControls } from "@/features/top-up/SimulationControls";
 import { TopUpDialog } from "@/features/top-up/TopUpDialog";
 import { TopUpHistory } from "@/features/top-up/TopUpHistory";
+import { RaceBoards } from "./RaceBoards.tsx";
 import { useLedger } from "@/storage/ledger";
 import { useSession } from "@/storage/session";
 import type { User } from "@/storage/users";
@@ -28,6 +29,7 @@ export function Dashboard() {
         </p>
       </div>
       <BalanceRegion user={user} />
+      <RaceBoards userId={user.id} />
       <TopUpHistory userId={user.id} />
       <SimulationControls />
     </div>

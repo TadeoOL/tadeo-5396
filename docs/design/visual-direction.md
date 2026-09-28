@@ -111,7 +111,7 @@ Won Bets are solid ink (`bet-won`). Lost Bets are a diagonal hatch of `bet-lost`
 
 ## Motion
 
-One authored moment: **the bars run in once**, growing from the baseline when the Wins chart first mounts (Recharts' own animation, about 700 ms, ease-out). With `prefers-reduced-motion: reduce`, the chart sets `isAnimationActive={false}`. Nothing else animates beyond Radix's default dialog and toast transitions.
+One authored moment: **the bars run in once**, growing from the baseline when the Wins chart first mounts (Recharts' own animation, about 700 ms, ease-out). With `prefers-reduced-motion: reduce`, the bars do not animate: Recharts 3's default `isAnimationActive="auto"` turns the animation off. Nothing else animates beyond Radix's default dialog and toast transitions.
 
 ## Accessibility
 

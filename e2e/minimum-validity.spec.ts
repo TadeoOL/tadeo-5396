@@ -16,6 +16,12 @@ test("a User signs up, signs out and signs back in", async ({ page }) => {
   const balance = page.getByRole("region", { name: "Balance" });
   await expect(greeting).toBeVisible();
   await expect(balance).toContainText("$0.00");
+  await expect(
+    page.getByRole("img", { name: /^[A-Z][a-z]+ won \d races?/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("img", { name: /^\d+ won, \d+ lost, out of \d+ bets\.$/ }),
+  ).toBeVisible();
   await expectNoA11yViolations(page);
 
   await page.getByRole("button", { name: "Sign out" }).click();
