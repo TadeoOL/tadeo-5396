@@ -22,3 +22,12 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - The research write-ups cite primary sources (official docs, OWASP, NIST, pricing pages).
   - The password-hashing reference code was type-checked and run under Node and Vitest by the research agent.
   - The maintainer has not reviewed the research write-ups yet; each one will be checked when the ticket that depends on it is worked.
+
+## 2026-09-28 — Domain model and glossary
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills.
+- **Purpose**: resolve the ticket "Define the domain model and ubiquitous language".
+- **Produced**: the `CONTEXT.md` glossary and the ticket's resolution comment.
+- **Validation**:
+  - Over two question rounds, each term and rule was put to the maintainer with a recommendation, and the maintainer accepted each one explicitly.
+  - The maintainer confirmed the final glossary before it was committed.
