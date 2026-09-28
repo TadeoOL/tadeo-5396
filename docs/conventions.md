@@ -61,7 +61,9 @@ Every implementation issue follows these rules. They were decided in the ticket 
   | `lint` | Runs ESLint. |
   | `format` | Formats files with Prettier. |
   | `format:check` | Runs `prettier --check`. |
-  | `test` | Runs the test suites. |
+  | `test` | Runs the Vitest suites ([Testing](testing.md)). |
+  | `test:watch` | Runs Vitest in watch mode. |
+  | `test:e2e` | Runs the Playwright specs against the build. Not part of `check`. |
   | `build` | Builds every package. |
   | `check` | Runs `typecheck`, `lint`, `format:check` and `test`. |
 
@@ -80,6 +82,7 @@ A single workflow, `.github/workflows/ci.yml`:
   3. `npm ci`, then `npm audit --omit=dev --audit-level=high` ([security baseline](specs/security.md#transport-and-dependencies)).
   4. `typecheck`, `lint`, `format:check`, `test`.
   5. `build`.
+  6. `npx playwright install --with-deps --only-shell chromium`, then `test:e2e`; on failure, upload `playwright-report/` ([Testing](testing.md#continuous-integration)).
 - **No version matrix.**
 - **CI does not deploy.** The deployment ticket decides how deployment works.
 

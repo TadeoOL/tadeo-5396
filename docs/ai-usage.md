@@ -146,3 +146,17 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - The subagent's map surfaced gaps the specs had left open: any 16-digit number was echoed and stored verbatim, the `X-Request-Id` header was unvalidated, and there was no body limit or rate limiter.
   - Six decisions were put to the maintainer in one round, each with a recommendation, and the maintainer accepted all of them. The agent added the lint ban and confirmed it in the summary before writing.
   - While writing, the agent found that masking the stored card would break the "same key, different payload" check if it compared stored fields, so the spec compares a hash of the normalized request instead.
+
+## 2026-09-28 — Testing strategy
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling`, `domain-modeling` and `tdd` skills; GitHub CLI; a research subagent with web and Context7 access; `npm view` for current versions.
+- **Purpose**: resolve the ticket "Define the testing strategy: what to test at each layer and why".
+- **Produced**:
+  - `docs/testing.md`, with the requirement → test map.
+  - The test scripts and end-to-end CI steps in `docs/conventions.md`; the HTTP-level testing note and the rate-limiter-per-app rule in `docs/architecture.md`; the axe and testing handoffs in `docs/specs/frontend-stack.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Twelve decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one and confirmed the final summary.
+  - The research subagent ran its tool claims in a scratch project (Vitest 5.0.2, jsdom, happy-dom, Supertest 7 with Express 5) instead of trusting docs. It found three facts that shaped the rules: jsdom's cross-realm bytes, fake timers not faking `AbortSignal.timeout`, and Testing Library hanging under fake timers.
+  - The agent measured PBKDF2 at 600k iterations in Node 24 (about 75 ms per hash) before recommending real iterations in tests.
+  - The strategy was cross-checked against the security baseline, which landed during the session: it adds masking and `429` tests, and it requires the rate limiter to be created inside `createApp`, or the suite would trip it.

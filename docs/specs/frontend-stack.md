@@ -100,11 +100,11 @@ The target is **WCAG 2.2 AA**. The baseline:
 - The theme tokens meet AA contrast. The visual-direction ticket checks this.
 - Charts have text summaries (see [Charts](#charts)), and outcomes are never shown only in a toast (see [Notifications](#notifications)).
 
-**Enforcement:** `eslint-plugin-jsx-a11y` (flat config, `recommended`) runs in the frontend lint (see [`conventions.md`](../conventions.md)). Whether component tests also run axe is decided by the testing strategy.
+**Enforcement:** `eslint-plugin-jsx-a11y` (flat config, `recommended`) runs in the frontend lint (see [`conventions.md`](../conventions.md)). axe runs in the end-to-end specs, not in component tests ([Testing](../testing.md)).
 
 ## Handoffs
 
 - **Visual direction and design tokens**: define the values of shadcn's CSS variables, including the chart colors, and check AA contrast.
 - **Screens**: place the inline outcome, the history, the toasts and the chart summaries; write their copy.
-- **Testing strategy**: choose the frontend test tools (for example Vitest, Testing Library and an axe matcher) and what they cover.
+- **Testing strategy**: decided in [Testing](../testing.md).
 - **Implementation roadmap**: the first frontend issue runs the shadcn CLI init for Vite and adds `Field`, `Chart`, `Sonner` and `Dialog`.
