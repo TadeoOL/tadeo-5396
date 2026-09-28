@@ -148,7 +148,7 @@ apps/web/src/
 
 ## Errors and logging
 
-- **Request id**: taken from the `X-Request-Id` request header if present; otherwise generated with `crypto.randomUUID()`. It is returned in the `X-Request-Id` response header.
+- **Request id**: taken from the `X-Request-Id` request header if it is a UUID; otherwise generated with `crypto.randomUUID()`. It is returned in the `X-Request-Id` response header.
 - **Error envelope** for every error that is not a SnailPay payment response:
 
   ```json
@@ -160,4 +160,5 @@ apps/web/src/
 - **One central error-handling middleware.** An unexpected error responds `500` with the envelope and code `internal_error`. The stack trace is logged, never returned.
 - **Request log**: one JSON line per request, written with `console`, with `requestId`, `method`, `path`, `status` and `durationMs`.
 - **Request bodies and query strings are never logged, for any route.** Card data therefore cannot reach a log, and there is no redaction list to keep up to date.
+- Security middleware (`helmet`, body limit, rate limits, `trust proxy`) is specified in the [security baseline](specs/security.md#express).
 - The frontend has no remote logging. It shows errors to the User as described by the screen designs.

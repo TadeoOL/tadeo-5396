@@ -100,4 +100,4 @@ type TopUp = {
 - **SnailPay contract:** after a reload, a Top-up has no card data, so Reconciliation must be able to look a Charge up by `reference` alone, without resending the request.
 - **Top-up reliability:** decides the Reconciliation flow, including the case where the Charge was forgotten after a server restart, and the retry and timeout rules that move a Top-up between outcomes ([top-up-reliability.md](top-up-reliability.md)).
 - **Race-day data:** decides the seed and how the data is generated. It must stay stable across reloads without being persisted.
-- **Security baseline:** decides how card data is masked in the UI. It is stored unmasked, because the brief requires it.
+- **Security baseline:** Scenario cards are stored unmasked, because the brief requires it; any other number is masked by SnailPay before it is stored, and the UI shows only the last 4 digits ([security.md](security.md)).

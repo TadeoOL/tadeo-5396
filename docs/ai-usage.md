@@ -133,3 +133,16 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Ten decisions were put to the maintainer one at a time, each with a recommendation.
   - The maintainer proposed Zustand for local state. The agent checked it against the read-modify-write rule in the state-and-persistence spec, showed a two-tab scenario in which the `persist` middleware loses Balance, and offered a safe read-only variant. The maintainer then chose `useSyncExternalStore`.
   - The agent checked library versions and modes before recommending them (React Router 8 keeps declarative mode; shadcn's `Chart` uses Recharts 3). The stack was cross-checked against the top-up reliability spec, which landed during the session (10 s `AbortSignal.timeout`, no automatic `POST` retry).
+
+## 2026-09-28 — Security baseline
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI; a read-only subagent that mapped every security-relevant commitment in the existing specs.
+- **Purpose**: resolve the ticket "Set the security baseline for the simulation and card-data handling".
+- **Produced**:
+  - `docs/specs/security.md`: threat model, implemented measures, documented-only limits.
+  - Card masking for non-catalog numbers and hash-based payload comparison in `docs/specs/snailpay-api.md`; related links in `state-and-persistence.md`, `top-up-reliability.md`, `architecture.md` and `conventions.md` (`npm audit` step, `dangerouslySetInnerHTML` lint ban).
+  - The ticket's resolution comment.
+- **Validation**:
+  - The subagent's map surfaced gaps the specs had left open: any 16-digit number was echoed and stored verbatim, the `X-Request-Id` header was unvalidated, and there was no body limit or rate limiter.
+  - Six decisions were put to the maintainer in one round, each with a recommendation, and the maintainer accepted all of them. The agent added the lint ban and confirmed it in the summary before writing.
+  - While writing, the agent found that masking the stored card would break the "same key, different payload" check if it compared stored fields, so the spec compares a hash of the normalized request instead.

@@ -136,7 +136,7 @@ sequenceDiagram
 
 ## Rate limiting
 
-Whether a rate limiter exists, and its limits, is decided by the security baseline. If it does:
+The [security baseline](security.md#rate-limiting) adds a rate limiter on both Charge routes (`POST` 10/min, lookup 60/min per IP). Its rules:
 
 - A `429` on the `POST` means the request was rejected before processing: no Charge was created, so the Top-up is Failed.
 - A `429` on the lookup keeps the Top-up Unknown and is retried, honoring `Retry-After`.
