@@ -79,7 +79,7 @@ Tests exercise only these interfaces, never internals.
 - **Security** ([Security baseline](specs/security.md)):
   - An unknown card number is masked and returns `security_code: null`, while a catalog number is echoed verbatim.
   - The 11th `POST` in a minute gets `429 rate_limited` with `Retry-After`.
-- **Errors:** an unknown error returns `500 internal_error` inside the error envelope, with `X-Request-Id` echoed.
+- **Errors:** an unknown error in SnailPay returns `500 internal_error` in the Charge shape, with `X-Request-Id` echoed.
 
 **The ledger in `storage`.** The real module over an in-memory `Storage` ([State and persistence](specs/state-and-persistence.md#write-rules)).
 
@@ -143,6 +143,7 @@ Each spec runs axe on every screen it visits and fails on `serious` or `critical
 - Over HTTP:
   - `400` for a bad date, an impossible date or a bad `userId`.
   - The `Cache-Control` and `ETag` headers.
+  - An unknown error returns `500 internal_error` inside the error envelope, with `X-Request-Id` echoed.
 
 **`fetch` wrapper** ([Frontend stack](specs/frontend-stack.md#http)):
 

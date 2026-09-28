@@ -23,7 +23,7 @@ Every implementation issue follows these rules. They were decided in the ticket 
 ## Pull requests
 
 - **One PR per issue.** The body contains `Closes #N`.
-- **Size**: aim for about 400 changed lines, not counting the lockfile. Split anything larger into chained PRs.
+- **Size**: roadmap issues are sized to fit one PR of about 400 changed lines, not counting the lockfile. If an issue turns out larger during implementation, chained PRs remain the fallback.
 - **Template** (`.github/pull_request_template.md`) with three sections:
   - *What & why*
   - *Closes*
@@ -88,7 +88,7 @@ A single workflow, `.github/workflows/ci.yml`:
 
 ## Repository settings
 
-The first implementation issue applies these settings. They are not applied while planning is still going on, because planning artifacts are still committed directly to `main`.
+The bootstrap issue applies these settings. They are not applied while planning is still going on, because planning artifacts are still committed directly to `main`.
 
 - **A ruleset on `main`** that:
   - requires a pull request, with zero approvals,

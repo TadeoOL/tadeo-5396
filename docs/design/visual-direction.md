@@ -4,7 +4,7 @@ How the app looks and feels, as a small token system the implementation applies 
 
 | File | What it is |
 | --- | --- |
-| [`tokens.css`](tokens.css) | The tokens, in shadcn/ui's Tailwind 4 shape. The first frontend issue pastes it into the web app's CSS entry. |
+| [`tokens.css`](tokens.css) | The tokens, in shadcn/ui's Tailwind 4 shape. The bootstrap issue pastes it into the web app's CSS entry. |
 | [`prototype.html`](prototype.html) | A rough artifact to react to: a dashboard sketch, the Top-up dialog with a Declined outcome, and the token sheet. Open it through any static server, for example `npx serve docs/design`. |
 
 ## Direction
@@ -137,7 +137,7 @@ One authored moment: **the bars run in once**, growing from the baseline when th
 
 The response document must declare this split.
 
-**From shadcn/ui (Radix), restyled only through the tokens**: `Button` (`default`, `outline`, `ghost`), `Input`, `Label`, `Field`, `Dialog`, `Alert`, `Badge`, `Table`, `Skeleton`, `Chart` (Recharts), `Sonner`.
+**From shadcn/ui (Radix), restyled only through the tokens**: `Button` (`default`, `outline`, `ghost`), `Input`, `Label`, `Field`, `Switch`, `Dialog`, `Alert`, `Badge`, `Table`, `Skeleton`, `Chart` (Recharts), `Sonner`.
 
 **Adapted from the kit**: `Badge` and `Alert` gain `success`, `warning` and `destructive` variants for the outcomes; `Button` text is uppercase at 700.
 
@@ -153,4 +153,4 @@ The response document must declare this split.
 ## Handoffs
 
 - **Screens**: the layout of every screen and state, the copy, and the loading, empty and warm-up states. The prototype's layout is only indicative.
-- **Implementation roadmap**: the first frontend issue pastes `tokens.css` into the CSS entry, installs `@fontsource-variable/archivo`, and adds `Alert`, `Badge`, `Table` and `Skeleton` to the shadcn components listed in the [frontend stack](../specs/frontend-stack.md#handoffs).
+- **Implementation roadmap**: the bootstrap issue pastes `tokens.css` into the CSS entry, installs `@fontsource-variable/archivo`, and adds the shadcn components listed in the [frontend stack](../specs/frontend-stack.md#handoffs): every kit component above, plus `Switch` for the [simulation controls](screens.md#simulation-controls).

@@ -109,4 +109,4 @@ The target is **WCAG 2.2 AA**. The baseline:
 - **Visual direction and design tokens**: decided in the [visual direction](../design/visual-direction.md).
 - **Screens**: place the inline outcome, the history, the toasts and the chart summaries; write their copy.
 - **Testing strategy**: decided in [Testing](../testing.md).
-- **Implementation roadmap**: the first frontend issue runs the shadcn CLI init for Vite and adds `Field`, `Chart`, `Sonner` and `Dialog`.
+- **Implementation roadmap**: the bootstrap issue runs the shadcn CLI init for Vite and adds every shadcn component the screens use: `Button`, `Input`, `Label`, `Field`, `Switch`, `Dialog`, `Alert`, `Badge`, `Table`, `Skeleton`, `Chart` and `Sonner` (see the [visual direction](../design/visual-direction.md#components-kit-versus-custom) and the [simulation controls](../design/screens.md#simulation-controls)).
