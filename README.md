@@ -14,7 +14,16 @@ npm ci
 npm run dev
 ```
 
-`npm run dev` starts the API on http://localhost:3000. Set `PORT` to use another port.
+`npm run dev` starts the web app on http://localhost:5173 and the API on http://localhost:3000. Vite proxies `/api` to the API. Set `WEB_PORT` and `PORT` to change the two ports.
+
+## Run like production
+
+```sh
+npm run build
+npm start
+```
+
+`npm start` serves the app and the API on http://localhost:3000.
 
 ## Tests
 
