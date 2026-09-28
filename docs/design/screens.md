@@ -75,7 +75,7 @@ Regions top to bottom, separated by dashed seams (no cards). Two columns for the
 
 The summary sits under each chart as visible `meta` text and is the chart's accessible name (`aria-labelledby`).
 
-- **Wins**: Snails with at least one Win, most Wins first (ties in Snail order), then the rest. "{Pepper} won {3} races, {Comet} {2} and {Mossback} {1}. {Drizzle, Nacho and Sprinkles} did not win." Use "race" for 1. Lists join with `Intl.ListFormat('en-US')`.
+- **Wins**: Snails with at least one Win, most Wins first (ties in Snail order), then the rest. "{Pepper} won {3} races, {Comet} {2}, and {Mossback} {1}. {Drizzle, Nacho, and Sprinkles} did not win." Use "race" for 1. Lists join with `Intl.ListFormat('en-US')`, which puts a comma before "and" in a list of three or more.
 - **Bets**: "{7} won, {5} lost, out of {12} bets."
 
 ### Race data states

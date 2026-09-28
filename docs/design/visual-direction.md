@@ -144,7 +144,7 @@ The response document must declare this split.
 **Custom, built for this app**:
 
 - `SilkPatterns`: the six SVG patterns.
-- `SilkSwatch`: a small shirt icon filled with a Snail's silks, used in legends.
+- `SilkSwatch`: a small shirt icon filled with a Snail's silks, used in the header wordmark and in the row above the sign-in and sign-up titles.
 - The Wins bar chart and the Bets donut: shadcn `Chart` configured with the silks, the value labels, the hatch and the text summaries.
 - The Balance display and the header bar with the wordmark.
 
