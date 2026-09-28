@@ -185,3 +185,18 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Eight decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one.
   - The maintainer asked whether a database contradicts the brief's localStorage requirement. The agent checked the brief: the requirement covers the delivered app, and the optional task asks for a proposal that is not implemented. So the document opens by stating that, and it calls out that the card and CVV kept in localStorage are an artifact of the simulation.
   - The brief bans code in the response PDF, so the proposal describes its constraints in prose and contains no DDL.
+
+## 2026-09-28 — Visual direction and design tokens
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder` and `impeccable` skills; the `impeccable` direction roll and decision page; Playwright for screenshots; GitHub CLI.
+- **Purpose**: resolve the ticket "Set the visual direction and design tokens".
+- **Produced**:
+  - `PRODUCT.md`: the product record the design skill reads, taken from the brief and `CONTEXT.md`.
+  - `docs/design/visual-direction.md`, `docs/design/tokens.css` and `docs/design/prototype.html`.
+  - Related edits in `docs/specs/frontend-stack.md` (the font dependency and links to the tokens).
+  - The ticket's resolution comment.
+- **Validation**:
+  - The maintainer chose a lightweight process (no generated comps, no full build), confirmed that the design speaks to a fictional snail-racing fan, and picked the Jockey Silks direction on a decision page that also showed the Tote Board lead, a split-flap challenger, five declined challengers and the plain shadcn look.
+  - Every token pair was checked with a WCAG contrast script. One silk (Nacho's gold, 1.63:1 on white) fails the 3:1 non-text minimum on its own, so every silk shape carries an ink outline, and the document records the exception.
+  - The prototype was captured at 1280 px and 390 px wide. The mobile capture showed a horizontal overflow in the Top-up dialog, which was fixed and captured again. The skill's anti-pattern detector reported no findings.
+  - The Archivo package was inspected to confirm that its `wdth.css` file exposes the width axis under the family name the tokens use.

@@ -16,6 +16,7 @@ The libraries and patterns the React app uses, and why each one earns its place.
 | Charts            | `recharts` 3, through shadcn's `Chart` component                                            | SVG, so it is accessible and styled by the same tokens. `accessibilityLayer` is on by default.                                                                                            |
 | Toasts            | `sonner`, through shadcn's `Toaster`                                                        | A transient confirmation announced through `aria-live`.                                                                                                                                   |
 | Icons             | `lucide-react`                                                                              | The icon set shadcn components already use.                                                                                                                                               |
+| Font              | `@fontsource-variable/archivo` (the `wdth.css` axes file)                                  | Self-hosts the one typeface the [visual direction](../design/visual-direction.md#typography) uses, with its width axis, inside the default CSP.                                          |
 | Lint (dev)        | `eslint-plugin-jsx-a11y`                                                                    | Catches accessibility mistakes in our own markup, which Radix does not cover. See [Accessibility](#accessibility).                                                                        |
 
 Money and dates use `Intl.NumberFormat` (MXN) and `Intl.DateTimeFormat`. There is no date or money library. The client-local date that seeds the Race Day comes from `Date` in a small helper.
@@ -66,7 +67,7 @@ Money and dates use `Intl.NumberFormat` (MXN) and `Intl.DateTimeFormat`. There i
 
 - **shadcn/ui** components are copied into `apps/web/src/components/ui` by its CLI, then owned and edited like any other source file. The base is **Radix** (`radix-ui`): it is the most mature and best-documented shadcn base.
 - **Tailwind CSS 4**, configured through `@tailwindcss/vite` and one CSS entry file. There is no `tailwind.config` file.
-- The theme is a set of CSS variables. Their values (palette, type, radius) belong to the visual-direction ticket.
+- The theme is a set of CSS variables. Their values (palette, type, radius) are in [`docs/design/tokens.css`](../design/tokens.css), explained in the [visual direction](../design/visual-direction.md).
 - This choice must be declared in the response document, under tools, libraries and templates.
 - Rejected: **Mantine**, which ties the app to its styling system and a recognizable look, with components outside the repo. **MUI**, which is heavy, looks like Material and adds a CSS-in-JS runtime. **Hand-written CSS Modules**, which would mean building an accessible dialog, focus management and toasts by hand; that does not fit the 6–8 h budget.
 
@@ -105,7 +106,7 @@ The target is **WCAG 2.2 AA**. The baseline:
 
 ## Handoffs
 
-- **Visual direction and design tokens**: define the values of shadcn's CSS variables, including the chart colors, and check AA contrast.
+- **Visual direction and design tokens**: decided in the [visual direction](../design/visual-direction.md).
 - **Screens**: place the inline outcome, the history, the toasts and the chart summaries; write their copy.
 - **Testing strategy**: decided in [Testing](../testing.md).
 - **Implementation roadmap**: the first frontend issue runs the shadcn CLI init for Vite and adds `Field`, `Chart`, `Sonner` and `Dialog`.
