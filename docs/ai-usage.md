@@ -94,3 +94,16 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Eight decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one.
   - The maintainer questioned the agent's first recommendation against sign-in rate limiting. The agent revised it after weighing the cost (under an hour, one extra key) against the value, and the maintainer accepted the revised version.
   - The decisions were cross-checked against the requirements brief, the password-hashing research write-up, and the state-and-persistence spec.
+
+## 2026-09-28 — SnailPay API contract
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills; GitHub CLI.
+- **Purpose**: resolve the ticket "Define the SnailPay API contract and scenario catalog".
+- **Produced**:
+  - `docs/specs/snailpay-api.md`, including the seed of the Scenario reproduction table.
+  - The "Outage" term in `CONTEXT.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Nine decisions were put to the maintainer one at a time, each with a recommendation, and the maintainer accepted each one. Three minor gaps were filled with stated defaults that the maintainer approved.
+  - The maintainer confirmed the summary before any file was written.
+  - The contract was cross-checked against the requirements brief, the payment-gateway research (the mandated card fails Luhn and `12/26` expires), the state-and-persistence spec and the architecture document.

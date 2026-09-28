@@ -1,0 +1,208 @@
+# SnailPay API
+
+SnailPay is the mock payment gateway that runs inside the Express server. This spec defines what it exposes, what it accepts, what it returns, and which inputs produce each result. Terms follow [`CONTEXT.md`](../../CONTEXT.md). The field vocabulary mirrors Mercado Pago's Payments API; the research behind it is summarized in the ticket "Research payment gateway conventions for status, status_detail, idempotency and sandbox triggers".
+
+SnailPay never connects to a real service and never handles real financial data. Every Card it accepts is fictitious.
+
+## Routes
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/api/snailpay/charges` | Create a Charge |
+| `GET` | `/api/snailpay/charges?reference=<uuid>` | Look a Charge up by `reference`, for Reconciliation |
+| `GET` | `/api/snailpay/outage` | Read whether the Outage is active |
+| `PUT` | `/api/snailpay/outage` | Turn the Outage on or off |
+| `GET` | `/api/health` | Liveness check, used to wake the hosted app and by CI |
+
+There is no `GET /charges/:id`: nothing in the app holds a Charge `id` without also holding its `reference`.
+
+No OpenAPI document is published. This spec is the prose contract, and the request and response schemas shared by the frontend and backend are the code contract. Generating OpenAPI from those schemas is the upgrade path if the API ever grows.
+
+## Create a Charge
+
+`POST /api/snailpay/charges`
+
+### Headers
+
+| Header | Rule |
+|---|---|
+| `X-Idempotency-Key` | Required. A UUID: the `id` of the Top-up. It becomes the Charge `reference`. |
+
+The body carries no `reference`, so the key and the reference can never disagree.
+
+### Body
+
+| Field | Type | Format rule |
+|---|---|---|
+| `card_number` | string | Exactly 16 digits, no spaces (the client strips them). No Luhn check. |
+| `expiration_date` | string | `MM/YY` with month `01`–`12`. Never compared with the current date. |
+| `security_code` | string | Exactly 3 digits. |
+| `cardholder_name` | string | Trimmed, 1–100 characters. |
+| `transaction_amount` | integer | Amount in MXN cents, from `1` ($0.01) to `1000000` ($10,000.00). |
+| `payer_id` | string | UUID: the User's `id`. |
+| `payer_email` | string | A well-formed email: the User's email. |
+
+The currency is always MXN and has no field. The server cannot verify `payer_id` or `payer_email` because it has no Users; it checks their format and echoes them back.
+
+The Luhn and clock checks are left out on purpose: the mandated approval card `1234123412341234` fails Luhn, and a real expiry check would reject `12/26` from January 2027.
+
+### Format errors vs declines
+
+- A request that breaks a **format rule**, lacks the idempotency key, or is not valid JSON gets `400 invalid_request`. The form validates the same rules, so the UI never shows a 400; it protects the API from direct calls.
+- A **well-formed** request is evaluated against the Scenario catalog below and is approved (`201`) or declined (`402`).
+
+## Scenario catalog
+
+Every Card that SnailPay recognizes uses expiry `12/26` and CVV `543`, and any non-empty cardholder name. A well-formed request is evaluated in this order, and the first rule that matches decides the result:
+
+1. **Outage active** → `503 error / service_unavailable`.
+2. **Card number not in the table below** → `402 rejected / cc_rejected_bad_filled_card_number`.
+3. **Expiry is not `12/26`** → `402 rejected / cc_rejected_bad_filled_date`.
+4. **CVV is not `543`** → `402 rejected / cc_rejected_bad_filled_security_code`.
+5. **Card number** decides:
+
+| Card number | HTTP | `status` / `status_detail` | Meaning |
+|---|---|---|---|
+| `1234123412341234` | `201` | `approved` / `accredited` | Approved Charge |
+| `1234123412340002` | `402` | `rejected` / `cc_rejected_insufficient_amount` | The Card has insufficient funds |
+| `1234123412340003` | `402` | `rejected` / `cc_rejected_high_risk` | Declined for fraud risk |
+| `1234123412340004` | `201` after 30 s | `approved` / `accredited` | Timeout: see below |
+
+**Timeout.** With `1234123412340004`, SnailPay stores the approved Charge **immediately**, then waits 30 seconds before responding. The client gives up before then (its timeout must be shorter than 30 s; the top-up reliability spec sets it), so the Top-up becomes Unknown. Reconciliation then finds the Charge approved and credits it. The scenario shows that a timeout is an unknown outcome, not a failure. The delay is a code constant, not configuration.
+
+### Reproduction table (seed)
+
+This table seeds the one in the README. "Approval Card" means `1234123412341234`, `12/26`, `543`, with any name and any amount from $0.01 to $10,000.00.
+
+| To reproduce | Enter | Expected response | Expected Top-up outcome |
+|---|---|---|---|
+| Approved | Approval Card | `201 approved / accredited` | Credited |
+| Unknown card number | Any other 16 digits, e.g. `1111222233334444` | `402 rejected / cc_rejected_bad_filled_card_number` | Declined |
+| Wrong expiry | Approval Card with expiry `11/26` | `402 rejected / cc_rejected_bad_filled_date` | Declined |
+| Wrong CVV | Approval Card with CVV `123` | `402 rejected / cc_rejected_bad_filled_security_code` | Declined |
+| Insufficient funds | `1234123412340002`, `12/26`, `543` | `402 rejected / cc_rejected_insufficient_amount` | Declined |
+| High risk | `1234123412340003`, `12/26`, `543` | `402 rejected / cc_rejected_high_risk` | Declined |
+| Timeout | `1234123412340004`, `12/26`, `543` | Client timeout, then `201 approved` on Reconciliation | Unknown, then Credited |
+| System error | Turn the Outage on, then submit the Approval Card | `503 error / service_unavailable` | Failed |
+| Invalid data (API only) | Call the API with, for example, a 15-digit card number | `400 rejected / invalid_request` | — |
+
+## Response
+
+Every response from the Charge routes has **one shape**, whatever the result, so the client parses a single schema. It carries the nine fields the brief requires, plus the Card.
+
+| Field | Format |
+|---|---|
+| `id` | UUID v4 generated by SnailPay, distinct from `reference`. `null` when no Charge was created. |
+| `status` | `approved` \| `rejected` \| `error` |
+| `status_detail` | See the catalog below. |
+| `transaction_amount` | Integer MXN cents, echoed. |
+| `date_created` | ISO 8601 in UTC with milliseconds (`2026-09-28T17:04:05.123Z`): when the Charge was created. `null` when no Charge was created. |
+| `authorization_code` | A 6-digit string when `status` is `approved`; `null` otherwise. |
+| `reference` | The `X-Idempotency-Key`, echoed. |
+| `payer_id` | Echoed. |
+| `payer_email` | Echoed. |
+| `card` | `{ card_number, expiration_date, security_code, cardholder_name }`, echoed verbatim. |
+| `errors` | Only on `400`: `[{ field, message }]`. |
+
+- **Echoed** means the value the request sent, or `null` if it could not be read (possible only on `400`).
+- **The Card is returned unmasked.** The brief requires the card number and CVV to be in the response and in localStorage. That is acceptable only because they are always fictitious. How the UI masks them is decided by the security baseline.
+
+### Status catalog
+
+| HTTP | `status` | `status_detail` | Charge created and stored? |
+|---|---|---|---|
+| `201` | `approved` | `accredited` | Yes |
+| `402` | `rejected` | `cc_rejected_bad_filled_card_number` | Yes |
+| `402` | `rejected` | `cc_rejected_bad_filled_date` | Yes |
+| `402` | `rejected` | `cc_rejected_bad_filled_security_code` | Yes |
+| `402` | `rejected` | `cc_rejected_insufficient_amount` | Yes |
+| `402` | `rejected` | `cc_rejected_high_risk` | Yes |
+| `400` | `rejected` | `invalid_request` | No |
+| `422` | `rejected` | `idempotency_key_reused` | No |
+| `503` | `error` | `service_unavailable` | No |
+| `500` | `error` | `internal_error` | No |
+| `404` | `error` | `charge_not_found` | Lookup only |
+
+A `503` also carries a `Retry-After: 30` header. A `500` means an unhandled exception; it is never an approval.
+
+### Examples
+
+Approved:
+
+```json
+{
+  "id": "0b7e2f0e-6a1d-4f7b-9d43-2a1c5e9f8b10",
+  "status": "approved",
+  "status_detail": "accredited",
+  "transaction_amount": 15000,
+  "date_created": "2026-09-28T17:04:05.123Z",
+  "authorization_code": "482915",
+  "reference": "5f1c3a8e-2d4b-4c6e-8f9a-1b2c3d4e5f60",
+  "payer_id": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+  "payer_email": "ana@example.com",
+  "card": {
+    "card_number": "1234123412341234",
+    "expiration_date": "12/26",
+    "security_code": "543",
+    "cardholder_name": "Ana López"
+  }
+}
+```
+
+System error during the Outage:
+
+```json
+{
+  "id": null,
+  "status": "error",
+  "status_detail": "service_unavailable",
+  "transaction_amount": 15000,
+  "date_created": null,
+  "authorization_code": null,
+  "reference": "5f1c3a8e-2d4b-4c6e-8f9a-1b2c3d4e5f60",
+  "payer_id": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+  "payer_email": "ana@example.com",
+  "card": {
+    "card_number": "1234123412341234",
+    "expiration_date": "12/26",
+    "security_code": "543",
+    "cardholder_name": "Ana López"
+  }
+}
+```
+
+## Idempotency
+
+The in-memory Charge store is keyed by `X-Idempotency-Key`, which is also the `reference` (see [State and persistence](state-and-persistence.md)).
+
+- **Stored:** only responses with a business result: `201 approved` and `402 rejected`. Responses with status `400`, `422`, `500` and `503` are not stored, so retrying with the same key after fixing the input, or after the Outage ends, does process the Charge.
+- **Replay with the same key and the same payload:** returns the stored response, with the same HTTP status, body and `id`, plus the header `Idempotent-Replayed: true`. No second Charge is ever created.
+- **Same key, different payload:** `422 rejected / idempotency_key_reused`. The original Charge is untouched. Payloads are compared field by field after the format rules are applied.
+- **In flight:** there is no `409`. The only slow path is the timeout Scenario, and it stores the Charge *before* the delay, so a replay during the delay gets the approved response at once. The top-up reliability spec can use that to settle timeouts.
+
+## Look a Charge up
+
+`GET /api/snailpay/charges?reference=<uuid>`
+
+| Case | Response |
+|---|---|
+| The Charge exists | `200` with the stored response body, whatever its `status` |
+| No Charge has that `reference` (never created, or forgotten after a restart) | `404 error / charge_not_found`, with `reference` echoed and every other field `null` |
+| `reference` is not a UUID | `400 rejected / invalid_request` |
+| The Outage is active | `503 error / service_unavailable` |
+
+The body shape is the same as for creation, so Reconciliation reuses the same parser. What the client does with a `404` is decided by the top-up reliability spec.
+
+## Outage
+
+The Outage is the documented way to simulate that SnailPay has an internal problem and cannot process requests.
+
+- `PUT /api/snailpay/outage` with `{ "active": true }` or `{ "active": false }` → `200 { "active": boolean }`. Any other body → `400`.
+- `GET /api/snailpay/outage` → `200 { "active": boolean }`, so the UI can show the current state.
+- While the Outage is active, **every** Charge route answers `503 error / service_unavailable`, even for the Approval Card, so no Top-up can be approved or credited. The two outage routes and `/api/health` keep working.
+- The Outage lives in process memory. It starts off, and a restart turns it off.
+- **Known ceiling:** it is global. On the public deployment it affects anyone using the app at that moment. That is acceptable for a mock reviewed by one person at a time. How the UI exposes the switch is decided by the screen design.
+
+## Health
+
+`GET /api/health` → `200 { "status": "ok" }`. It ignores the Outage.

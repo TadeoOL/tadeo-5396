@@ -50,6 +50,10 @@ _Avoid_: Payment method
 A documented set of inputs that makes SnailPay produce one specific result, such as an approval, a particular rejection, a system error or a timeout.
 _Avoid_: Test card, Magic value, Mock case
 
+**Outage**:
+A simulated period during which SnailPay cannot process any request, so no Charge can be approved and no Top-up can be credited. It lasts until it is turned off.
+_Avoid_: Downtime, Maintenance mode, System error (a system error is what a Charge attempt gets during an Outage)
+
 ## Racing
 
 **Snail**:
