@@ -10,9 +10,9 @@ export function SignUp() {
   return (
     <AuthLayout>
       <SilksRow />
-      <ScreenTitle title="Create account">Create your account</ScreenTitle>
+      <ScreenTitle title="Crear cuenta">Crea tu cuenta</ScreenTitle>
       <p className="mt-1 mb-6 text-sm text-muted-foreground">
-        Your balance starts at $0.00.
+        Tu saldo empieza en $0.00.
       </p>
       <SignUpForm
         onSubmit={async (values) => {
@@ -28,9 +28,9 @@ export function SignUp() {
         }}
       />
       <p className="mt-4 text-center text-sm">
-        Already have an account?{" "}
+        ¿Ya tienes una cuenta?{" "}
         <Link to="/sign-in" className="font-bold underline">
-          Sign in
+          Iniciar sesión
         </Link>
       </p>
     </AuthLayout>

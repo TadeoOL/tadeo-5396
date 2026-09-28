@@ -391,3 +391,11 @@ Every working session appends one entry: tool, purpose, what it produced, how th
 - **Produced**: the review report on #39; `expectNoA11yViolations` now waits for finite animations to end, which fixes the flaky axe check of #60; the chart skeletons stay still under `prefers-reduced-motion`; `docs/specs/simulated-data.md`, `docs/specs/frontend-stack.md`, `docs/design/screens.md`, the prototype and `docs/design/visual-direction.md` now match the built charts (no empty state, `accessibilityLayer` off, the `Intl.ListFormat` comma, where `SilkSwatch` is used); `AGENTS.md` no longer says the app is not built; `docs/roadmap.md` lists #60; refreshed bodies of #40 and #41.
 - **Validation**: read every issue, PR and changed file in the range against the specs and the contracts; `npm run check`; `npm run build && npm run test:e2e`, repeated (the top-up spec failed 10 of 10 serial runs before the fix and passed 50 of 50 after it, in batches of 10 per server because SnailPay allows 10 Charges a minute); every README Scenario row through the `charge`, `lookup` and `outage` helpers and through the UI, and every Status line, walked with Playwright against the production build, with axe on each screen; and the `ci` check on the PR.
 - **Time**: about 1 hour.
+
+## 2026-09-28 — Spanish UI
+
+- **Tool**: Claude Code (Claude Opus 5.5), implementer agent.
+- **Purpose**: implement roadmap issue #63, "Translate the UI copy to neutral Spanish".
+- **Produced**: neutral Spanish copy in every screen, field error, alert, toast, badge, chart summary, `document.title` and the Dialog's hidden "Cerrar"; `lang="es"`; `es-MX` dates, times and lists; a Spanish singular/plural for Snails without a Win; the updated Vitest and Playwright names; `screens.md` with the Copy rules and Glossary, the Spanish errors in `auth.md`, and the README Status lines.
+- **Validation**: `npm run check`, `npm run build && npm run test:e2e`, a Playwright script against the production build that signs up, tops up with the declined, security and timeout cards and toggles the Outage, and the `ci` check on the PR.
+- **Time**: about 25 minutes.

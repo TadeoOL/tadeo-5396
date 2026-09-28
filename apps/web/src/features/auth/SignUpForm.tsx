@@ -43,22 +43,25 @@ export function SignUpForm(props: {
     >
       {rootType === "duplicate-email" && (
         <FormAlert variant="destructive">
-          <AlertTitle>An account with this email already exists.</AlertTitle>
+          <AlertTitle>
+            Ya existe una cuenta con este correo electrónico.
+          </AlertTitle>
           <AlertDescription>
-            <Link to="/sign-in">Sign in instead</Link>
+            <Link to="/sign-in">Inicia sesión con esa cuenta</Link>
           </AlertDescription>
         </FormAlert>
       )}
       {rootType === "storage-failed" && (
         <FormAlert variant="destructive">
           <AlertTitle>
-            Couldn't save your account. Free up browser storage and try again.
+            No se pudo guardar tu cuenta. Libera espacio de almacenamiento del
+            navegador e intenta de nuevo.
           </AlertTitle>
         </FormAlert>
       )}
       <TextField
         id="sign-up-full-name"
-        label="Full name"
+        label="Nombre completo"
         type="text"
         autoComplete="name"
         {...register("fullName")}
@@ -67,7 +70,7 @@ export function SignUpForm(props: {
       />
       <TextField
         id="sign-up-email"
-        label="Email"
+        label="Correo electrónico"
         type="email"
         autoComplete="email"
         {...register("email")}
@@ -76,17 +79,17 @@ export function SignUpForm(props: {
       />
       <TextField
         id="sign-up-password"
-        label="Password"
+        label="Contraseña"
         type="password"
         autoComplete="new-password"
-        hint="At least 15 characters. A short phrase works well."
+        hint="Al menos 15 caracteres. Una frase corta funciona bien."
         {...register("password")}
         error={errors.password?.message}
         readOnly={isSubmitting}
       />
       <TextField
         id="sign-up-confirm-password"
-        label="Confirm password"
+        label="Confirma la contraseña"
         type="password"
         autoComplete="new-password"
         {...register("confirmPassword")}
@@ -100,10 +103,10 @@ export function SignUpForm(props: {
               aria-hidden
               className="animate-spin motion-reduce:animate-none"
             />
-            Creating account…
+            Creando cuenta…
           </>
         ) : (
-          "Create account"
+          "Crear cuenta"
         )}
       </Button>
     </form>

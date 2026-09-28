@@ -13,10 +13,10 @@ export function SimulationControls() {
   const active = outage.data?.active ?? false;
   return (
     <section aria-labelledby="simulation-heading" className="px-4 py-6 md:px-6">
-      <h3 id="simulation-heading">Simulation controls</h3>
+      <h3 id="simulation-heading">Controles de simulación</h3>
       <p className="text-sm text-muted-foreground">
-        Turn this on to make SnailPay fail every payment, as if it had an
-        internal problem. It affects everyone using this server.
+        Actívalo para que SnailPay falle en cada pago, como si tuviera un
+        problema interno. Afecta a todos los que usan este servidor.
       </p>
       <div className="mt-3 flex items-center gap-2">
         <Switch
@@ -26,12 +26,12 @@ export function SimulationControls() {
           onCheckedChange={(checked) => toggle.mutate(checked)}
         />
         <Label htmlFor="outage-switch">
-          SnailPay outage: {active ? "on" : "off"}
+          Falla de SnailPay: {active ? "activada" : "desactivada"}
         </Label>
       </div>
       {(outage.isError || toggle.isError) && (
         <p role="alert" className="text-sm text-destructive">
-          Couldn&apos;t reach SnailPay. Try again.
+          No se pudo conectar con SnailPay. Intenta de nuevo.
         </p>
       )}
     </section>

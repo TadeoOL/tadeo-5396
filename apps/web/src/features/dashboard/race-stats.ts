@@ -7,7 +7,7 @@ import type {
 export type SnailWins = { id: SnailId; name: string; wins: number };
 export type BetTotals = { won: number; lost: number; total: number };
 
-const list = new Intl.ListFormat("en-US");
+const list = new Intl.ListFormat("es-MX");
 
 export function winsPerSnail(raceDay: RaceDayResponse): SnailWins[] {
   return raceDay.snails.map(({ id, name }) => ({
@@ -28,12 +28,12 @@ export function winsSummary(wins: readonly SnailWins[]): string {
     .sort((a, b) => b.wins - a.wins)
     .map(({ name, wins: n }, i) =>
       i === 0
-        ? `${name} won ${n} ${n === 1 ? "race" : "races"}`
+        ? `${name} ganó ${n} ${n === 1 ? "carrera" : "carreras"}`
         : `${name} ${n}`,
     );
   const losers = wins.filter((snail) => snail.wins === 0).map((s) => s.name);
   const first = `${list.format(winners)}.`;
   return losers.length === 0
     ? first
-    : `${first} ${list.format(losers)} did not win.`;
+    : `${first} ${list.format(losers)} ${losers.length === 1 ? "no ganó" : "no ganaron"}.`;
 }

@@ -12,13 +12,17 @@ export async function signUp(
     password: "correct horse battery staple",
   };
   await page.goto("/sign-up");
-  await page.getByLabel("Full name", { exact: true }).fill(values.fullName);
-  await page.getByLabel("Email", { exact: true }).fill(values.email);
-  await page.getByLabel("Password", { exact: true }).fill(values.password);
   await page
-    .getByLabel("Confirm password", { exact: true })
+    .getByLabel("Nombre completo", { exact: true })
+    .fill(values.fullName);
+  await page
+    .getByLabel("Correo electrónico", { exact: true })
+    .fill(values.email);
+  await page.getByLabel("Contraseña", { exact: true }).fill(values.password);
+  await page
+    .getByLabel("Confirma la contraseña", { exact: true })
     .fill(values.password);
-  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByRole("button", { name: "Crear cuenta" }).click();
   await page.waitForURL("**/dashboard");
   return values;
 }

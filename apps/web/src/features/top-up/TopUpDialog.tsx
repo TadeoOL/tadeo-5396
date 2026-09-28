@@ -30,7 +30,7 @@ function alertOf(topUp: TopUp | undefined): TopUpAlert | null {
       tone: "destructive",
       icon: X,
       title: copy.title,
-      body: "Your balance did not change. " + copy.body,
+      body: "Tu saldo no cambió. " + copy.body,
     };
   if (topUp.outcome === "failed")
     return {
@@ -119,7 +119,7 @@ export function TopUpDialog(props: {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-full md:w-auto">Top up</Button>
+        <Button className="w-full md:w-auto">Recargar</Button>
       </DialogTrigger>
       <DialogContent
         className="sm:max-w-md"

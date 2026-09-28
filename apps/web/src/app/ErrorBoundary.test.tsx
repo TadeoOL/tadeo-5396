@@ -38,7 +38,7 @@ const damageAnasLedger = () => {
 const unreadableHeading = () =>
   screen.findByRole("heading", {
     level: 1,
-    name: "Your saved data can't be read",
+    name: "No se pueden leer tus datos guardados",
   });
 
 test("shows the unreadable local data screen when the Users registry is invalid", async () => {
@@ -49,13 +49,15 @@ test("shows the unreadable local data screen when the Users registry is invalid"
   expect(heading).toHaveFocus();
   expect(
     screen.getByText(
-      "The data this browser keeps for Snailrace is damaged, so we won't guess your balance. Resetting removes every account and top-up saved in this browser.",
+      "Los datos que este navegador guarda para Snailrace están dañados, así que no vamos a adivinar tu saldo. Al restablecerlos se eliminan todas las cuentas y recargas guardadas en este navegador.",
     ),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Reset local data" }),
+    screen.getByRole("button", { name: "Restablecer datos locales" }),
   ).toBeInTheDocument();
-  expect(document.title).toBe("Your saved data can't be read · Snailrace");
+  expect(document.title).toBe(
+    "No se pueden leer tus datos guardados · Snailrace",
+  );
   expect(getBackend().getItem("snailrace.v1.users")).toBe("not json");
 });
 
@@ -64,7 +66,7 @@ test("shows it when the signed-in User's ledger breaks the invariant", async () 
   at("/dashboard");
   render(<App />);
   expect(await unreadableHeading()).toBeInTheDocument();
-  expect(screen.queryByText("Hi, Ana López")).not.toBeInTheDocument();
+  expect(screen.queryByText("Hola, Ana López")).not.toBeInTheDocument();
 });
 
 test("Reset local data removes every snailrace.v1. key and lands on sign-in", async () => {
@@ -75,10 +77,10 @@ test("Reset local data removes every snailrace.v1. key and lands on sign-in", as
   render(<App />);
   await unreadableHeading();
   await userEvent.click(
-    screen.getByRole("button", { name: "Reset local data" }),
+    screen.getByRole("button", { name: "Restablecer datos locales" }),
   );
   expect(
-    await screen.findByRole("heading", { level: 1, name: "Sign in" }),
+    await screen.findByRole("heading", { level: 1, name: "Iniciar sesión" }),
   ).toBeInTheDocument();
   expect(window.location.pathname).toBe("/sign-in");
   expect(getBackend().length).toBe(1);
@@ -98,14 +100,16 @@ test("shows the error screen when a render throws", async () => {
   expect(
     await screen.findByRole("heading", {
       level: 1,
-      name: "Something went wrong",
+      name: "Algo salió mal",
     }),
   ).toBeInTheDocument();
   expect(
     screen.getByText(
-      "The page hit an unexpected error. Your balance and top-ups are safe in this browser.",
+      "La página tuvo un error inesperado. Tu saldo y tus recargas están a salvo en este navegador.",
     ),
   ).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
-  expect(document.title).toBe("Something went wrong · Snailrace");
+  expect(
+    screen.getByRole("button", { name: "Recargar la página" }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Algo salió mal · Snailrace");
 });

@@ -20,13 +20,13 @@ export function RaceBoards({ userId }: { userId: string }) {
         aria-labelledby="wins-heading"
         className="px-4 py-6 md:col-span-2 md:px-6"
       >
-        <h3 id="wins-heading">Wins today</h3>
-        <p className="text-sm text-muted-foreground">6 races, 6 snails</p>
+        <h3 id="wins-heading">Victorias de hoy</h3>
+        <p className="text-sm text-muted-foreground">6 carreras, 6 caracoles</p>
         {raceDay.isPending ? (
           <Skeleton className="mt-3 h-45 w-full motion-reduce:animate-none" />
         ) : raceDay.isError ? (
           <ChartError
-            title="Couldn't load today's races."
+            title="No se pudieron cargar las carreras de hoy."
             retrying={raceDay.isFetching}
             onRetry={() => void raceDay.refetch()}
           />
@@ -38,15 +38,15 @@ export function RaceBoards({ userId }: { userId: string }) {
         aria-labelledby="bets-heading"
         className="border-t-[1.5px] border-dashed px-4 py-6 md:border-t-0 md:border-l-[1.5px] md:px-6"
       >
-        <h3 id="bets-heading">Your bets today</h3>
+        <h3 id="bets-heading">Tus apuestas de hoy</h3>
         <p className="text-sm text-muted-foreground">
-          Simulated, no money involved
+          Simuladas, sin dinero real
         </p>
         {bets.isPending ? (
           <Skeleton className="mx-auto mt-3 size-35 rounded-full motion-reduce:animate-none" />
         ) : bets.isError ? (
           <ChartError
-            title="Couldn't load your bets."
+            title="No se pudieron cargar tus apuestas."
             retrying={bets.isFetching}
             onRetry={() => void bets.refetch()}
           />
@@ -68,7 +68,7 @@ function ChartError(props: {
       <TriangleAlert />
       <AlertTitle>{props.title}</AlertTitle>
       <AlertDescription>
-        Check your connection and try again.
+        Revisa tu conexión e intenta de nuevo.
         <Button
           variant="outline"
           size="sm"
@@ -76,7 +76,7 @@ function ChartError(props: {
           disabled={props.retrying}
           onClick={props.onRetry}
         >
-          Try again
+          Intentar de nuevo
         </Button>
       </AlertDescription>
     </Alert>
