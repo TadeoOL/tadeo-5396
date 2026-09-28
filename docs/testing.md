@@ -214,7 +214,7 @@ Playwright runs with `retries: 0`: a flaky test gets fixed, not retried.
 | A failure never changes the Balance and never produces a false success | Tier 1 ledger (only `credited` credits, once); Reconciliation mapping (unreadable means Unknown, never Credited) |
 | Card number and CVV in responses and localStorage, always fictitious | Tier 1 catalog numbers echoed, others masked |
 | Timeout handling | Tier 1 delayed Scenario and Reconciliation; tier 2 `fetch` wrapper timeout; tier 3 Unknown |
-| Reproduce each SnailPay response | Tier 1 runs every row of the [reproduction table](specs/snailpay-api.md#reproduction-table-seed) |
+| Reproduce each SnailPay response | Tier 1 runs every row of the [Scenario table](../README.md#reproduce-snailpay-responses) |
 
 ## Not tested, and why
 
