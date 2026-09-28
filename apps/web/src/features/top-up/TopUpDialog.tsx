@@ -62,6 +62,9 @@ export function TopUpDialog(props: {
 
   const mutation = useMutation({
     retry: 0,
+    // Offline, TanStack would hold the Charge and send it whenever the tab is back online.
+    // Send it now: a network error makes the Top-up Unknown.
+    networkMode: "always",
     mutationFn: async ({
       id,
       charge,
@@ -70,9 +73,15 @@ export function TopUpDialog(props: {
       charge: ChargeRequest;
     }) => {
       const settlement = outcomeOfCharge(await createCharge(charge, id), id);
-      settleTopUp(user.id, id, settlement.outcome, settlement.charge);
+      const settled = settleTopUp(
+        user.id,
+        id,
+        settlement.outcome,
+        settlement.charge,
+      );
       if (settlement.outcome === "unknown") reconcile(user.id, id);
-      return settlement;
+      // Only the tab that settles the Top-up announces it.
+      return settled ? settlement : null;
     },
   });
 
@@ -99,8 +108,10 @@ export function TopUpDialog(props: {
         },
       },
       {
-        onSuccess: (settled) =>
-          announceOutcome({ amountCents: values.amountCents, ...settled }),
+        onSuccess: (settled) => {
+          if (settled)
+            announceOutcome({ amountCents: values.amountCents, ...settled });
+        },
       },
     );
   }

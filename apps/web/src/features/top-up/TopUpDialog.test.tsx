@@ -1,10 +1,14 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  onlineManager,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { Toaster } from "@/components/ui/sonner";
 import { setBackend } from "@/storage/backend";
-import { readLedger } from "@/storage/ledger";
+import { readLedger, settleTopUp } from "@/storage/ledger";
 import { createMemoryStorage } from "@/storage/memory-storage";
 import { TopUpDialog } from "./TopUpDialog";
 
@@ -283,6 +287,65 @@ test("shows the Confirming panel when SnailPay doesn't answer in time", async ()
   const [topUp, ...rest] = readLedger(user.id).topUps;
   expect(rest).toEqual([]);
   expect(topUp?.outcome).toBe("unknown");
+});
+
+test("sends the Charge while the browser is offline and leaves the Top-up Unknown", async () => {
+  const fetchMock = stubFetch((input) =>
+    input === "/api/snailpay/charges"
+      ? Promise.reject(new TypeError("Failed to fetch"))
+      : new Promise<Response>(() => {}),
+  );
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  await fill(ue);
+  const button = screen.getByRole("button", { name: "Top up $150.00" });
+  await waitFor(() => expect(button).toBeEnabled());
+  onlineManager.setOnline(false);
+  try {
+    await ue.click(button);
+    expect(
+      await screen.findByRole("heading", { name: "Confirming your payment" }),
+    ).toBeInTheDocument();
+    expect(chargeCalls(fetchMock)).toHaveLength(1);
+    expect(readLedger(user.id).topUps.map((t) => t.outcome)).toEqual([
+      "unknown",
+    ]);
+  } finally {
+    onlineManager.setOnline(true);
+  }
+});
+
+test("announces only an outcome this tab settled", async () => {
+  stubFetch((input, init) => {
+    if (input !== "/api/snailpay/charges")
+      return new Promise<Response>(() => {});
+    // Another tab's Reconciliation credits the Top-up before this POST times out.
+    settleTopUp(user.id, keyOf(init), "credited", {
+      ...approvedExample,
+      status: "approved",
+      status_detail: "accredited",
+      reference: keyOf(init),
+    });
+    return Promise.reject(
+      new DOMException("The operation timed out.", "TimeoutError"),
+    );
+  });
+  const ue = userEvent.setup();
+  renderDialog();
+  await open(ue);
+  // Sonner keeps earlier tests' toasts, so count instead of asserting absence.
+  const warnings = () => screen.queryAllByText("Payment not confirmed yet");
+  const before = warnings().length;
+  await pay(ue);
+  expect(
+    await screen.findByRole("heading", { name: "Payment approved" }),
+  ).toBeInTheDocument();
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  expect(warnings()).toHaveLength(before);
+  expect(readLedger(user.id).topUps.map((t) => t.outcome)).toEqual([
+    "credited",
+  ]);
 });
 
 test("reports a storage write failure and sends no Charge", async () => {
