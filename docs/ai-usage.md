@@ -45,3 +45,15 @@ Every working session appends one entry: tool, purpose, what it produced, and ho
   - Over two question rounds, ten decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
   - The maintainer confirmed the summary before any file was written.
   - The decisions were cross-checked against the requirements brief and the research write-ups on payment gateways and hosting.
+
+## 2026-09-28 — Simulated race-day and bet data
+
+- **Tool**: Claude Code (Claude Opus 5.5) with the `wayfinder`, `grilling` and `domain-modeling` skills.
+- **Purpose**: resolve the ticket "Specify simulated race-day and bet data: generation, congruence and caching".
+- **Produced**:
+  - `docs/specs/simulated-data.md`.
+  - The ticket's resolution comment.
+- **Validation**:
+  - Over two question rounds, eleven decisions were put to the maintainer with a recommendation, and the maintainer accepted each one.
+  - The maintainer confirmed the summary before any file was written.
+  - The spec was cross-checked against the glossary and the state-and-persistence spec: Race Days and Bets are not persisted, and the `userId` is a UUID.
