@@ -11,6 +11,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ScenarioCard } from "@snailrace/contracts";
 import { formatMxn } from "@/lib/format";
 import {
   parseAmountCents,
@@ -26,11 +27,19 @@ export type TopUpAlert = {
   body: string;
 };
 
+const CARD_LABELS: Record<ScenarioCard, string> = {
+  "1234123412341234": "Approved",
+  "1234123412340002": "Declined: insufficient funds",
+  "1234123412340003": "Declined: security",
+  "1234123412340004": "No answer in time (timeout)",
+};
+
 export function TopUpForm(props: {
   defaultName: string;
   processing: boolean;
   submitDisabled: boolean;
   alert: TopUpAlert | null;
+  mismatchedField: "cardNumber" | "expiry" | "cvv" | null;
   server: "waking" | "unreachable" | "ready";
   onRetryServer: () => void;
   onSubmit: (values: TopUpFormValues) => void;
@@ -55,6 +64,14 @@ export function TopUpForm(props: {
     },
   });
   useEffect(() => setFocus("amount"), [setFocus]);
+  const { mismatchedField } = props;
+  useEffect(() => {
+    if (mismatchedField)
+      setError(mismatchedField, {
+        type: "mismatch",
+        message: "Doesn't match this card.",
+      });
+  }, [mismatchedField, setError]);
   const cents = parseAmountCents(useWatch({ control, name: "amount" }));
 
   const amount = register("amount");
@@ -223,6 +240,17 @@ export function TopUpForm(props: {
           {label}
         </Button>
       </div>
+      <details>
+        <summary>Test cards</summary>
+        <p>All use expiry 12/26 and CVV 543.</p>
+        <ul>
+          {ScenarioCard.options.map((number) => (
+            <li key={number}>
+              {number.replace(/(\d{4})(?=\d)/g, "$1 ")} · {CARD_LABELS[number]}
+            </li>
+          ))}
+        </ul>
+      </details>
     </form>
   );
 }
