@@ -148,7 +148,7 @@ The response document must declare this split.
 - The Wins bar chart and the Bets donut: shadcn `Chart` configured with the silks, the value labels, the hatch and the text summaries.
 - The Balance display and the header bar with the wordmark.
 
-**Template**: none. No page template or UI generator was used. The prototype was written by hand with AI help, as logged in [`ai-usage.md`](../ai-usage.md).
+**Template**: none. No page template or UI generator was used. The prototype was written by hand with AI help, as described in [`ai-usage.md`](../ai-usage.md).
 
 ## Handoffs
 
