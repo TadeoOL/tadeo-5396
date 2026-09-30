@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { createServer, type Server } from "node:http";
 import { ChargeResponse, ErrorEnvelope, Uuid } from "@snailrace/contracts";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -19,9 +20,16 @@ const BODY = {
   payer_email: "ana@example.com",
 };
 
-function setup(sleep: Sleep = vi.fn((_ms: number) => Promise.resolve())) {
+const servers: Server[] = [];
+
+// Listen on 127.0.0.1 ourselves: request(app) listens on the [::] wildcard and
+// sends to 127.0.0.1, so on macOS another process holding 127.0.0.1 on that
+// same ephemeral port answers instead (issue #66).
+async function setup(sleep: Sleep = vi.fn((_ms: number) => Promise.resolve())) {
   const chargeStore = createChargeStore();
-  const app = createApp(createTestDeps({ chargeStore, sleep }));
+  const app = createServer(createApp(createTestDeps({ chargeStore, sleep })));
+  await new Promise<void>((resolve) => app.listen(0, "127.0.0.1", resolve));
+  servers.push(app);
   const post = (body: object | string, key: string | null = randomUUID()) => {
     const req = request(app).post(PATH).set("Content-Type", "application/json");
     if (key !== null) req.set("X-Idempotency-Key", key);
@@ -30,14 +38,19 @@ function setup(sleep: Sleep = vi.fn((_ms: number) => Promise.resolve())) {
   return { app, chargeStore, sleep, post };
 }
 
-afterEach(() => {
+afterEach(async () => {
   vi.restoreAllMocks();
+  await Promise.all(
+    servers
+      .splice(0)
+      .map((server) => new Promise((resolve) => server.close(resolve))),
+  );
 });
 
 describe("POST /api/snailpay/charges", () => {
   it("approves the approval card with 201 and the full Charge shape", async () => {
     const sleep = vi.fn((_ms: number) => Promise.resolve());
-    const { post } = setup(sleep);
+    const { post } = await setup(sleep);
     const res = await post(BODY, KEY);
     expect(res.status).toBe(201);
     const body = ChargeResponse.parse(res.body);
@@ -67,7 +80,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("declines each bad_filled Scenario with 402 and stores it", async () => {
-    const { post, chargeStore } = setup();
+    const { post, chargeStore } = await setup();
     const cases = [
       [
         { card_number: "1111222233334444" },
@@ -93,7 +106,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("declines insufficient funds and high risk with 402", async () => {
-    const { post } = setup();
+    const { post } = await setup();
     for (const [card, detail] of [
       ["1234123412340002", "cc_rejected_insufficient_amount"],
       ["1234123412340003", "cc_rejected_high_risk"],
@@ -105,7 +118,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("evaluates the catalog in order", async () => {
-    const { post } = setup();
+    const { post } = await setup();
     const cases = [
       [
         {
@@ -132,7 +145,7 @@ describe("POST /api/snailpay/charges", () => {
 
   it("approves the timeout card after sleeping 30000 ms", async () => {
     const sleep = vi.fn((_ms: number) => Promise.resolve());
-    const { post } = setup(sleep);
+    const { post } = await setup(sleep);
     const res = await post({ ...BODY, card_number: "1234123412340004" });
     expect(res.status).toBe(201);
     expect(ChargeResponse.parse(res.body).status).toBe("approved");
@@ -147,7 +160,7 @@ describe("POST /api/snailpay/charges", () => {
           release = resolve;
         }),
     );
-    const { post } = setup(sleep);
+    const { post } = await setup(sleep);
     const body = { ...BODY, card_number: "1234123412340004" };
     const first = post(body, KEY).then((r) => r);
     await vi.waitFor(() => {
@@ -165,7 +178,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("masks a card number outside the catalog and drops its CVV", async () => {
-    const { post, chargeStore } = setup();
+    const { post, chargeStore } = await setup();
     const masked = {
       card_number: "111122******4444",
       expiration_date: "12/26",
@@ -185,7 +198,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("answers 400 for a missing or non-UUID X-Idempotency-Key", async () => {
-    const { post, chargeStore } = setup();
+    const { post, chargeStore } = await setup();
     const res = await post(BODY, null);
     expect(res.status).toBe(400);
     expect(ChargeResponse.parse(res.body)).toMatchObject({
@@ -202,7 +215,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("answers 400 in the Charge shape for malformed JSON and for a body over 10 kb", async () => {
-    const { post } = setup();
+    const { post } = await setup();
     const res = await post("{", KEY);
     expect(res.status).toBe(400);
     expect(ChargeResponse.parse(res.body)).toEqual({
@@ -236,7 +249,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("lists every broken format rule in errors[]", async () => {
-    const { post } = setup();
+    const { post } = await setup();
     const res = await post({
       card_number: "1234 1234 1234 1234",
       expiration_date: "13/26",
@@ -260,6 +273,7 @@ describe("POST /api/snailpay/charges", () => {
     expect(body.transaction_amount).toBe(0);
     for (const amount of [1000001, 150.5]) {
       const r = await post({ ...BODY, transaction_amount: amount });
+      expect(r.status).toBe(400);
       expect(ChargeResponse.parse(r.body).errors?.map((e) => e.field)).toEqual([
         "transaction_amount",
       ]);
@@ -267,7 +281,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("stores no 400, so the same key works once the input is fixed", async () => {
-    const { post } = setup();
+    const { post } = await setup();
     expect((await post({ ...BODY, security_code: "54" }, KEY)).status).toBe(
       400,
     );
@@ -277,7 +291,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("replays the same key and payload with Idempotent-Replayed", async () => {
-    const { post } = setup();
+    const { post } = await setup();
     const first = await post(BODY, KEY);
     const second = await post(BODY, KEY);
     expect([first.status, second.status]).toEqual([201, 201]);
@@ -304,7 +318,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("answers 422 for the same key with another payload and keeps the original", async () => {
-    const { post } = setup();
+    const { post } = await setup();
     const first = await post(BODY, KEY);
     expect(first.status).toBe(201);
     const reused = await post({ ...BODY, transaction_amount: 20000 }, KEY);
@@ -324,7 +338,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("limits each IP to 10 Charges a minute", async () => {
-    const { post, chargeStore } = setup();
+    const { post, chargeStore } = await setup();
     for (let i = 0; i < 10; i++) expect((await post(BODY)).status).toBe(201);
     const key = randomUUID();
     const res = await post(BODY, key);
@@ -341,7 +355,7 @@ describe("POST /api/snailpay/charges", () => {
   });
 
   it("answers an unexpected error with 500 in the Charge shape", async () => {
-    const { app, chargeStore } = setup();
+    const { app, chargeStore } = await setup();
     vi.spyOn(chargeStore, "set").mockImplementation(() => {
       throw new Error("boom");
     });
@@ -369,8 +383,8 @@ describe("POST /api/snailpay/charges", () => {
 
 const UNKNOWN = "0b7e2f0e-6a1d-4f7b-9d43-2a1c5e9f8b10";
 
-function outageSetup() {
-  const ctx = setup();
+async function outageSetup() {
+  const ctx = await setup();
   const lookup = (reference?: string) =>
     request(ctx.app)
       .get(PATH)
@@ -385,7 +399,7 @@ function outageSetup() {
 
 describe("GET /api/snailpay/charges and the Outage", () => {
   it("looks a Charge up by reference", async () => {
-    const { post, lookup } = outageSetup();
+    const { post, lookup } = await outageSetup();
     const created = await post(BODY, KEY);
     const res = await lookup(KEY);
     expect(res.status).toBe(200);
@@ -399,7 +413,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("answers 404 charge_not_found for an unknown reference", async () => {
-    const { lookup } = outageSetup();
+    const { lookup } = await outageSetup();
     const res = await lookup(UNKNOWN);
     expect(res.status).toBe(404);
     expect(res.body).toEqual({
@@ -422,7 +436,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("answers 400 for a missing or non-UUID reference", async () => {
-    const { lookup } = outageSetup();
+    const { lookup } = await outageSetup();
     const res = await lookup("nope");
     expect(res.status).toBe(400);
     expect(ChargeResponse.parse(res.body)).toMatchObject({
@@ -437,7 +451,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("switches the Outage on and off", async () => {
-    const { app, outage } = outageSetup();
+    const { app, outage } = await outageSetup();
     const get = () => request(app).get("/api/snailpay/outage");
     expect((await get()).status).toBe(200);
     expect((await get()).body).toEqual({ active: false });
@@ -449,7 +463,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("rejects any other Outage body with 400 in the error envelope", async () => {
-    const { outage } = outageSetup();
+    const { outage } = await outageSetup();
     for (const body of [
       { active: "yes" },
       {},
@@ -463,7 +477,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("answers 503 with Retry-After on both Charge routes during the Outage", async () => {
-    const { post, lookup, outage } = outageSetup();
+    const { post, lookup, outage } = await outageSetup();
     await outage({ active: true });
     const res = await post(BODY, KEY);
     expect(res.status).toBe(503);
@@ -488,7 +502,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("stores nothing during the Outage", async () => {
-    const { post, lookup, outage } = outageSetup();
+    const { post, lookup, outage } = await outageSetup();
     await outage({ active: true });
     expect((await post(BODY, KEY)).status).toBe(503);
     await outage({ active: false });
@@ -499,7 +513,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("answers 503 for a stored key during the Outage and replays it after", async () => {
-    const { post, outage } = outageSetup();
+    const { post, outage } = await outageSetup();
     const first = await post(BODY, KEY);
     expect(first.status).toBe(201);
     await outage({ active: true });
@@ -514,7 +528,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("keeps format errors and the health check during the Outage", async () => {
-    const { app, post, outage } = outageSetup();
+    const { app, post, outage } = await outageSetup();
     await outage({ active: true });
     const res = await post({ ...BODY, security_code: "54" });
     expect(res.status).toBe(400);
@@ -527,7 +541,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("limits each IP to 60 lookups a minute", async () => {
-    const { lookup } = outageSetup();
+    const { lookup } = await outageSetup();
     for (let i = 0; i < 60; i++)
       expect((await lookup(UNKNOWN)).status).toBe(404);
     const res = await lookup(UNKNOWN);
@@ -541,7 +555,7 @@ describe("GET /api/snailpay/charges and the Outage", () => {
   });
 
   it("answers an unexpected lookup error with 500 in the Charge shape", async () => {
-    const { lookup, chargeStore } = outageSetup();
+    const { lookup, chargeStore } = await outageSetup();
     vi.spyOn(chargeStore, "get").mockImplementation(() => {
       throw new Error("boom");
     });
