@@ -26,7 +26,7 @@ A small web app for betting on simulated snail races: Users sign up, follow a si
 - `docs/deployment.md`: hosting, serving the build and cold starts.
 - `docs/delivery.md`: README sections, the Scenario table and the hygiene pass.
 - `docs/db-proposal.md`: the database proposal (not implemented).
-- `docs/ai-usage.md`: the AI usage log, one entry per session.
+- `docs/ai-usage.md`: how AI was used to plan, document and build the project.
 - `docs/roadmap.md`: the index of the roadmap issues.
 
 The docs are the source of truth. Read only the sections your issue links.
@@ -97,7 +97,6 @@ Several agents work at once, each in its own git worktree (Orca creates one per 
 - [ ] Tests are in the same commit as the code they cover.
 - [ ] The README sections the issue changes are updated, including **its own line in Status**, which must match the code exactly. Skip the Status line only when the issue changes nothing a User can see.
 - [ ] If the implementation had to deviate from a spec, the spec is updated in the same PR and the PR body says so.
-- [ ] One entry is appended to `docs/ai-usage.md`, following that file's format, including the `Time` line.
 - [ ] The PR is merged after `ci` is green, and the issue is closed by `Closes #<n>`.
 
 ## When something is missing

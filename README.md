@@ -113,7 +113,7 @@ Sending the same key and body again returns the stored response with `Idempotent
 - [`docs/adr/`](docs/adr/): architecture decisions, such as the browser as the ledger and TypeScript run through Node's type stripping.
 - [`docs/specs/`](docs/specs/): the specs for auth, the frontend stack, security, the simulated data, the SnailPay API, state and persistence, and Top-up reliability.
 - [`docs/design/`](docs/design/): the screens and their copy, the visual direction, the theme tokens and the prototypes.
-- [`docs/ai-usage.md`](docs/ai-usage.md): the AI usage log, one entry per session.
+- [`docs/ai-usage.md`](docs/ai-usage.md): how AI was used to plan, document and build the project.
 - [`docs/architecture.md`](docs/architecture.md): packages, layering, shared contracts, configuration, errors and logging.
 - [`docs/conventions.md`](docs/conventions.md): the Git workflow, commits, pull requests, code style, toolchain and CI.
 - [`docs/db-proposal.md`](docs/db-proposal.md): a database proposal, not implemented.

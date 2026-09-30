@@ -56,7 +56,7 @@ The brief's rules apply: Arial 10 pt, standard line spacing, at most 4 pages plu
 | 3 | Tests and why | [Testing strategy](testing.md): the risk tiers and the requirement map |
 | 4 | Finished features | The README Status section |
 | 4 | Incomplete features and known issues | The README Status section and the documented limits in [security](specs/security.md#documented-only) and [deployment](deployment.md#for-the-response-document) |
-| 4 | Approximate time spent | The `Time` lines in [`ai-usage.md`](ai-usage.md) |
+| 4 | Approximate time spent | The maintainer's estimate |
 | 4 | Repository link | — |
 | 5 | Optional: deployment | [For the response document](deployment.md#for-the-response-document) |
 | 6 | Optional: database proposal | [`db-proposal.md`](db-proposal.md) |
@@ -65,7 +65,7 @@ The Scenario table is not copied into the PDF; the document points to the README
 
 ### Time spent
 
-From this entry on, every [`ai-usage.md`](ai-usage.md) entry carries a `Time` line. The maintainer estimates the earlier planning sessions when writing the response document.
+The maintainer estimates the time spent when writing the response document.
 
 ## Hygiene pass
 
